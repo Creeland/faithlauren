@@ -34,8 +34,8 @@ export default async function GalleriesPage() {
               href={`/admin/galleries/${gallery.id}`}
               className="block p-4 hover:bg-accent-subtle transition-colors"
             >
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4">
+                <div className="min-w-0">
                   <p className="font-medium text-sm">{gallery.title}</p>
                   <p className="text-xs text-stone-500 mt-1">
                     {gallery._count.photos} photo
@@ -43,7 +43,7 @@ export default async function GalleriesPage() {
                     Password: <MaskedPassword password={gallery.password} />
                   </p>
                 </div>
-                <p className="text-xs text-stone-400">
+                <p className="text-xs text-stone-400 shrink-0">
                   /gallery/{gallery.slug}
                 </p>
               </div>

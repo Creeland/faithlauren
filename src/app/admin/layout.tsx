@@ -1,6 +1,7 @@
 import { verifyAdmin } from "@/lib/dal"
 import { logout } from "@/app/actions/auth"
 import Link from "next/link"
+import { AdminMobileNav } from "./mobile-nav"
 
 export default async function AdminLayout({
   children,
@@ -10,9 +11,12 @@ export default async function AdminLayout({
   const session = await verifyAdmin()
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
-      <aside className="w-56 border-r border-stone-200 dark:border-stone-800 p-6 flex flex-col">
+    <div className="min-h-screen bg-background md:flex">
+      {/* Mobile top bar + drawer */}
+      <AdminMobileNav email={session.user.email ?? ""} />
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-56 shrink-0 border-r border-stone-200 dark:border-stone-800 p-6 flex-col">
         <Link
           href="/admin"
           className="text-lg tracking-widest uppercase font-light mb-8"
@@ -65,7 +69,7 @@ export default async function AdminLayout({
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 min-w-0 p-4 sm:p-6 md:p-8">{children}</main>
     </div>
   )
 }

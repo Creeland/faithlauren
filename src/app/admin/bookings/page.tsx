@@ -23,7 +23,7 @@ export default async function BookingsPage({
     <div>
       <h1 className="text-2xl font-light tracking-tight mb-8">Bookings</h1>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto">
         {statusFilters.map((s) => {
           const href =
             s === "ALL" ? "/admin/bookings" : `/admin/bookings?status=${s.toLowerCase()}`
@@ -55,14 +55,14 @@ export default async function BookingsPage({
               href={`/admin/bookings/${booking.id}`}
               className="block p-4 hover:bg-accent-subtle transition-colors"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">{booking.name}</p>
-                  <p className="text-xs text-stone-500 mt-0.5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{booking.name}</p>
+                  <p className="text-xs text-stone-500 mt-0.5 truncate">
                     {booking.sessionType} &middot; {booking.email}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <span
                     className={`text-xs px-2 py-0.5 rounded ${
                       booking.status === "PENDING"

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import type { Gallery, Photo } from "@prisma/client"
+import Image from "next/image"
 import { verifyAdmin } from "@/lib/dal"
 import { regeneratePassword } from "@/app/actions/gallery"
 import { deletePhoto } from "@/app/actions/photo"
@@ -37,16 +38,16 @@ export default async function EditGalleryPage({
 
       {/* Password section */}
       <div className="border border-stone-200 dark:border-stone-800 p-4 mb-8">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-sm text-stone-500 mb-1">Client Link & Password</p>
-            <p className="text-sm">
-              <CopyableUrl url={`${protocol}://${host}/gallery/${gallery.slug}`} />{" "}
-              &middot; Password:{" "}
-              <CopyableUrl url={gallery.password} />
-            </p>
+            <div className="text-sm flex flex-wrap items-center gap-x-1.5 gap-y-1">
+              <CopyableUrl url={`${protocol}://${host}/gallery/${gallery.slug}`} />
+              <span className="text-stone-400">&middot;</span>
+              <span>Password:{" "}<CopyableUrl url={gallery.password} /></span>
+            </div>
           </div>
-          <form action={regeneratePassword}>
+          <form action={regeneratePassword} className="shrink-0">
             <input type="hidden" name="id" value={gallery.id} />
             <button
               type="submit"
@@ -73,16 +74,19 @@ export default async function EditGalleryPage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
             {gallery.photos.map((photo) => (
               <div key={photo.id} className="relative group">
-                <div className="aspect-square overflow-hidden bg-stone-100 dark:bg-stone-800">
-                  <img
+                <div className="relative aspect-square overflow-hidden bg-stone-100 dark:bg-stone-800">
+                  <Image
                     src={photo.url}
                     alt={photo.caption || photo.filename}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                    className="object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <form
                   action={deletePhoto}
-                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                 >
                   <input type="hidden" name="id" value={photo.id} />
                   <button

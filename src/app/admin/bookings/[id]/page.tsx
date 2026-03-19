@@ -30,9 +30,9 @@ export default async function BookingDetailPage({
       </h1>
 
       <div className="space-y-3 text-sm mb-8">
-        <div className="flex justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
-          <span className="text-stone-500">Email</span>
-          <span>{booking.email}</span>
+        <div className="flex justify-between gap-4 border-b border-stone-100 dark:border-stone-800 pb-2">
+          <span className="text-stone-500 shrink-0">Email</span>
+          <span className="truncate">{booking.email}</span>
         </div>
         {booking.phone && (
           <div className="flex justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
@@ -76,7 +76,7 @@ export default async function BookingDetailPage({
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {booking.status !== "APPROVED" && (
           <form action={updateBookingStatus}>
             <input type="hidden" name="id" value={booking.id} />
