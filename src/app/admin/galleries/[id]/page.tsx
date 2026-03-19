@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
-import { deleteGallery, regeneratePassword } from "@/app/actions/gallery"
+import { regeneratePassword } from "@/app/actions/gallery"
 import { deletePhoto } from "@/app/actions/photo"
 import { EditGalleryForm } from "./edit-form"
+import { DeleteGalleryButton } from "./delete-gallery-button"
 import { PhotoUploader } from "./photo-uploader"
 
 export default async function EditGalleryPage({
@@ -25,20 +26,7 @@ export default async function EditGalleryPage({
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-light tracking-tight">{gallery.title}</h1>
-        <form action={deleteGallery}>
-          <input type="hidden" name="id" value={gallery.id} />
-          <button
-            type="submit"
-            className="text-sm text-red-600 hover:text-red-700 transition-colors"
-            onClick={(e) => {
-              if (!confirm("Delete this gallery and all its photos?")) {
-                e.preventDefault()
-              }
-            }}
-          >
-            Delete Gallery
-          </button>
-        </form>
+        <DeleteGalleryButton galleryId={gallery.id} />
       </div>
 
       {/* Password section */}
