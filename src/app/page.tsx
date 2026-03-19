@@ -1,65 +1,235 @@
-import Image from "next/image";
+import { ThemeToggle } from "./theme-toggle"
+import { MobileMenu } from "./mobile-menu"
 
 export default function Home() {
+  const work = [
+    {
+      src: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&h=750&fit=crop&q=80",
+      title: "Portrait",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=750&fit=crop&q=80",
+      title: "Wedding",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&h=750&fit=crop&q=80",
+      title: "Family",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1502258097612-43e695deebad?w=600&h=750&fit=crop&q=80",
+      title: "Lifestyle",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1600601622243-f32c30680b0b?w=600&h=750&fit=crop&q=80",
+      title: "Boudoir",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1611000273610-f4fb9c7fd0be?w=600&h=750&fit=crop&q=80",
+      title: "Sports",
+    },
+  ]
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
+    <div className="flex flex-col min-h-screen">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+
+      {/* Navigation */}
+      <header>
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-stone-200 dark:border-stone-800">
+          <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="#"
+              className="text-lg tracking-widest uppercase font-light"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
+              Faith Lauren
+            </a>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <nav
+                aria-label="Main navigation"
+                className="hidden sm:flex items-center gap-8 text-sm tracking-wide text-stone-600 dark:text-stone-400"
+              >
+                <a
+                  href="#work"
+                  className="hover:text-accent transition-colors py-2"
+                >
+                  Work
+                </a>
+                <a
+                  href="#about"
+                  className="hover:text-accent transition-colors py-2"
+                >
+                  About
+                </a>
+              </nav>
+              <ThemeToggle />
+              <a
+                href="#contact"
+                className="hidden sm:inline-block bg-accent text-white px-5 py-2.5 text-sm tracking-wide hover:bg-accent-hover transition-colors"
+              >
+                Book a Session
+              </a>
+              <MobileMenu />
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        {/* Hero */}
+        <section className="pt-28 pb-16 sm:pt-44 sm:pb-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="max-w-2xl">
+              <h1 className="text-3xl sm:text-5xl font-light tracking-tight leading-[1.15] mb-5 sm:mb-6">
+                Portraits, weddings, and
+                <br className="hidden sm:block" /> the moments that matter.
+              </h1>
+              <p className="text-stone-600 dark:text-stone-400 sm:text-lg leading-relaxed mb-8 sm:mb-10 max-w-md">
+                Photography by Faith Lauren. Based in North Texas, available
+                everywhere.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <a
+                  href="#contact"
+                  className="bg-accent text-white px-8 py-3.5 sm:py-3 text-sm tracking-wide text-center hover:bg-accent-hover transition-colors"
+                >
+                  Book a Session
+                </a>
+                <a
+                  href="#work"
+                  className="border border-stone-300 dark:border-stone-700 px-8 py-3.5 sm:py-3 text-sm tracking-wide text-center text-stone-600 dark:text-stone-400 hover:border-accent hover:text-accent transition-colors"
+                >
+                  View Work
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Work — varied grid */}
+        <section id="work" className="pb-24 sm:pb-32 px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-xl font-light tracking-tight text-stone-500 dark:text-stone-400 mb-8 border-l-2 border-accent pl-4">
+              Selected Work
+            </h2>
+
+            {/* Feature row: 2 large images */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+              {work.slice(0, 2).map((item) => (
+                <a
+                  key={item.title}
+                  href="#"
+                  className="group block overflow-hidden"
+                >
+                  <div className="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                    <img
+                      src={item.src}
+                      alt={`${item.title} photography by Faith Lauren`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="mt-2.5 text-sm text-stone-500 dark:text-stone-400">
+                    {item.title}
+                  </p>
+                </a>
+              ))}
+            </div>
+
+            {/* Secondary row: 4 smaller images */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              {work.slice(2).map((item) => (
+                <a
+                  key={item.title}
+                  href="#"
+                  className="group block overflow-hidden"
+                >
+                  <div className="aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                    <img
+                      src={item.src}
+                      alt={`${item.title} photography by Faith Lauren`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="mt-2.5 text-xs sm:text-sm text-stone-500 dark:text-stone-400">
+                    {item.title}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* About */}
+        <section id="about" className="py-16 sm:py-28 px-6 bg-accent-subtle">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-16 items-center">
+            <div className="md:col-span-2 aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=800&fit=crop&q=80"
+                alt="Faith Lauren, photographer"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div className="md:col-span-3">
+              <h2 className="text-2xl sm:text-3xl font-light tracking-tight mb-5">
+                About Faith
+              </h2>
+              <p className="text-stone-600 dark:text-stone-400 leading-relaxed mb-8 max-w-lg">
+                I&apos;m driven by natural light and authentic moments. My work
+                spans portraits, weddings, editorial, and fine art. The best
+                photographs happen when people feel comfortable being
+                themselves.
+              </p>
+              <a
+                href="#contact"
+                className="inline-block border border-stone-300 dark:border-stone-700 px-8 py-3.5 sm:py-3 text-sm tracking-wide hover:border-accent hover:text-accent transition-colors"
+              >
+                Get in Touch
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact */}
+        <section id="contact" className="py-20 sm:py-40 px-6">
+          <div className="max-w-lg mx-auto text-center">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight mb-4">
+              Book a Session
+            </h2>
+            <p className="text-stone-600 dark:text-stone-400 mb-8 sm:mb-10 leading-relaxed">
+              Portraits, weddings, or creative collaborations &mdash; let&apos;s
+              make something together.
+            </p>
             <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="mailto:faith@provinsal.com"
+              className="inline-block bg-accent text-white px-10 py-4 text-sm tracking-wide hover:bg-accent-hover transition-colors"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+              faith@provinsal.com
+            </a>
+            <div className="flex justify-center gap-6 sm:gap-8 mt-10 sm:mt-12 text-sm text-stone-500 dark:text-stone-500">
+              <a href="#" className="py-2 hover:text-accent transition-colors">
+                Instagram
+              </a>
+              <a href="#" className="py-2 hover:text-accent transition-colors">
+                Pinterest
+              </a>
+              <a href="#" className="py-2 hover:text-accent transition-colors">
+                TikTok
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-stone-200 dark:border-stone-800 py-6 px-6">
+        <p className="max-w-6xl mx-auto text-sm text-stone-400">
+          &copy; 2026 Faith Lauren Photography
+        </p>
+      </footer>
     </div>
-  );
+  )
 }
