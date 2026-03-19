@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import type { Gallery, Photo } from "@prisma/client"
 import { verifyAdmin } from "@/lib/dal"
 import { regeneratePassword } from "@/app/actions/gallery"
 import { deletePhoto } from "@/app/actions/photo"
@@ -15,7 +16,7 @@ export default async function EditGalleryPage({
   await verifyAdmin()
   const { id } = await params
 
-  const gallery = await prisma.gallery.findUnique({
+  const gallery: (Gallery & { photos: Photo[] }) | null = await prisma.gallery.findUnique({
     where: { id },
     include: { photos: { orderBy: { sortOrder: "asc" } } },
   })

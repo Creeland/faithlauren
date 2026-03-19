@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { cookies } from "next/headers"
 import { prisma } from "@/lib/prisma"
+import type { Gallery, Photo } from "@prisma/client"
 import { AlbumPasswordForm } from "./password-form"
 
 export default async function GalleryPage({
@@ -10,7 +11,7 @@ export default async function GalleryPage({
 }) {
   const { slug } = await params
 
-  const gallery = await prisma.gallery.findUnique({
+  const gallery: (Gallery & { photos: Photo[] }) | null = await prisma.gallery.findUnique({
     where: { slug },
     include: { photos: { orderBy: { sortOrder: "asc" } } },
   })

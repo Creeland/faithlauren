@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
+import type { Gallery } from "@prisma/client"
 import Link from "next/link"
 
 export default async function GalleriesPage() {
   await verifyAdmin()
 
-  const galleries = await prisma.gallery.findMany({
+  const galleries: (Gallery & { _count: { photos: number } })[] = await prisma.gallery.findMany({
     include: { _count: { select: { photos: true } } },
     orderBy: { createdAt: "desc" },
   })

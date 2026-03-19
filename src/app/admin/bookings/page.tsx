@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
+import type { Booking } from "@prisma/client"
 import Link from "next/link"
 
 export default async function BookingsPage({
@@ -11,7 +12,7 @@ export default async function BookingsPage({
   const { status } = await searchParams
 
   const where = status ? { status: status.toUpperCase() } : {}
-  const bookings = await prisma.booking.findMany({
+  const bookings: Booking[] = await prisma.booking.findMany({
     where,
     orderBy: { createdAt: "desc" },
   })
