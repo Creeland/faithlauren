@@ -145,7 +145,7 @@ export async function verifyAlbumPassword(
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 30, // 30 days
-    path: `/gallery/${slug}`,
+    path: `/`,
   })
 
   revalidatePath(`/gallery/${slug}`)
