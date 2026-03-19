@@ -180,7 +180,7 @@ export default async function Home() {
           <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-16 items-center">
             <div className="md:col-span-2 aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=800&fit=crop&q=80"
+                src="/faith.jpg"
                 alt="Faith Lauren, photographer"
                 className="w-full h-full object-cover"
                 loading="lazy"
