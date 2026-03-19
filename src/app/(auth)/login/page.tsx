@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
+import Link from "next/link"
 import { login, type LoginState } from "@/app/actions/auth"
 
 export default function LoginPage() {
@@ -18,7 +19,7 @@ export default function LoginPage() {
 
         <form action={action} className="space-y-4">
           {state?.error && (
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
+            <div role="alert" className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
               {state.error}
             </div>
           )}
@@ -35,7 +36,7 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+              className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
             />
           </div>
 
@@ -51,7 +52,7 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
-              className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+              className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
             />
           </div>
 
@@ -65,12 +66,12 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center mt-6">
-          <a
+          <Link
             href="/"
             className="text-sm text-stone-500 hover:text-accent transition-colors"
           >
             &larr; Back to site
-          </a>
+          </Link>
         </p>
       </div>
     </div>

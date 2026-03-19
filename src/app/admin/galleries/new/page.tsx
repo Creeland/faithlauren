@@ -15,7 +15,7 @@ export default function NewGalleryPage() {
 
       <form action={action} className="space-y-4">
         {state?.error && (
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
+          <div role="alert" className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
             {state.error}
           </div>
         )}
@@ -31,7 +31,7 @@ export default function NewGalleryPage() {
             id="title"
             name="title"
             required
-            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
           {state?.errors?.title && (
             <p className="text-red-600 text-xs mt-1">{state.errors.title}</p>
@@ -49,7 +49,7 @@ export default function NewGalleryPage() {
             id="description"
             name="description"
             rows={3}
-            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
         </div>
 

@@ -40,7 +40,7 @@ export function BookingForm() {
   return (
     <form action={action} className="space-y-4">
       {state?.error && (
-        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
+        <div role="alert" className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
           {state.error}
         </div>
       )}
@@ -57,7 +57,7 @@ export function BookingForm() {
             id="name"
             name="name"
             required
-            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
           {state?.errors?.name && (
             <p className="text-red-600 text-xs mt-1">{state.errors.name}</p>
@@ -76,7 +76,7 @@ export function BookingForm() {
             name="email"
             type="email"
             required
-            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
           {state?.errors?.email && (
             <p className="text-red-600 text-xs mt-1">{state.errors.email}</p>
@@ -96,7 +96,7 @@ export function BookingForm() {
             id="phone"
             name="phone"
             type="tel"
-            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
         </div>
 
@@ -111,7 +111,7 @@ export function BookingForm() {
             id="sessionType"
             name="sessionType"
             required
-            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+            className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           >
             <option value="">Select...</option>
             {sessionTypes.map((type) => (
@@ -139,7 +139,7 @@ export function BookingForm() {
           id="date"
           name="date"
           type="date"
-          className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+          className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
         />
       </div>
 
@@ -154,7 +154,7 @@ export function BookingForm() {
           id="message"
           name="message"
           rows={4}
-          className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-accent"
+          className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           placeholder="Tell me about what you have in mind..."
         />
       </div>
