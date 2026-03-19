@@ -72,6 +72,7 @@ model Photo {
   id        String   @id @default(cuid())
   url       String
   filename  String
+  fileKey   String?
   caption   String?
   sortOrder Int      @default(0)
   galleryId String

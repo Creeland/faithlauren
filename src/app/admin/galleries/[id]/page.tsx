@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { headers } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import type { Gallery, Photo } from "@prisma/client"
 import { verifyAdmin } from "@/lib/dal"
@@ -7,6 +8,7 @@ import { deletePhoto } from "@/app/actions/photo"
 import { EditGalleryForm } from "./edit-form"
 import { DeleteGalleryButton } from "./delete-gallery-button"
 import { PhotoUploader } from "./photo-uploader"
+import { CopyableUrl } from "./copyable-url"
 
 export default async function EditGalleryPage({
   params,
@@ -15,6 +17,9 @@ export default async function EditGalleryPage({
 }) {
   await verifyAdmin()
   const { id } = await params
+  const headersList = await headers()
+  const host = headersList.get("host") || "localhost:3000"
+  const protocol = headersList.get("x-forwarded-proto") || "http"
 
   const gallery: (Gallery & { photos: Photo[] }) | null = await prisma.gallery.findUnique({
     where: { id },
@@ -36,13 +41,9 @@ export default async function EditGalleryPage({
           <div>
             <p className="text-sm text-stone-500 mb-1">Client Link & Password</p>
             <p className="text-sm">
-              <code className="bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded">
-                /gallery/{gallery.slug}
-              </code>{" "}
+              <CopyableUrl url={`${protocol}://${host}/gallery/${gallery.slug}`} />{" "}
               &middot; Password:{" "}
-              <code className="bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded font-mono">
-                {gallery.password}
-              </code>
+              <CopyableUrl url={gallery.password} />
             </p>
           </div>
           <form action={regeneratePassword}>

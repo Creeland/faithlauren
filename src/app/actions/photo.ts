@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
+import { UTApi } from "uploadthing/server"
+
+const utapi = new UTApi()
 
 export async function deletePhoto(formData: FormData) {
   await verifyAdmin()
@@ -10,6 +13,9 @@ export async function deletePhoto(formData: FormData) {
   const photo = await prisma.photo.findUnique({ where: { id } })
 
   if (photo) {
+    if (photo.fileKey) {
+      await utapi.deleteFiles(photo.fileKey)
+    }
     await prisma.photo.delete({ where: { id } })
     revalidatePath(`/admin/galleries/${photo.galleryId}`)
   }

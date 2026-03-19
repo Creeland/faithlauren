@@ -7,6 +7,9 @@ import { cookies } from "next/headers"
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
+import { UTApi } from "uploadthing/server"
+
+const utapi = new UTApi()
 
 function generatePassword() {
   return crypto.randomBytes(4).toString("hex")
@@ -94,6 +97,16 @@ export async function updateGallery(
 export async function deleteGallery(formData: FormData) {
   await verifyAdmin()
   const id = formData.get("id") as string
+
+  const photos = await prisma.photo.findMany({
+    where: { galleryId: id },
+    select: { fileKey: true },
+  })
+  const fileKeys = photos.map((p) => p.fileKey).filter(Boolean) as string[]
+  if (fileKeys.length > 0) {
+    await utapi.deleteFiles(fileKeys)
+  }
+
   await prisma.gallery.delete({ where: { id } })
   redirect("/admin/galleries")
 }
