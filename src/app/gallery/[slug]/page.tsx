@@ -2,6 +2,8 @@ import { notFound } from "next/navigation"
 import { cookies } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import type { Gallery, Photo } from "@prisma/client"
+import Image from "next/image"
+import Link from "next/link"
 import { AlbumPasswordForm } from "./password-form"
 
 export default async function GalleryPage({
@@ -50,12 +52,12 @@ export default async function GalleryPage({
     <div className="min-h-screen bg-background">
       <header className="border-b border-stone-200 dark:border-stone-800">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a
+          <Link
             href="/"
             className="text-lg tracking-widest uppercase font-light"
           >
             Faith Lauren
-          </a>
+          </Link>
           <h1 className="text-sm text-stone-500">{gallery.title}</h1>
         </div>
       </header>
@@ -100,16 +102,19 @@ export default async function GalleryPage({
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {gallery.photos.map((photo) => (
+            {gallery.photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800"
+                className="relative aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800"
               >
-                <img
+                <Image
                   src={photo.url}
                   alt={photo.caption || photo.filename}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                  className="object-cover"
+                  priority={index < 3}
+                  loading={index < 3 ? undefined : "lazy"}
                 />
               </div>
             ))}

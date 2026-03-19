@@ -2,6 +2,7 @@ import { ThemeToggle } from "./theme-toggle"
 import { MobileMenu } from "./mobile-menu"
 import { auth } from "@/auth"
 import Link from "next/link"
+import Image from "next/image"
 import { BookingForm } from "./booking-form"
 
 export default async function Home() {
@@ -42,49 +43,49 @@ export default async function Home() {
 
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-stone-200 dark:border-stone-800">
-          <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link
-              href="/"
-              className="text-lg tracking-widest uppercase font-light"
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link
+            href="/"
+            className="text-lg tracking-widest uppercase font-light"
+          >
+            Faith Lauren
+          </Link>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <nav
+              aria-label="Main navigation"
+              className="hidden sm:flex items-center gap-8 text-sm tracking-wide text-stone-600 dark:text-stone-400"
             >
-              Faith Lauren
-            </Link>
-            <div className="flex items-center gap-4 sm:gap-6">
-              <nav
-                aria-label="Main navigation"
-                className="hidden sm:flex items-center gap-8 text-sm tracking-wide text-stone-600 dark:text-stone-400"
-              >
-                <a
-                  href="#work"
-                  className="hover:text-accent transition-colors py-2"
-                >
-                  Work
-                </a>
-                <a
-                  href="#about"
-                  className="hover:text-accent transition-colors py-2"
-                >
-                  About
-                </a>
-                {session?.user && (
-                  <Link
-                    href="/admin"
-                    className="hover:text-accent transition-colors py-2"
-                  >
-                    Admin
-                  </Link>
-                )}
-              </nav>
-              <ThemeToggle />
               <a
-                href="#contact"
-                className="hidden sm:inline-block bg-accent text-white px-5 py-2.5 text-sm tracking-wide hover:bg-accent-hover transition-colors"
+                href="#work"
+                className="hover:text-accent transition-colors py-2"
               >
-                Book a Session
+                Work
               </a>
-              <MobileMenu />
-            </div>
+              <a
+                href="#about"
+                className="hover:text-accent transition-colors py-2"
+              >
+                About
+              </a>
+              {session?.user && (
+                <Link
+                  href="/admin"
+                  className="hover:text-accent transition-colors py-2"
+                >
+                  Admin
+                </Link>
+              )}
+            </nav>
+            <ThemeToggle />
+            <a
+              href="#contact"
+              className="hidden sm:inline-block bg-accent text-white px-5 py-2.5 text-sm tracking-wide hover:bg-accent-hover transition-colors"
+            >
+              Book a Session
+            </a>
+            <MobileMenu />
           </div>
+        </div>
       </header>
 
       <main id="main-content">
@@ -132,12 +133,14 @@ export default async function Home() {
                   key={item.title}
                   className="group block overflow-hidden"
                 >
-                  <div className="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-stone-100 dark:bg-stone-800">
-                    <img
+                  <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                    <Image
                       src={item.src}
                       alt={`${item.title} photography by Faith Lauren`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                      loading="lazy"
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      priority
                     />
                   </div>
                   <p className="mt-2.5 text-sm text-stone-500 dark:text-stone-400">
@@ -154,11 +157,13 @@ export default async function Home() {
                   key={item.title}
                   className="group block overflow-hidden"
                 >
-                  <div className="aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
-                    <img
+                  <div className="relative aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                    <Image
                       src={item.src}
                       alt={`${item.title} photography by Faith Lauren`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       loading="lazy"
                     />
                   </div>
@@ -174,11 +179,13 @@ export default async function Home() {
         {/* About */}
         <section id="about" className="py-16 sm:py-28 px-6 bg-accent-subtle">
           <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-16 items-center">
-            <div className="md:col-span-2 aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
-              <img
+            <div className="relative md:col-span-2 aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
+              <Image
                 src="/faith.jpg"
                 alt="Faith Lauren, photographer"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover"
                 loading="lazy"
               />
             </div>
@@ -225,10 +232,23 @@ export default async function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 dark:border-stone-800 py-6 px-6">
-        <p className="max-w-6xl mx-auto text-sm text-stone-400">
-          &copy; 2026 Faith Lauren Photography
-        </p>
+      <footer className="border-t border-stone-200 dark:border-stone-800 py-8 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-sm text-stone-400">
+            &copy; 2026 Faith Lauren Photography
+          </p>
+          <nav aria-label="Footer navigation" className="flex gap-6 text-sm text-stone-400">
+            <a href="#work" className="hover:text-accent transition-colors">
+              Work
+            </a>
+            <a href="#about" className="hover:text-accent transition-colors">
+              About
+            </a>
+            <a href="#contact" className="hover:text-accent transition-colors">
+              Contact
+            </a>
+          </nav>
+        </div>
       </footer>
     </div>
   )
