@@ -1,7 +1,12 @@
 import { ThemeToggle } from "./theme-toggle"
 import { MobileMenu } from "./mobile-menu"
+import { auth } from "@/auth"
+import Link from "next/link"
+import { BookingForm } from "./booking-form"
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth()
+
   const work = [
     {
       src: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&h=750&fit=crop&q=80",
@@ -62,6 +67,14 @@ export default function Home() {
                 >
                   About
                 </a>
+                {session?.user && (
+                  <Link
+                    href="/admin"
+                    className="hover:text-accent transition-colors py-2"
+                  >
+                    Admin
+                  </Link>
+                )}
               </nav>
               <ThemeToggle />
               <a
@@ -193,22 +206,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Contact */}
+        {/* Contact / Booking */}
         <section id="contact" className="py-20 sm:py-40 px-6">
-          <div className="max-w-lg mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight mb-4">
+          <div className="max-w-lg mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight mb-4 text-center">
               Book a Session
             </h2>
-            <p className="text-stone-600 dark:text-stone-400 mb-8 sm:mb-10 leading-relaxed">
+            <p className="text-stone-600 dark:text-stone-400 mb-8 sm:mb-10 leading-relaxed text-center">
               Portraits, weddings, or creative collaborations &mdash; let&apos;s
               make something together.
             </p>
-            <a
-              href="mailto:faith@provinsal.com"
-              className="inline-block bg-accent text-white px-10 py-4 text-sm tracking-wide hover:bg-accent-hover transition-colors"
-            >
-              faith@provinsal.com
-            </a>
+
+            <BookingForm />
+
             <div className="flex justify-center gap-6 sm:gap-8 mt-10 sm:mt-12 text-sm text-stone-500 dark:text-stone-500">
               <a href="#" className="py-2 hover:text-accent transition-colors">
                 Instagram
