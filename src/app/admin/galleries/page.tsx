@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
 import type { Gallery } from "@prisma/client"
 import Link from "next/link"
+import { MaskedPassword } from "./masked-password"
 
 export default async function GalleriesPage() {
   await verifyAdmin()
@@ -38,8 +39,8 @@ export default async function GalleriesPage() {
                   <p className="font-medium text-sm">{gallery.title}</p>
                   <p className="text-xs text-stone-500 mt-1">
                     {gallery._count.photos} photo
-                    {gallery._count.photos !== 1 ? "s" : ""} &middot;
-                    Password: <code className="bg-stone-100 dark:bg-stone-800 px-1 rounded">{gallery.password}</code>
+                    {gallery._count.photos !== 1 ? "s" : ""} &middot;{" "}
+                    Password: <MaskedPassword password={gallery.password} />
                   </p>
                 </div>
                 <p className="text-xs text-stone-400">

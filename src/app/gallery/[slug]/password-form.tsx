@@ -22,7 +22,11 @@ export function AlbumPasswordForm({ slug }: { slug: string }) {
         </div>
       )}
 
+      <label htmlFor="gallery-password" className="sr-only">
+        Gallery password
+      </label>
       <input
+        id="gallery-password"
         name="password"
         type="password"
         placeholder="Enter password"

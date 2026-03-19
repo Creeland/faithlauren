@@ -23,9 +23,16 @@ export function BookingForm() {
     return (
       <div className="text-center py-8">
         <p className="text-lg font-light mb-2">Thank you!</p>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-stone-500 mb-6">
           Your booking request has been submitted. I&apos;ll be in touch soon.
         </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="text-sm text-accent hover:text-accent-hover transition-colors"
+        >
+          Book another session
+        </button>
       </div>
     )
   }

@@ -82,7 +82,7 @@ export default async function EditGalleryPage({
                 </div>
                 <form
                   action={deletePhoto}
-                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                 >
                   <input type="hidden" name="id" value={photo.id} />
                   <button

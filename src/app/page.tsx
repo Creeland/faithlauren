@@ -41,15 +41,14 @@ export default async function Home() {
       </a>
 
       {/* Navigation */}
-      <header>
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-stone-200 dark:border-stone-800">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-stone-200 dark:border-stone-800">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a
-              href="#"
+            <Link
+              href="/"
               className="text-lg tracking-widest uppercase font-light"
             >
               Faith Lauren
-            </a>
+            </Link>
             <div className="flex items-center gap-4 sm:gap-6">
               <nav
                 aria-label="Main navigation"
@@ -86,7 +85,6 @@ export default async function Home() {
               <MobileMenu />
             </div>
           </div>
-        </nav>
       </header>
 
       <main id="main-content">
@@ -130,9 +128,8 @@ export default async function Home() {
             {/* Feature row: 2 large images */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
               {work.slice(0, 2).map((item) => (
-                <a
+                <div
                   key={item.title}
-                  href="#"
                   className="group block overflow-hidden"
                 >
                   <div className="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-stone-100 dark:bg-stone-800">
@@ -146,16 +143,15 @@ export default async function Home() {
                   <p className="mt-2.5 text-sm text-stone-500 dark:text-stone-400">
                     {item.title}
                   </p>
-                </a>
+                </div>
               ))}
             </div>
 
             {/* Secondary row: 4 smaller images */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {work.slice(2).map((item) => (
-                <a
+                <div
                   key={item.title}
-                  href="#"
                   className="group block overflow-hidden"
                 >
                   <div className="aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
@@ -169,7 +165,7 @@ export default async function Home() {
                   <p className="mt-2.5 text-xs sm:text-sm text-stone-500 dark:text-stone-400">
                     {item.title}
                   </p>
-                </a>
+                </div>
               ))}
             </div>
           </div>
@@ -220,15 +216,9 @@ export default async function Home() {
             <BookingForm />
 
             <div className="flex justify-center gap-6 sm:gap-8 mt-10 sm:mt-12 text-sm text-stone-500 dark:text-stone-500">
-              <a href="#" className="py-2 hover:text-accent transition-colors">
-                Instagram
-              </a>
-              <a href="#" className="py-2 hover:text-accent transition-colors">
-                Pinterest
-              </a>
-              <a href="#" className="py-2 hover:text-accent transition-colors">
-                TikTok
-              </a>
+              <span className="py-2">Instagram</span>
+              <span className="py-2">Pinterest</span>
+              <span className="py-2">TikTok</span>
             </div>
           </div>
         </section>

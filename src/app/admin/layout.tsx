@@ -20,7 +20,7 @@ export default async function AdminLayout({
           Faith Lauren
         </Link>
 
-        <nav className="flex flex-col gap-1 text-sm flex-1">
+        <nav aria-label="Admin navigation" className="flex flex-col gap-1 text-sm flex-1">
           <Link
             href="/admin"
             className="px-3 py-2 rounded hover:bg-accent-light transition-colors"
