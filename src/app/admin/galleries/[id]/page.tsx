@@ -5,10 +5,11 @@ import type { Gallery, Photo } from "@prisma/client"
 import Image from "next/image"
 import { verifyAdmin } from "@/lib/dal"
 import { regeneratePassword } from "@/app/actions/gallery"
-import { deletePhoto } from "@/app/actions/photo"
+import { deletePhoto, deleteAllPhotos } from "@/app/actions/photo"
 import { EditGalleryForm } from "./edit-form"
 import { DeleteGalleryButton } from "./delete-gallery-button"
 import { PhotoUploader } from "./photo-uploader"
+import { DeleteAllPhotosButton } from "./delete-all-photos-button"
 import { CopyableUrl } from "./copyable-url"
 
 export default async function EditGalleryPage({
@@ -64,9 +65,14 @@ export default async function EditGalleryPage({
 
       {/* Photos */}
       <div className="mt-10">
-        <h2 className="text-lg font-light tracking-tight mb-4">
-          Photos ({gallery.photos.length})
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-light tracking-tight">
+            Photos ({gallery.photos.length})
+          </h2>
+          {gallery.photos.length > 0 && (
+            <DeleteAllPhotosButton galleryId={gallery.id} />
+          )}
+        </div>
 
         <PhotoUploader galleryId={gallery.id} />
 

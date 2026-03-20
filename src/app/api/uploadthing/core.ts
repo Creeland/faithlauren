@@ -9,7 +9,7 @@ export const uploadRouter = {
   galleryPhoto: f({
     image: {
       maxFileSize: "16MB",
-      maxFileCount: 40,
+      maxFileCount: 20,
     },
   })
     .input(z.object({ galleryId: z.string() }))
@@ -24,26 +24,25 @@ export const uploadRouter = {
       })
       if (!gallery) throw new Error("Gallery not found")
 
-      const currentMax = await prisma.photo.aggregate({
-        where: { galleryId: input.galleryId },
-        _max: { sortOrder: true },
-      })
-
-      return {
-        galleryId: input.galleryId,
-        nextSortOrder: (currentMax._max.sortOrder ?? -1) + 1,
-      }
+      return { galleryId: input.galleryId }
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      await prisma.photo.create({
-        data: {
-          url: file.ufsUrl,
-          fileKey: file.key,
-          filename: file.name,
-          galleryId: metadata.galleryId,
-          sortOrder: metadata.nextSortOrder,
-        },
+      const photo = await prisma.$transaction(async (tx) => {
+        const currentMax = await tx.photo.aggregate({
+          where: { galleryId: metadata.galleryId },
+          _max: { sortOrder: true },
+        })
+        return tx.photo.create({
+          data: {
+            url: file.ufsUrl,
+            fileKey: file.key,
+            filename: file.name,
+            galleryId: metadata.galleryId,
+            sortOrder: (currentMax._max.sortOrder ?? -1) + 1,
+          },
+        })
       })
+      return { id: photo.id, filename: file.name }
     }),
 } satisfies FileRouter
 

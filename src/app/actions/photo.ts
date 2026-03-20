@@ -21,6 +21,29 @@ export async function deletePhoto(formData: FormData) {
   }
 }
 
+export async function deleteAllPhotos(formData: FormData) {
+  await verifyAdmin()
+  const galleryId = formData.get("galleryId") as string
+
+  const photos = await prisma.photo.findMany({
+    where: { galleryId },
+    select: { fileKey: true },
+  })
+
+  const fileKeys = photos.map((p) => p.fileKey).filter(Boolean) as string[]
+  if (fileKeys.length > 0) {
+    await utapi.deleteFiles(fileKeys)
+  }
+
+  await prisma.photo.deleteMany({ where: { galleryId } })
+  revalidatePath(`/admin/galleries/${galleryId}`)
+}
+
+export async function getPhotoCount(galleryId: string): Promise<number> {
+  await verifyAdmin()
+  return prisma.photo.count({ where: { galleryId } })
+}
+
 export async function reorderPhotos(formData: FormData) {
   await verifyAdmin()
   const order = JSON.parse(formData.get("order") as string) as {
