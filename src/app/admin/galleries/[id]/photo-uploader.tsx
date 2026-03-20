@@ -97,7 +97,7 @@ export function PhotoUploader({ galleryId }: { galleryId: string }) {
 
   return (
     <div className="space-y-4">
-      <label className="inline-block cursor-pointer border border-dashed border-stone-300 dark:border-stone-700 px-6 py-3 text-sm text-stone-500 hover:border-accent hover:text-accent transition-colors">
+      <label className="inline-block cursor-pointer border border-dashed border-stone-300 px-6 py-3 text-sm text-stone-500 hover:border-accent hover:text-accent transition-colors">
         {isUploading ? "Uploading..." : "Upload Photos"}
         <input
           type="file"
@@ -124,7 +124,7 @@ export function PhotoUploader({ galleryId }: { galleryId: string }) {
             .map((f) => (
               <div key={f.name} className="flex items-center gap-2 text-xs">
                 <span className="truncate w-40">{f.name}</span>
-                <div className="flex-1 bg-stone-200 dark:bg-stone-800 rounded h-1.5">
+                <div className="flex-1 bg-stone-200 rounded h-1.5">
                   <div
                     className="bg-accent h-1.5 rounded transition-all"
                     style={{ width: `${f.progress}%` }}

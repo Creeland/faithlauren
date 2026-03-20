@@ -14,13 +14,13 @@ export function MaskedPassword({ password }: { password: string }) {
 
   return (
     <span className="inline-flex items-center gap-1.5">
-      <code className="bg-stone-100 dark:bg-stone-800 px-1 rounded">
+      <code className="bg-stone-100 px-1 rounded">
         {visible ? password : "••••••••"}
       </code>
       <button
         type="button"
         onClick={() => setVisible(!visible)}
-        className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+        className="text-stone-400 hover:text-stone-600 transition-colors"
         aria-label={visible ? "Hide password" : "Show password"}
       >
         {visible ? (
@@ -39,7 +39,7 @@ export function MaskedPassword({ password }: { password: string }) {
       <button
         type="button"
         onClick={copy}
-        className="text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+        className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
         aria-label="Copy password"
       >
         {copied ? "Copied" : "Copy"}

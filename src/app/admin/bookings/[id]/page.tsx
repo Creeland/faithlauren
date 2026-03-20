@@ -30,42 +30,42 @@ export default async function BookingDetailPage({
       </h1>
 
       <div className="space-y-3 text-sm mb-8">
-        <div className="flex justify-between gap-4 border-b border-stone-100 dark:border-stone-800 pb-2">
+        <div className="flex justify-between gap-4 border-b border-stone-100 pb-2">
           <span className="text-stone-500 shrink-0">Email</span>
           <span className="truncate">{booking.email}</span>
         </div>
         {booking.phone && (
-          <div className="flex justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
+          <div className="flex justify-between border-b border-stone-100 pb-2">
             <span className="text-stone-500">Phone</span>
             <span>{booking.phone}</span>
           </div>
         )}
-        <div className="flex justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
+        <div className="flex justify-between border-b border-stone-100 pb-2">
           <span className="text-stone-500">Session type</span>
           <span>{booking.sessionType}</span>
         </div>
         {booking.date && (
-          <div className="flex justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
+          <div className="flex justify-between border-b border-stone-100 pb-2">
             <span className="text-stone-500">Preferred date</span>
             <span>{booking.date}</span>
           </div>
         )}
-        <div className="flex justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
+        <div className="flex justify-between border-b border-stone-100 pb-2">
           <span className="text-stone-500">Status</span>
           <span
             className={`px-2 py-0.5 rounded text-xs ${
               booking.status === "PENDING"
-                ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300"
+                ? "bg-yellow-100 text-yellow-700"
                 : booking.status === "APPROVED"
-                  ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
-                  : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
             }`}
           >
             {booking.status}
           </span>
         </div>
         {booking.message && (
-          <div className="border-b border-stone-100 dark:border-stone-800 pb-2">
+          <div className="border-b border-stone-100 pb-2">
             <p className="text-stone-500 mb-1">Message</p>
             <p className="whitespace-pre-wrap">{booking.message}</p>
           </div>

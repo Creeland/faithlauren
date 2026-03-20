@@ -1,4 +1,3 @@
-import { ThemeToggle } from "./theme-toggle"
 import { MobileMenu } from "./mobile-menu"
 import { auth } from "@/auth"
 import Link from "next/link"
@@ -42,7 +41,7 @@ export default async function Home() {
       </a>
 
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-stone-200 dark:border-stone-800">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-stone-200">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
             href="/"
@@ -53,7 +52,7 @@ export default async function Home() {
           <div className="flex items-center gap-4 sm:gap-6">
             <nav
               aria-label="Main navigation"
-              className="hidden sm:flex items-center gap-8 text-sm tracking-wide text-stone-600 dark:text-stone-400"
+              className="hidden sm:flex items-center gap-8 text-sm tracking-wide text-stone-600"
             >
               <a
                 href="#work"
@@ -76,7 +75,6 @@ export default async function Home() {
                 </Link>
               )}
             </nav>
-            <ThemeToggle />
             <a
               href="#contact"
               className="hidden sm:inline-block bg-accent text-white px-5 py-2.5 text-sm tracking-wide hover:bg-accent-hover transition-colors"
@@ -97,7 +95,7 @@ export default async function Home() {
                 Portraits, weddings, and
                 <br className="hidden sm:block" /> the moments that matter.
               </h1>
-              <p className="text-stone-600 dark:text-stone-400 sm:text-lg leading-relaxed mb-8 sm:mb-10 max-w-md">
+              <p className="text-stone-600 sm:text-lg leading-relaxed mb-8 sm:mb-10 max-w-md">
                 Photography by Faith Lauren. Based in North Texas, available
                 everywhere.
               </p>
@@ -110,7 +108,7 @@ export default async function Home() {
                 </a>
                 <a
                   href="#work"
-                  className="border border-stone-300 dark:border-stone-700 px-8 py-3.5 sm:py-3 text-sm tracking-wide text-center text-stone-600 dark:text-stone-400 hover:border-accent hover:text-accent transition-colors"
+                  className="border border-stone-300 px-8 py-3.5 sm:py-3 text-sm tracking-wide text-center text-stone-600 hover:border-accent hover:text-accent transition-colors"
                 >
                   View Work
                 </a>
@@ -122,7 +120,7 @@ export default async function Home() {
         {/* Work — varied grid */}
         <section id="work" className="pb-24 sm:pb-32 px-6">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-xl font-light tracking-tight text-stone-500 dark:text-stone-400 mb-8 border-l-2 border-accent pl-4">
+            <h2 className="text-xl font-light tracking-tight text-stone-500 mb-8 border-l-2 border-accent pl-4">
               Selected Work
             </h2>
 
@@ -133,7 +131,7 @@ export default async function Home() {
                   key={item.title}
                   className="group block overflow-hidden"
                 >
-                  <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                  <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-stone-100">
                     <Image
                       src={item.src}
                       alt={`${item.title} photography by Faith Lauren`}
@@ -143,7 +141,7 @@ export default async function Home() {
                       priority
                     />
                   </div>
-                  <p className="mt-2.5 text-sm text-stone-500 dark:text-stone-400">
+                  <p className="mt-2.5 text-sm text-stone-500">
                     {item.title}
                   </p>
                 </div>
@@ -157,7 +155,7 @@ export default async function Home() {
                   key={item.title}
                   className="group block overflow-hidden"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-stone-100">
                     <Image
                       src={item.src}
                       alt={`${item.title} photography by Faith Lauren`}
@@ -167,7 +165,7 @@ export default async function Home() {
                       loading="lazy"
                     />
                   </div>
-                  <p className="mt-2.5 text-xs sm:text-sm text-stone-500 dark:text-stone-400">
+                  <p className="mt-2.5 text-xs sm:text-sm text-stone-500">
                     {item.title}
                   </p>
                 </div>
@@ -179,7 +177,7 @@ export default async function Home() {
         {/* About */}
         <section id="about" className="py-16 sm:py-28 px-6 bg-accent-subtle">
           <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-16 items-center">
-            <div className="relative md:col-span-2 aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800">
+            <div className="relative md:col-span-2 aspect-[3/4] overflow-hidden bg-stone-100">
               <Image
                 src="/faith.jpg"
                 alt="Faith Lauren, photographer"
@@ -193,7 +191,7 @@ export default async function Home() {
               <h2 className="text-2xl sm:text-3xl font-light tracking-tight mb-5">
                 About Faith
               </h2>
-              <p className="text-stone-600 dark:text-stone-400 leading-relaxed mb-8 max-w-lg">
+              <p className="text-stone-600 leading-relaxed mb-8 max-w-lg">
                 I&apos;m driven by natural light and authentic moments. My work
                 spans portraits, weddings, editorial, and fine art. The best
                 photographs happen when people feel comfortable being
@@ -201,7 +199,7 @@ export default async function Home() {
               </p>
               <a
                 href="#contact"
-                className="inline-block border border-stone-300 dark:border-stone-700 px-8 py-3.5 sm:py-3 text-sm tracking-wide hover:border-accent hover:text-accent transition-colors"
+                className="inline-block border border-stone-300 px-8 py-3.5 sm:py-3 text-sm tracking-wide hover:border-accent hover:text-accent transition-colors"
               >
                 Get in Touch
               </a>
@@ -215,14 +213,14 @@ export default async function Home() {
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight mb-4 text-center">
               Book a Session
             </h2>
-            <p className="text-stone-600 dark:text-stone-400 mb-8 sm:mb-10 leading-relaxed text-center">
+            <p className="text-stone-600 mb-8 sm:mb-10 leading-relaxed text-center">
               Portraits, weddings, or creative collaborations &mdash; let&apos;s
               make something together.
             </p>
 
             <BookingForm />
 
-            <div className="flex justify-center gap-6 sm:gap-8 mt-10 sm:mt-12 text-sm text-stone-500 dark:text-stone-500">
+            <div className="flex justify-center gap-6 sm:gap-8 mt-10 sm:mt-12 text-sm text-stone-500">
               <span className="py-2">Instagram</span>
               <span className="py-2">Pinterest</span>
               <span className="py-2">TikTok</span>
@@ -232,7 +230,7 @@ export default async function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 dark:border-stone-800 py-8 px-6">
+      <footer className="border-t border-stone-200 py-8 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-sm text-stone-400">
             &copy; 2026 Faith Lauren Photography

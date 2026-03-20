@@ -36,7 +36,7 @@ export default async function BookingsPage({
               className={`text-xs px-3 py-1.5 border transition-colors ${
                 isActive
                   ? "border-accent text-accent"
-                  : "border-stone-200 dark:border-stone-800 text-stone-500 hover:border-accent hover:text-accent"
+                  : "border-stone-200 text-stone-500 hover:border-accent hover:text-accent"
               }`}
             >
               {s[0] + s.slice(1).toLowerCase()}
@@ -48,7 +48,7 @@ export default async function BookingsPage({
       {bookings.length === 0 ? (
         <p className="text-stone-500 text-sm">No bookings found.</p>
       ) : (
-        <div className="border border-stone-200 dark:border-stone-800 divide-y divide-stone-200 dark:divide-stone-800">
+        <div className="border border-stone-200 divide-y divide-stone-200">
           {bookings.map((booking) => (
             <Link
               key={booking.id}
@@ -66,10 +66,10 @@ export default async function BookingsPage({
                   <span
                     className={`text-xs px-2 py-0.5 rounded ${
                       booking.status === "PENDING"
-                        ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300"
+                        ? "bg-yellow-100 text-yellow-700"
                         : booking.status === "APPROVED"
-                          ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
-                          : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                     }`}
                   >
                     {booking.status}

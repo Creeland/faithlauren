@@ -50,7 +50,7 @@ export default async function GalleryPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-stone-200 dark:border-stone-800">
+      <header className="border-b border-stone-200">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
             href="/"
@@ -64,7 +64,7 @@ export default async function GalleryPage({
 
       <main className="max-w-6xl mx-auto px-6 py-10">
         {gallery.description && (
-          <p className="text-stone-600 dark:text-stone-400 mb-8 max-w-lg">
+          <p className="text-stone-600 mb-8 max-w-lg">
             {gallery.description}
           </p>
         )}
@@ -73,7 +73,7 @@ export default async function GalleryPage({
           <div className="mb-8">
             <a
               href={`/api/gallery/${slug}/download`}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-stone-300 hover:bg-stone-100 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +105,7 @@ export default async function GalleryPage({
             {gallery.photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="relative aspect-[3/4] overflow-hidden bg-stone-100 dark:bg-stone-800"
+                className="relative aspect-[3/4] overflow-hidden bg-stone-100"
               >
                 <Image
                   src={photo.url}

@@ -14,7 +14,7 @@ export function CopyableUrl({ url }: { url: string }) {
   return (
     <button
       onClick={copy}
-      className="inline-flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded text-sm hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+      className="inline-flex items-center gap-1.5 bg-stone-100 px-2 py-0.5 rounded text-sm hover:bg-stone-200 transition-colors cursor-pointer"
       title="Click to copy"
     >
       <code>{url}</code>

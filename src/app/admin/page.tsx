@@ -38,7 +38,7 @@ export default async function AdminDashboard() {
           <Link
             key={card.label}
             href={card.href}
-            className="border border-stone-200 dark:border-stone-800 p-6 hover:border-accent transition-colors"
+            className="border border-stone-200 p-6 hover:border-accent transition-colors"
           >
             <p className="text-3xl font-light mb-1">{card.count}</p>
             <p className="text-sm text-stone-500">{card.label}</p>

@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
   --background: #fafaf9;
   --foreground: #1c1917;
@@ -11,15 +9,6 @@
   --accent-subtle: oklch(96% 0.02 25);
 }
 
-.dark {
-  --background: #0c0a09;
-  --foreground: #e7e5e4;
-  --accent: oklch(72% 0.1 25);
-  --accent-hover: oklch(78% 0.12 25);
-  --accent-light: oklch(22% 0.04 25);
-  --accent-subtle: oklch(15% 0.02 25);
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -27,14 +16,19 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-light: var(--accent-light);
   --color-accent-subtle: var(--accent-subtle);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  font-kerning: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), Georgia, "Times New Roman", serif;
 }
 
 /* Focus visible — clear ring for keyboard users, hidden for mouse */
@@ -74,4 +68,122 @@ body {
   html {
     scroll-behavior: smooth;
   }
+}
+
+/* ── Hero entrance animation ── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.25s; }
+.animate-delay-3 { animation-delay: 0.45s; }
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Button interactions ── */
+.btn-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s,
+              border-color 0.2s,
+              color 0.2s;
+}
+
+.btn-lift:hover {
+  transform: translateY(-1px);
+}
+
+.btn-lift:active {
+  transform: translateY(1px);
+}
+
+/* ── Form input focus transition ── */
+.input-focus {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-focus:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px oklch(from var(--accent) l c h / 0.12);
+}
+
+/* ── Mobile drawer ── */
+.drawer-backdrop {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.drawer-backdrop.is-open {
+  opacity: 1;
+}
+
+.drawer-panel {
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-panel.is-open {
+  transform: translateX(0);
+}
+
+/* ── Success checkmark draw ── */
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes check-circle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes check-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.check-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: check-circle 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+.check-mark {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: check-draw 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+}
+
+.success-fade-in {
+  animation: check-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
 }

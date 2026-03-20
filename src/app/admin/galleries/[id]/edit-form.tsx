@@ -20,7 +20,7 @@ export function EditGalleryForm({ gallery }: { gallery: Gallery }) {
       <input type="hidden" name="id" value={gallery.id} />
 
       {state?.error && (
-        <div role="alert" className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 text-sm">
+        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
           {state.error}
         </div>
       )}
@@ -28,7 +28,7 @@ export function EditGalleryForm({ gallery }: { gallery: Gallery }) {
       <div>
         <label
           htmlFor="title"
-          className="block text-sm text-stone-600 dark:text-stone-400 mb-1.5"
+          className="block text-sm text-stone-600 mb-1.5"
         >
           Title
         </label>
@@ -37,14 +37,14 @@ export function EditGalleryForm({ gallery }: { gallery: Gallery }) {
           name="title"
           defaultValue={gallery.title}
           required
-          className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+          className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
         />
       </div>
 
       <div>
         <label
           htmlFor="description"
-          className="block text-sm text-stone-600 dark:text-stone-400 mb-1.5"
+          className="block text-sm text-stone-600 mb-1.5"
         >
           Description
         </label>
@@ -53,7 +53,7 @@ export function EditGalleryForm({ gallery }: { gallery: Gallery }) {
           name="description"
           defaultValue={gallery.description || ""}
           rows={3}
-          className="w-full border border-stone-300 dark:border-stone-700 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+          className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
         />
       </div>
 

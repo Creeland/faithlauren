@@ -136,7 +136,7 @@ export async function verifyAlbumPassword(
   const gallery = await prisma.gallery.findUnique({ where: { slug } })
 
   if (!gallery || gallery.password !== password) {
-    return { error: "Incorrect password" }
+    return { error: "That password didn\u2019t work. Check the link your photographer sent you and try again." }
   }
 
   const cookieStore = await cookies()

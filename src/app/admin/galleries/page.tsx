@@ -27,7 +27,7 @@ export default async function GalleriesPage() {
       {galleries.length === 0 ? (
         <p className="text-stone-500 text-sm">No galleries yet.</p>
       ) : (
-        <div className="border border-stone-200 dark:border-stone-800 divide-y divide-stone-200 dark:divide-stone-800">
+        <div className="border border-stone-200 divide-y divide-stone-200">
           {galleries.map((gallery) => (
             <Link
               key={gallery.id}

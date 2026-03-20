@@ -24,7 +24,7 @@ export async function login(
   })
 
   if (!parsed.success) {
-    return { error: parsed.error.flatten().formErrors.join(", ") || "Invalid input" }
+    return { error: parsed.error.flatten().formErrors.join(", ") || "Please check your email and password." }
   }
 
   try {
@@ -35,7 +35,7 @@ export async function login(
     })
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Invalid email or password" }
+      return { error: "That email or password didn\u2019t match. Please try again." }
     }
     throw error
   }

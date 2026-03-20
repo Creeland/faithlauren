@@ -16,7 +16,7 @@ export default async function AdminLayout({
       <AdminMobileNav email={session.user.email ?? ""} />
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-56 shrink-0 border-r border-stone-200 dark:border-stone-800 p-6 flex-col">
+      <aside className="hidden md:flex w-56 shrink-0 border-r border-stone-200 p-6 flex-col">
         <Link
           href="/admin"
           className="text-lg tracking-widest uppercase font-light mb-8"
@@ -45,7 +45,7 @@ export default async function AdminLayout({
           </Link>
         </nav>
 
-        <div className="border-t border-stone-200 dark:border-stone-800 pt-4 mt-4">
+        <div className="border-t border-stone-200 pt-4 mt-4">
           <p className="text-xs text-stone-500 mb-2 truncate">
             {session.user.email}
           </p>

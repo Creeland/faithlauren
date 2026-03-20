@@ -37,7 +37,7 @@ export default async function EditGalleryPage({
       </div>
 
       {/* Password section */}
-      <div className="border border-stone-200 dark:border-stone-800 p-4 mb-8">
+      <div className="border border-stone-200 p-4 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm text-stone-500 mb-1">Client Link & Password</p>
@@ -74,7 +74,7 @@ export default async function EditGalleryPage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
             {gallery.photos.map((photo) => (
               <div key={photo.id} className="relative group">
-                <div className="relative aspect-square overflow-hidden bg-stone-100 dark:bg-stone-800">
+                <div className="relative aspect-square overflow-hidden bg-stone-100">
                   <Image
                     src={photo.url}
                     alt={photo.caption || photo.filename}

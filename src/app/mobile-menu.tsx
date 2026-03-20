@@ -68,7 +68,7 @@ export function MobileMenu() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600 dark:text-stone-400"
+        className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600"
       >
         <svg
           width="20"
@@ -89,20 +89,20 @@ export function MobileMenu() {
       {open && (
         <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Navigation menu">
           <div
-            className="absolute inset-0 bg-black/20 dark:bg-black/40"
+            className="absolute inset-0 bg-black/20"
             onClick={close}
             aria-hidden="true"
           />
           <div
             ref={drawerRef}
-            className="absolute top-0 right-0 bottom-0 w-64 bg-background border-l border-stone-200 dark:border-stone-800 p-6 flex flex-col"
+            className="absolute top-0 right-0 bottom-0 w-64 bg-background border-l border-stone-200 p-6 flex flex-col"
           >
             <div className="flex justify-end mb-8">
               <button
                 ref={closeRef}
                 onClick={close}
                 aria-label="Close menu"
-                className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600 dark:text-stone-400"
+                className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600"
               >
                 <svg
                   width="20"
@@ -123,21 +123,21 @@ export function MobileMenu() {
               <a
                 href="#work"
                 onClick={close}
-                className="py-3 text-lg text-stone-600 dark:text-stone-400 hover:text-accent transition-colors"
+                className="py-3 text-lg text-stone-600 hover:text-accent transition-colors"
               >
                 Work
               </a>
               <a
                 href="#about"
                 onClick={close}
-                className="py-3 text-lg text-stone-600 dark:text-stone-400 hover:text-accent transition-colors"
+                className="py-3 text-lg text-stone-600 hover:text-accent transition-colors"
               >
                 About
               </a>
               <a
                 href="#contact"
                 onClick={close}
-                className="py-3 text-lg text-stone-600 dark:text-stone-400 hover:text-accent transition-colors"
+                className="py-3 text-lg text-stone-600 hover:text-accent transition-colors"
               >
                 Contact
               </a>

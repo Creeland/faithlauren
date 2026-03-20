@@ -70,7 +70,7 @@ export function AdminMobileNav({ email }: { email: string }) {
   return (
     <div className="md:hidden">
       {/* Top bar */}
-      <div className="sticky top-0 z-40 bg-background border-b border-stone-200 dark:border-stone-800 px-4 h-14 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-background border-b border-stone-200 px-4 h-14 flex items-center justify-between">
         <Link
           href="/admin"
           className="text-base tracking-widest uppercase font-light"
@@ -82,7 +82,7 @@ export function AdminMobileNav({ email }: { email: string }) {
           onClick={() => setOpen(true)}
           aria-label="Open admin menu"
           aria-expanded={open}
-          className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600 dark:text-stone-400"
+          className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600"
         >
           <svg
             width="20"
@@ -105,13 +105,13 @@ export function AdminMobileNav({ email }: { email: string }) {
       {open && (
         <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Admin navigation">
           <div
-            className="absolute inset-0 bg-black/20 dark:bg-black/40"
+            className="absolute inset-0 bg-black/20"
             onClick={close}
             aria-hidden="true"
           />
           <div
             ref={drawerRef}
-            className="absolute top-0 left-0 bottom-0 w-64 bg-background border-r border-stone-200 dark:border-stone-800 p-6 flex flex-col"
+            className="absolute top-0 left-0 bottom-0 w-64 bg-background border-r border-stone-200 p-6 flex flex-col"
           >
             <div className="flex items-center justify-between mb-8">
               <span className="text-base tracking-widest uppercase font-light">
@@ -121,7 +121,7 @@ export function AdminMobileNav({ email }: { email: string }) {
                 ref={closeRef}
                 onClick={close}
                 aria-label="Close menu"
-                className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600 dark:text-stone-400"
+                className="w-10 h-10 flex items-center justify-center -mr-2 text-stone-600"
               >
                 <svg
                   width="20"
@@ -155,7 +155,7 @@ export function AdminMobileNav({ email }: { email: string }) {
               ))}
             </nav>
 
-            <div className="border-t border-stone-200 dark:border-stone-800 pt-4 mt-4">
+            <div className="border-t border-stone-200 pt-4 mt-4">
               <p className="text-xs text-stone-500 mb-2 truncate">
                 {email}
               </p>
@@ -166,7 +166,7 @@ export function AdminMobileNav({ email }: { email: string }) {
                 >
                   View site
                 </a>
-                <span className="text-xs text-stone-300 dark:text-stone-700">|</span>
+                <span className="text-xs text-stone-300">|</span>
                 <form action={logout}>
                   <button
                     type="submit"
