@@ -86,7 +86,7 @@ export default async function Home() {
         <section className="relative min-h-svh flex items-end sm:items-center">
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1552642986-ccb41e7059e7?w=1800&h=1200&fit=crop&q=85"
+              src="https://images.unsplash.com/photo-1654609566218-808ca30076ff?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Portrait session by Faith Lauren"
               fill
               sizes="100vw"
