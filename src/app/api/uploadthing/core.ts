@@ -8,7 +8,7 @@ const f = createUploadthing()
 export const uploadRouter = {
   galleryPhoto: f({
     image: {
-      maxFileSize: "16MB",
+      maxFileSize: "64MB",
       maxFileCount: 20,
     },
   })

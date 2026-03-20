@@ -5,7 +5,29 @@ import { useRouter } from "next/navigation"
 import { useUploadThing } from "@/lib/uploadthing"
 import { getPhotoCount } from "@/app/actions/photo"
 
-const BATCH_SIZE = 20
+const MAX_BATCH_BYTES = 100 * 1024 * 1024 // 100 MB cumulative
+const MAX_BATCH_COUNT = 20
+
+function buildBatches(files: File[]): File[][] {
+  const batches: File[][] = []
+  let current: File[] = []
+  let currentBytes = 0
+  for (const file of files) {
+    if (
+      current.length > 0 &&
+      (currentBytes + file.size > MAX_BATCH_BYTES ||
+        current.length >= MAX_BATCH_COUNT)
+    ) {
+      batches.push(current)
+      current = []
+      currentBytes = 0
+    }
+    current.push(file)
+    currentBytes += file.size
+  }
+  if (current.length > 0) batches.push(current)
+  return batches
+}
 
 type FileStatus = {
   name: string
@@ -46,10 +68,7 @@ export function PhotoUploader({ galleryId }: { galleryId: string }) {
       if (!selected || selected.length === 0) return
 
       const allFiles = Array.from(selected)
-      const batches: File[][] = []
-      for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
-        batches.push(allFiles.slice(i, i + BATCH_SIZE))
-      }
+      const batches = buildBatches(allFiles)
 
       // Snapshot photo count before upload for verification
       const countBefore = await getPhotoCount(galleryId)
