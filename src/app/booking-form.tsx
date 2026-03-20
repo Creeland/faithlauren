@@ -38,18 +38,19 @@ export function BookingForm() {
   }
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="flex flex-col gap-5">
       {state?.error && (
         <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
           {state.error}
         </div>
       )}
 
+      {/* Row 1: Name + Email — tightly paired */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label
             htmlFor="name"
-            className="block text-sm text-stone-600 mb-1.5"
+            className="block text-sm text-stone-500 mb-2"
           >
             Name *
           </label>
@@ -57,17 +58,17 @@ export function BookingForm() {
             id="name"
             name="name"
             required
-            className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+            className="w-full border border-stone-300 bg-background px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
           {state?.errors?.name && (
-            <p className="text-red-600 text-xs mt-1">{state.errors.name}</p>
+            <p className="text-red-600 text-xs mt-1.5">{state.errors.name}</p>
           )}
         </div>
 
         <div>
           <label
             htmlFor="email"
-            className="block text-sm text-stone-600 mb-1.5"
+            className="block text-sm text-stone-500 mb-2"
           >
             Email *
           </label>
@@ -76,19 +77,20 @@ export function BookingForm() {
             name="email"
             type="email"
             required
-            className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+            className="w-full border border-stone-300 bg-background px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
           {state?.errors?.email && (
-            <p className="text-red-600 text-xs mt-1">{state.errors.email}</p>
+            <p className="text-red-600 text-xs mt-1.5">{state.errors.email}</p>
           )}
         </div>
       </div>
 
+      {/* Row 2: Phone + Session Type — tightly paired */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label
             htmlFor="phone"
-            className="block text-sm text-stone-600 mb-1.5"
+            className="block text-sm text-stone-500 mb-2"
           >
             Phone
           </label>
@@ -96,14 +98,14 @@ export function BookingForm() {
             id="phone"
             name="phone"
             type="tel"
-            className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+            className="w-full border border-stone-300 bg-background px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           />
         </div>
 
         <div>
           <label
             htmlFor="sessionType"
-            className="block text-sm text-stone-600 mb-1.5"
+            className="block text-sm text-stone-500 mb-2"
           >
             Session Type *
           </label>
@@ -111,7 +113,7 @@ export function BookingForm() {
             id="sessionType"
             name="sessionType"
             required
-            className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+            className="w-full border border-stone-300 bg-background px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           >
             <option value="">Select...</option>
             {sessionTypes.map((type) => (
@@ -121,17 +123,18 @@ export function BookingForm() {
             ))}
           </select>
           {state?.errors?.sessionType && (
-            <p className="text-red-600 text-xs mt-1">
+            <p className="text-red-600 text-xs mt-1.5">
               {state.errors.sessionType}
             </p>
           )}
         </div>
       </div>
 
+      {/* Row 3: Date — standalone, slight separation */}
       <div>
         <label
           htmlFor="date"
-          className="block text-sm text-stone-600 mb-1.5"
+          className="block text-sm text-stone-500 mb-2"
         >
           Preferred Date
         </label>
@@ -139,30 +142,32 @@ export function BookingForm() {
           id="date"
           name="date"
           type="date"
-          className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+          className="w-full border border-stone-300 bg-background px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
         />
       </div>
 
+      {/* Row 4: Message — more vertical presence */}
       <div>
         <label
           htmlFor="message"
-          className="block text-sm text-stone-600 mb-1.5"
+          className="block text-sm text-stone-500 mb-2"
         >
           Message
         </label>
         <textarea
           id="message"
           name="message"
-          rows={4}
-          className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+          rows={5}
+          className="w-full border border-stone-300 bg-background px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
           placeholder="Tell me about what you have in mind..."
         />
       </div>
 
+      {/* Submit — separated from fields for visual weight */}
       <button
         type="submit"
         disabled={pending}
-        className="w-full bg-accent text-white py-3.5 text-sm tracking-wide hover:bg-accent-hover transition-colors disabled:opacity-50"
+        className="w-full bg-accent text-white py-3.5 mt-2 text-sm tracking-wide hover:bg-accent-hover transition-colors disabled:opacity-50"
       >
         {pending ? "Sending..." : "Send Booking Request"}
       </button>
