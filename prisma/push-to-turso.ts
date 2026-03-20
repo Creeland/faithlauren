@@ -1,3 +1,4 @@
+import "dotenv/config"
 import { createClient } from "@libsql/client"
 
 const client = createClient({
@@ -83,13 +84,46 @@ const statements = [
   `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "Session_sessionToken_key" ON "Session"("sessionToken")`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "Gallery_slug_key" ON "Gallery"("slug")`,
+  `CREATE TABLE IF NOT EXISTS "Portfolio" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "aspectRatio" TEXT NOT NULL DEFAULT 'aspect-3/4',
+    "coverPhotoId" TEXT,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS "PortfolioPhoto" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "url" TEXT NOT NULL,
+    "filename" TEXT NOT NULL,
+    "fileKey" TEXT,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "portfolioId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PortfolioPhoto_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "Portfolio_slug_key" ON "Portfolio"("slug")`,
+  // Add width/height to PortfolioPhoto for natural aspect ratios
+  `ALTER TABLE "PortfolioPhoto" ADD COLUMN "width" INTEGER`,
+  `ALTER TABLE "PortfolioPhoto" ADD COLUMN "height" INTEGER`,
 ]
 
 async function main() {
   for (const sql of statements) {
-    await client.execute(sql)
+    try {
+      await client.execute(sql)
+    } catch (e: any) {
+      // Ignore "duplicate column" errors from ALTER TABLE re-runs
+      if (e?.message?.includes("duplicate column")) {
+        console.log(`  (skipped, column already exists)`)
+      } else {
+        throw e
+      }
+    }
   }
-  console.log("All tables created in Turso successfully!")
+  console.log("All tables created/updated in Turso successfully!")
 }
 
 main()

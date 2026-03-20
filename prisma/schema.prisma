@@ -80,6 +80,31 @@ model Photo {
   createdAt DateTime @default(now())
 }
 
+model Portfolio {
+  id           String           @id @default(cuid())
+  title        String
+  slug         String           @unique
+  aspectRatio  String           @default("aspect-3/4")
+  coverPhotoId String?
+  sortOrder    Int              @default(0)
+  photos       PortfolioPhoto[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model PortfolioPhoto {
+  id          String    @id @default(cuid())
+  url         String
+  filename    String
+  fileKey     String?
+  width       Int?
+  height      Int?
+  sortOrder   Int       @default(0)
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+}
+
 model Booking {
   id          String   @id @default(cuid())
   name        String

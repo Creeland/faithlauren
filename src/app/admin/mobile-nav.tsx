@@ -64,6 +64,7 @@ export function AdminMobileNav({ email }: { email: string }) {
   const links = [
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/galleries", label: "Galleries" },
+    { href: "/admin/portfolios", label: "Portfolios" },
     { href: "/admin/bookings", label: "Bookings" },
   ]
 

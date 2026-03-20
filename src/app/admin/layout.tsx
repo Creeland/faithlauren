@@ -38,6 +38,12 @@ export default async function AdminLayout({
             Galleries
           </Link>
           <Link
+            href="/admin/portfolios"
+            className="px-3 py-2 rounded hover:bg-accent-light transition-colors"
+          >
+            Portfolios
+          </Link>
+          <Link
             href="/admin/bookings"
             className="px-3 py-2 rounded hover:bg-accent-light transition-colors"
           >

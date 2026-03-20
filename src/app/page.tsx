@@ -1,6 +1,7 @@
 import { MobileMenu } from "./mobile-menu"
 import { Reveal } from "./reveal"
 import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import Image from "next/image"
 import { BookingForm } from "./booking-form"
@@ -8,38 +9,25 @@ import { BookingForm } from "./booking-form"
 export default async function Home() {
   const session = await auth()
 
-  const work = [
-    {
-      src: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&h=1000&fit=crop&q=80",
-      title: "Portrait",
-      aspect: "aspect-3/4" as const,
-    },
-    {
-      src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=1100&fit=crop&q=80",
-      title: "Wedding",
-      aspect: "aspect-2/3" as const,
-    },
-    {
-      src: "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=800&h=1000&fit=crop&q=80",
-      title: "Family",
-      aspect: "aspect-4/5" as const,
-    },
-    {
-      src: "https://images.unsplash.com/photo-1502258097612-43e695deebad?w=800&h=900&fit=crop&q=80",
-      title: "Lifestyle",
-      aspect: "aspect-3/4" as const,
-    },
-    {
-      src: "https://images.unsplash.com/photo-1600601622243-f32c30680b0b?w=800&h=1100&fit=crop&q=80",
-      title: "Boudoir",
-      aspect: "aspect-2/3" as const,
-    },
-    {
-      src: "https://images.unsplash.com/photo-1611000273610-f4fb9c7fd0be?w=800&h=1000&fit=crop&q=80",
-      title: "Sports",
-      aspect: "aspect-4/5" as const,
-    },
-  ]
+  const portfolios = await prisma.portfolio.findMany({
+    orderBy: { sortOrder: "asc" },
+    include: { photos: true },
+  })
+
+  const work = portfolios
+    .filter((p) => {
+      if (!p.coverPhotoId) return false
+      return p.photos.some((photo) => photo.id === p.coverPhotoId)
+    })
+    .map((p) => {
+      const coverPhoto = p.photos.find((photo) => photo.id === p.coverPhotoId)!
+      return {
+        src: coverPhoto.url,
+        title: p.title,
+        aspect: p.aspectRatio,
+        slug: p.slug,
+      }
+    })
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -135,6 +123,7 @@ export default async function Home() {
         </section>
 
         {/* Work — staggered masonry grid */}
+        {work.length > 0 && (
         <section id="work" className="pt-28 pb-32 sm:pt-44 sm:pb-48 px-6">
           <div className="max-w-7xl mx-auto">
             <Reveal>
@@ -146,7 +135,7 @@ export default async function Home() {
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 sm:gap-6">
               {work.map((item, i) => (
                 <Reveal key={item.title} delay={i * 80}>
-                  <div className="group break-inside-avoid mb-5 sm:mb-6">
+                  <Link href={`/portfolio/${item.slug}`} className="group block break-inside-avoid mb-5 sm:mb-6">
                     <div
                       className={`relative ${item.aspect} overflow-hidden bg-stone-100`}
                     >
@@ -163,12 +152,13 @@ export default async function Home() {
                         {item.title}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
               ))}
             </div>
           </div>
         </section>
+        )}
 
         {/* About — dramatic split */}
         <section id="about" className="bg-accent-subtle">

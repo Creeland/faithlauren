@@ -5,9 +5,10 @@ import Link from "next/link"
 export default async function AdminDashboard() {
   await verifyAdmin()
 
-  const [galleryCount, photoCount, pendingBookings] = await Promise.all([
+  const [galleryCount, photoCount, portfolioCount, pendingBookings] = await Promise.all([
     prisma.gallery.count(),
     prisma.photo.count(),
+    prisma.portfolio.count(),
     prisma.booking.count({ where: { status: "PENDING" } }),
   ])
 
@@ -23,6 +24,11 @@ export default async function AdminDashboard() {
       href: "/admin/galleries",
     },
     {
+      label: "Portfolios",
+      count: portfolioCount,
+      href: "/admin/portfolios",
+    },
+    {
       label: "Pending Bookings",
       count: pendingBookings,
       href: "/admin/bookings",
@@ -33,7 +39,7 @@ export default async function AdminDashboard() {
     <div>
       <h1 className="text-2xl font-light tracking-tight mb-8">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => (
           <Link
             key={card.label}
