@@ -83,7 +83,7 @@ export default async function Home() {
 
       <main id="main-content">
         {/* Hero — full viewport with image */}
-        <section className="relative min-h-svh flex items-end sm:items-center">
+        <section className="relative min-h-svh flex items-center">
           <div className="absolute inset-0">
             <Image
               src="https://images.unsplash.com/photo-1654609566218-808ca30076ff?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -93,10 +93,10 @@ export default async function Home() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-linear-to-t from-stone-950/70 via-stone-950/20 to-stone-950/5 sm:bg-linear-to-r sm:from-stone-950/80 sm:via-stone-950/40 sm:to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-stone-950/60 via-stone-950/40 to-stone-950/20 sm:bg-linear-to-r sm:from-stone-950/80 sm:via-stone-950/40 sm:to-transparent" />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 sm:pb-0 w-full">
+          <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-xl animate-fade-up">
               <p className="text-sm tracking-[0.3em] uppercase text-white/70 mb-4 sm:mb-5 animate-fade-up animate-delay-1">
                 North Texas &mdash; Available Everywhere
@@ -124,40 +124,43 @@ export default async function Home() {
 
         {/* Work — staggered masonry grid */}
         {work.length > 0 && (
-        <section id="work" className="pt-28 pb-32 sm:pt-44 sm:pb-48 px-6">
-          <div className="max-w-7xl mx-auto">
-            <Reveal>
-              <h2 className="text-sm tracking-[0.25em] uppercase text-stone-400 mb-14 sm:mb-20">
-                Selected Work
-              </h2>
-            </Reveal>
+          <section id="work" className="pt-28 pb-32 sm:pt-44 sm:pb-48 px-6">
+            <div className="max-w-7xl mx-auto">
+              <Reveal>
+                <h2 className="text-sm tracking-[0.25em] uppercase text-stone-400 mb-14 sm:mb-20">
+                  Selected Work
+                </h2>
+              </Reveal>
 
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 sm:gap-6">
-              {work.map((item, i) => (
-                <Reveal key={item.title} delay={i * 80}>
-                  <Link href={`/portfolio/${item.slug}`} className="group block break-inside-avoid mb-5 sm:mb-6">
-                    <div
-                      className={`relative ${item.aspect} overflow-hidden bg-stone-100`}
+              <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 sm:gap-6">
+                {work.map((item, i) => (
+                  <Reveal key={item.title} delay={i * 80}>
+                    <Link
+                      href={`/portfolio/${item.slug}`}
+                      className="group block break-inside-avoid mb-5 sm:mb-6"
                     >
-                      <Image
-                        src={item.src}
-                        alt={`${item.title} photography by Faith Lauren`}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                        loading={i < 2 ? "eager" : "lazy"}
-                      />
-                      <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/20 transition-colors duration-500" />
-                      <p className="absolute bottom-0 left-0 right-0 px-5 py-3.5 text-sm tracking-wide text-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                        {item.title}
-                      </p>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
+                      <div
+                        className={`relative ${item.aspect} overflow-hidden bg-stone-100`}
+                      >
+                        <Image
+                          src={item.src}
+                          alt={`${item.title} photography by Faith Lauren`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                          loading={i < 2 ? "eager" : "lazy"}
+                        />
+                        <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/20 transition-colors duration-500" />
+                        <p className="absolute bottom-0 left-0 right-0 px-5 py-3.5 text-sm tracking-wide text-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                          {item.title}
+                        </p>
+                      </div>
+                    </Link>
+                  </Reveal>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
         )}
 
         {/* About — dramatic split */}
@@ -173,7 +176,10 @@ export default async function Home() {
                 loading="lazy"
               />
             </Reveal>
-            <Reveal delay={150} className="flex items-center px-6 pb-16 sm:pb-20 md:py-20 md:px-16 lg:px-24">
+            <Reveal
+              delay={150}
+              className="flex items-center px-6 pb-16 sm:pb-20 md:py-20 md:px-16 lg:px-24"
+            >
               <div>
                 <p className="text-sm tracking-[0.25em] uppercase text-stone-400 mb-5">
                   About
@@ -182,9 +188,9 @@ export default async function Home() {
                   Faith Lauren
                 </h2>
                 <p className="text-stone-600 text-lg leading-relaxed mb-12 max-w-md">
-                  I&apos;m driven by natural light and authentic moments. My work
-                  spans portraits, weddings, editorial, and fine art. The best
-                  photographs happen when people feel comfortable being
+                  I&apos;m driven by natural light and authentic moments. My
+                  work spans portraits, weddings, editorial, and fine art. The
+                  best photographs happen when people feel comfortable being
                   themselves.
                 </p>
                 <a
@@ -234,7 +240,10 @@ export default async function Home() {
           <p className="text-sm text-stone-400">
             &copy; 2026 Faith Lauren Photography
           </p>
-          <nav aria-label="Footer navigation" className="flex gap-6 text-sm text-stone-400">
+          <nav
+            aria-label="Footer navigation"
+            className="flex gap-6 text-sm text-stone-400"
+          >
             <a href="#work" className="hover:text-accent transition-colors">
               Work
             </a>
