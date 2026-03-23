@@ -4,7 +4,7 @@ import archiver from "archiver"
 import { PassThrough } from "stream"
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params
@@ -24,8 +24,27 @@ export async function GET(
     return new Response("Not found", { status: 404 })
   }
 
-  if (gallery.photos.length === 0) {
-    return new Response("No photos in this gallery", { status: 404 })
+  // Filter to selected photos if photoIds provided
+  const { searchParams } = new URL(request.url)
+  const photoIdsParam = searchParams.get("photoIds")
+  let photosToZip = gallery.photos
+
+  if (photoIdsParam) {
+    const requestedIds = new Set(photoIdsParam.split(",").filter(Boolean))
+    const galleryPhotoIds = new Set(gallery.photos.map((p) => p.id))
+
+    // Validate all requested IDs belong to this gallery
+    for (const id of requestedIds) {
+      if (!galleryPhotoIds.has(id)) {
+        return new Response("Invalid photo ID", { status: 400 })
+      }
+    }
+
+    photosToZip = gallery.photos.filter((p) => requestedIds.has(p.id))
+  }
+
+  if (photosToZip.length === 0) {
+    return new Response("No photos to download", { status: 404 })
   }
 
   const passthrough = new PassThrough()
@@ -33,7 +52,7 @@ export async function GET(
 
   archive.pipe(passthrough)
 
-  for (const photo of gallery.photos) {
+  for (const photo of photosToZip) {
     const response = await fetch(photo.url)
     if (!response.ok) continue
     const buffer = Buffer.from(await response.arrayBuffer())
