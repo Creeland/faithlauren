@@ -2,15 +2,14 @@ import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import type { Gallery, Photo } from "@prisma/client"
-import Image from "next/image"
 import { verifyAdmin } from "@/lib/dal"
 import { regeneratePassword } from "@/app/actions/gallery"
-import { deletePhoto, deleteAllPhotos } from "@/app/actions/photo"
 import { EditGalleryForm } from "./edit-form"
 import { DeleteGalleryButton } from "./delete-gallery-button"
 import { PhotoUploader } from "./photo-uploader"
 import { DeleteAllPhotosButton } from "./delete-all-photos-button"
 import { CopyableUrl } from "./copyable-url"
+import { PhotoGrid } from "./photo-grid"
 
 export default async function EditGalleryPage({
   params,
@@ -77,36 +76,8 @@ export default async function EditGalleryPage({
         <PhotoUploader galleryId={gallery.id} />
 
         {gallery.photos.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-            {gallery.photos.map((photo) => (
-              <div key={photo.id} className="relative group">
-                <div className="relative aspect-square overflow-hidden bg-stone-100">
-                  <Image
-                    src={photo.url}
-                    alt={photo.caption || photo.filename}
-                    fill
-                    sizes="(max-width: 640px) 50vw, 25vw"
-                    className="object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <form
-                  action={deletePhoto}
-                  className="absolute top-1 right-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
-                >
-                  <input type="hidden" name="id" value={photo.id} />
-                  <button
-                    type="submit"
-                    className="bg-red-600 text-white text-xs px-2 py-1 rounded"
-                  >
-                    &times;
-                  </button>
-                </form>
-                <p className="text-xs text-stone-500 mt-1 truncate">
-                  {photo.filename}
-                </p>
-              </div>
-            ))}
+          <div className="mt-4">
+            <PhotoGrid photos={gallery.photos} galleryId={gallery.id} />
           </div>
         )}
       </div>

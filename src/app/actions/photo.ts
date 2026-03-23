@@ -51,7 +51,7 @@ export async function reorderPhotos(formData: FormData) {
     sortOrder: number
   }[]
 
-  await Promise.all(
+  await prisma.$transaction(
     order.map((item) =>
       prisma.photo.update({
         where: { id: item.id },

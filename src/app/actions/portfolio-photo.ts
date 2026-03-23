@@ -60,3 +60,23 @@ export async function getPortfolioPhotoCount(portfolioId: string): Promise<numbe
   await verifyAdmin()
   return prisma.portfolioPhoto.count({ where: { portfolioId } })
 }
+
+export async function reorderPortfolioPhotos(formData: FormData) {
+  await verifyAdmin()
+  const order = JSON.parse(formData.get("order") as string) as {
+    id: string
+    sortOrder: number
+  }[]
+
+  await prisma.$transaction(
+    order.map((item) =>
+      prisma.portfolioPhoto.update({
+        where: { id: item.id },
+        data: { sortOrder: item.sortOrder },
+      })
+    )
+  )
+
+  const portfolioId = formData.get("portfolioId") as string
+  revalidatePath(`/admin/portfolios/${portfolioId}`)
+}

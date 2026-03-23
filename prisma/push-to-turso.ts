@@ -108,6 +108,9 @@ const statements = [
   // Add width/height to PortfolioPhoto for natural aspect ratios
   `ALTER TABLE "PortfolioPhoto" ADD COLUMN "width" INTEGER`,
   `ALTER TABLE "PortfolioPhoto" ADD COLUMN "height" INTEGER`,
+  // Add width/height to Photo for natural aspect ratios in gallery
+  `ALTER TABLE "Photo" ADD COLUMN "width" INTEGER`,
+  `ALTER TABLE "Photo" ADD COLUMN "height" INTEGER`,
 ]
 
 async function main() {

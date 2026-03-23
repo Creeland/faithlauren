@@ -42,6 +42,22 @@ export const uploadRouter = {
           },
         })
       })
+      // Backfill dimensions async — don't block the upload response
+      import("sharp").then(({ default: sharp }) =>
+        fetch(file.ufsUrl)
+          .then((res) => res.arrayBuffer())
+          .then((buf) => sharp(Buffer.from(buf)).metadata())
+          .then((meta) => {
+            if (meta.width && meta.height) {
+              return prisma.photo.update({
+                where: { id: photo.id },
+                data: { width: meta.width, height: meta.height },
+              })
+            }
+          })
+          .catch(() => {})
+      )
+
       return { id: photo.id, filename: file.name }
     }),
   portfolioPhoto: f({

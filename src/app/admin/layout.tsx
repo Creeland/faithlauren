@@ -2,6 +2,7 @@ import { verifyAdmin } from "@/lib/dal"
 import { logout } from "@/app/actions/auth"
 import Link from "next/link"
 import { AdminMobileNav } from "./mobile-nav"
+import { Toaster } from "sonner"
 
 export default async function AdminLayout({
   children,
@@ -76,6 +77,7 @@ export default async function AdminLayout({
 
       {/* Main content */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 md:p-8">{children}</main>
+      <Toaster position="bottom-right" />
     </div>
   )
 }
