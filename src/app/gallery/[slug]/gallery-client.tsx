@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import Image from "next/image"
 import { Lightbox } from "./lightbox"
 import { usePhotoSelection } from "./use-photo-selection"
@@ -29,6 +29,19 @@ export function GalleryClient({
 }: GalleryClientProps) {
   const [downloading, setDownloading] = useState(false)
   const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
+  const helpRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!showHelp) return
+    function handleTapOutside(e: MouseEvent) {
+      if (helpRef.current && !helpRef.current.contains(e.target as Node)) {
+        setShowHelp(false)
+      }
+    }
+    document.addEventListener("mousedown", handleTapOutside)
+    return () => document.removeEventListener("mousedown", handleTapOutside)
+  }, [showHelp])
 
   const allPhotoIds = useMemo(() => photos.map((p) => p.id), [photos])
   const selection = usePhotoSelection(allPhotoIds)
@@ -74,7 +87,7 @@ export function GalleryClient({
     <>
       {/* Sticky toolbar */}
       {photos.length > 0 && (
-        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-200 shadow-sm">
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-200 shadow-sm relative" ref={helpRef}>
           <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between gap-4">
             {downloading ? (
               <div className="flex items-center gap-2 text-sm text-stone-600">
@@ -146,12 +159,20 @@ export function GalleryClient({
               </div>
             ) : (
               <>
-                <p className="text-xs text-stone-400">
+                <button
+                  type="button"
+                  onClick={() => setShowHelp((v) => !v)}
+                  className="sm:hidden w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-400 rounded-full text-xs shrink-0"
+                  aria-label="Show instructions"
+                >
+                  ?
+                </button>
+                <p className="hidden sm:block text-xs text-stone-400">
                   Tap a photo to view full size &middot; Use{" "}
                   <span className="font-medium text-stone-500">Select</span> to
                   choose photos for download
                 </p>
-                <div className="flex items-center gap-2 ml-auto">
+                <div className="flex items-center gap-2 ml-auto shrink-0">
                   <button
                     type="button"
                     onClick={selection.enterSelecting}
@@ -186,6 +207,15 @@ export function GalleryClient({
               </>
             )}
           </div>
+          {showHelp && (
+            <div className="absolute top-full left-4 right-4 mt-1 bg-white rounded-lg shadow-lg border border-stone-200 px-4 py-3 sm:hidden">
+              <p className="text-xs text-stone-500">
+                Tap a photo to view full size &middot; Use{" "}
+                <span className="font-medium text-stone-600">Select</span> to
+                choose photos for download
+              </p>
+            </div>
+          )}
         </div>
       )}
 
