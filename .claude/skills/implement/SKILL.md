@@ -20,6 +20,8 @@ description: Implement a task or unit of work through plan → build → verify 
 
 For each change, follow the red-green-refactor cycle:
 
+Use this TDD technique only for back-end code.
+
 1. **Red** — Write a failing test that defines the expected behavior
 2. **Green** — Write the simplest code that makes the test pass
 3. **Refactor** — Clean up the code while keeping tests green
