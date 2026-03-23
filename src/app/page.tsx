@@ -98,7 +98,7 @@ export default async function Home() {
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-xl animate-fade-up">
-              <p className="text-sm tracking-[0.3em] uppercase text-white/70 mb-4 sm:mb-5 animate-fade-up animate-delay-1">
+              <p className="text-sm tracking-[0.3em] uppercase text-white/90 mb-4 sm:mb-5 animate-fade-up animate-delay-1">
                 North Texas &mdash; Available Everywhere
               </p>
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.08] mb-6 sm:mb-8 text-white animate-fade-up animate-delay-2">
@@ -127,7 +127,7 @@ export default async function Home() {
           <section id="work" className="pt-28 pb-32 sm:pt-44 sm:pb-48 px-6">
             <div className="max-w-7xl mx-auto">
               <Reveal>
-                <h2 className="text-sm tracking-[0.25em] uppercase text-stone-400 mb-14 sm:mb-20">
+                <h2 className="text-sm tracking-[0.25em] uppercase text-stone-500 mb-14 sm:mb-20">
                   Selected Work
                 </h2>
               </Reveal>
@@ -150,8 +150,8 @@ export default async function Home() {
                           className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                           loading={i < 2 ? "eager" : "lazy"}
                         />
-                        <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/20 transition-colors duration-500" />
-                        <p className="absolute bottom-0 left-0 right-0 px-5 py-3.5 text-sm tracking-wide text-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent sm:from-transparent sm:to-transparent sm:bg-stone-900/0 sm:group-hover:bg-stone-900/20 transition-colors duration-500" />
+                        <p className="absolute bottom-0 left-0 right-0 px-5 py-3.5 text-sm tracking-wide text-white translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-500 ease-out">
                           {item.title}
                         </p>
                       </div>
