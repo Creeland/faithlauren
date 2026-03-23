@@ -27,6 +27,7 @@ For each change, follow the red-green-refactor cycle:
 - Run the relevant test after each step to confirm state (failing → passing → still passing)
 - Keep cycles small — one behavior per loop
 - If no test framework is set up, ask the user before skipping tests
+- Do this in a tracer bullet format, one test at a time, one change at a time.
 
 ### 3. Verify
 
