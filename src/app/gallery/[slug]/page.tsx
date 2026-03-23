@@ -2,9 +2,9 @@ import { notFound } from "next/navigation"
 import { cookies } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import type { Gallery, Photo } from "@prisma/client"
-import Image from "next/image"
 import Link from "next/link"
 import { AlbumPasswordForm } from "./password-form"
+import { GalleryClient } from "./gallery-client"
 
 export default async function GalleryPage({
   params,
@@ -62,65 +62,19 @@ export default async function GalleryPage({
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
-        {gallery.description && (
-          <p className="text-stone-600 mb-8 max-w-lg">
-            {gallery.description}
-          </p>
-        )}
-
-        {gallery.photos.length > 0 && (
-          <div className="mb-8">
-            <a
-              href={`/api/gallery/${slug}/download`}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-stone-300 hover:bg-stone-100 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Download All
-            </a>
-          </div>
-        )}
-
-        {gallery.photos.length === 0 ? (
-          <p className="text-stone-500 text-sm">
-            No photos in this gallery yet.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {gallery.photos.map((photo, index) => (
-              <div
-                key={photo.id}
-                className="relative aspect-[3/4] overflow-hidden bg-stone-100"
-              >
-                <Image
-                  src={photo.url}
-                  alt={photo.caption || photo.filename}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                  className="object-cover"
-                  priority={index < 3}
-                  loading={index < 3 ? undefined : "lazy"}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
+      <GalleryClient
+        slug={slug}
+        title={gallery.title}
+        description={gallery.description}
+        photos={gallery.photos.map((p) => ({
+          id: p.id,
+          url: p.url,
+          filename: p.filename,
+          caption: p.caption,
+          width: p.width,
+          height: p.height,
+        }))}
+      />
     </div>
   )
 }
