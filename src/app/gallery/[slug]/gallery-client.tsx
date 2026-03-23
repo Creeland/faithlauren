@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { Lightbox } from "./lightbox"
 
 type Photo = {
   id: string
@@ -26,6 +27,7 @@ export function GalleryClient({
   photos,
 }: GalleryClientProps) {
   const [downloading, setDownloading] = useState(false)
+  const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null)
 
   async function handleDownloadAll() {
     setDownloading(true)
@@ -137,9 +139,11 @@ export function GalleryClient({
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-3">
             {photos.map((photo, index) =>
               photo.width && photo.height ? (
-                <div
+                <button
                   key={photo.id}
-                  className="break-inside-avoid mb-3 overflow-hidden bg-stone-100"
+                  type="button"
+                  onClick={() => setLightboxPhoto(photo)}
+                  className="break-inside-avoid mb-3 overflow-hidden bg-stone-100 w-full cursor-pointer"
                 >
                   <Image
                     src={photo.url}
@@ -151,11 +155,13 @@ export function GalleryClient({
                     priority={index < 3}
                     loading={index < 3 ? undefined : "lazy"}
                   />
-                </div>
+                </button>
               ) : (
-                <div
+                <button
                   key={photo.id}
-                  className="relative aspect-[3/4] break-inside-avoid mb-3 overflow-hidden bg-stone-100"
+                  type="button"
+                  onClick={() => setLightboxPhoto(photo)}
+                  className="relative aspect-[3/4] break-inside-avoid mb-3 overflow-hidden bg-stone-100 w-full cursor-pointer"
                 >
                   <Image
                     src={photo.url}
@@ -166,12 +172,20 @@ export function GalleryClient({
                     priority={index < 3}
                     loading={index < 3 ? undefined : "lazy"}
                   />
-                </div>
+                </button>
               )
             )}
           </div>
         )}
       </main>
+
+      {lightboxPhoto && (
+        <Lightbox
+          url={lightboxPhoto.url}
+          alt={lightboxPhoto.caption || lightboxPhoto.filename}
+          onClose={() => setLightboxPhoto(null)}
+        />
+      )}
     </>
   )
 }
