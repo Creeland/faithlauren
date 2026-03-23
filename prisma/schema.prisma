@@ -74,6 +74,8 @@ model Photo {
   filename  String
   fileKey   String?
   caption   String?
+  width     Int?
+  height    Int?
   sortOrder Int      @default(0)
   galleryId String
   gallery   Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
