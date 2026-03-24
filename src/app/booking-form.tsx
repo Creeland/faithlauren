@@ -172,13 +172,6 @@ export function BookingForm() {
         />
       </div>
 
-      {/* CAPTCHA */}
-      <Turnstile
-        ref={turnstileRef}
-        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-        options={{ theme: "light", size: "flexible" }}
-      />
-
       {/* Submit — separated from fields for visual weight */}
       <button
         type="submit"
@@ -187,6 +180,13 @@ export function BookingForm() {
       >
         {pending ? "Sending..." : "Send Booking Request"}
       </button>
+
+      {/* CAPTCHA */}
+      <Turnstile
+        ref={turnstileRef}
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+        options={{ theme: "light", size: "flexible" }}
+      />
     </form>
   );
 }
