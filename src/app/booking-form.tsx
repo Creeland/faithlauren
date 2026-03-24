@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { useActionState } from "react"
-import { createBooking, type BookingState } from "@/app/actions/booking"
+import { useActionState, useEffect, useRef } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { createBooking, type BookingState } from "@/app/actions/booking";
 
 const sessionTypes = [
   "Portrait",
@@ -11,13 +12,21 @@ const sessionTypes = [
   "Boudoir",
   "Sports",
   "Other",
-]
+];
 
 export function BookingForm() {
   const [state, action, pending] = useActionState<BookingState, FormData>(
     createBooking,
-    undefined
-  )
+    undefined,
+  );
+  const turnstileRef = useRef<TurnstileInstance>(null);
+
+  // Reset Turnstile after each server response (tokens are single-use)
+  useEffect(() => {
+    if (state) {
+      turnstileRef.current?.reset();
+    }
+  }, [state]);
 
   if (state?.success) {
     return (
@@ -34,13 +43,28 @@ export function BookingForm() {
           Book another session
         </button>
       </div>
-    )
+    );
   }
 
   return (
-    <form action={action} className="flex flex-col gap-5">
+    <form action={action} className="relative flex flex-col gap-5">
+      {/* Honeypot — invisible to humans, bots fill it */}
+      <div className="absolute -left-[9999px]" aria-hidden="true">
+        <label htmlFor="_hp_name">Do not fill this</label>
+        <input
+          type="text"
+          id="_hp_name"
+          name="_hp_name"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+
       {state?.error && (
-        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+        <div
+          role="alert"
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm"
+        >
           {state.error}
         </div>
       )}
@@ -48,10 +72,7 @@ export function BookingForm() {
       {/* Row 1: Name + Email — tightly paired */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="name"
-            className="block text-sm text-stone-500 mb-2"
-          >
+          <label htmlFor="name" className="block text-sm text-stone-500 mb-2">
             Name *
           </label>
           <input
@@ -66,10 +87,7 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm text-stone-500 mb-2"
-          >
+          <label htmlFor="email" className="block text-sm text-stone-500 mb-2">
             Email *
           </label>
           <input
@@ -88,10 +106,7 @@ export function BookingForm() {
       {/* Row 2: Phone + Session Type — tightly paired */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="phone"
-            className="block text-sm text-stone-500 mb-2"
-          >
+          <label htmlFor="phone" className="block text-sm text-stone-500 mb-2">
             Phone
           </label>
           <input
@@ -132,10 +147,7 @@ export function BookingForm() {
 
       {/* Row 3: Date — standalone, slight separation */}
       <div>
-        <label
-          htmlFor="date"
-          className="block text-sm text-stone-500 mb-2"
-        >
+        <label htmlFor="date" className="block text-sm text-stone-500 mb-2">
           Preferred Date
         </label>
         <input
@@ -148,10 +160,7 @@ export function BookingForm() {
 
       {/* Row 4: Message — more vertical presence */}
       <div>
-        <label
-          htmlFor="message"
-          className="block text-sm text-stone-500 mb-2"
-        >
+        <label htmlFor="message" className="block text-sm text-stone-500 mb-2">
           Message
         </label>
         <textarea
@@ -163,6 +172,13 @@ export function BookingForm() {
         />
       </div>
 
+      {/* CAPTCHA */}
+      <Turnstile
+        ref={turnstileRef}
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+        options={{ theme: "light", size: "flexible" }}
+      />
+
       {/* Submit — separated from fields for visual weight */}
       <button
         type="submit"
@@ -172,5 +188,5 @@ export function BookingForm() {
         {pending ? "Sending..." : "Send Booking Request"}
       </button>
     </form>
-  )
+  );
 }

@@ -1,26 +1,27 @@
-"use server"
+"use server";
 
-import { z } from "zod"
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
-import { verifyAdmin } from "@/lib/dal"
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { verifyAdmin } from "@/lib/dal";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 // Admin actions
 export async function updateBookingStatus(formData: FormData) {
-  await verifyAdmin()
-  const id = formData.get("id") as string
-  const status = formData.get("status") as string
-  await prisma.booking.update({ where: { id }, data: { status } })
-  revalidatePath("/admin/bookings")
-  revalidatePath(`/admin/bookings/${id}`)
+  await verifyAdmin();
+  const id = formData.get("id") as string;
+  const status = formData.get("status") as string;
+  await prisma.booking.update({ where: { id }, data: { status } });
+  revalidatePath("/admin/bookings");
+  revalidatePath(`/admin/bookings/${id}`);
 }
 
 export async function deleteBooking(formData: FormData) {
-  await verifyAdmin()
-  const id = formData.get("id") as string
-  await prisma.booking.delete({ where: { id } })
-  redirect("/admin/bookings")
+  await verifyAdmin();
+  const id = formData.get("id") as string;
+  await prisma.booking.delete({ where: { id } });
+  redirect("/admin/bookings");
 }
 
 // Public booking form
@@ -31,18 +32,35 @@ const bookingSchema = z.object({
   sessionType: z.string().min(1, "Please select a session type"),
   date: z.string().optional(),
   message: z.string().optional(),
-})
+});
 
-export type BookingState = {
-  error?: string
-  errors?: Record<string, string[]>
-  success?: boolean
-} | undefined
+export type BookingState =
+  | {
+      error?: string;
+      errors?: Record<string, string[]>;
+      success?: boolean;
+    }
+  | undefined;
 
 export async function createBooking(
   _prevState: BookingState,
-  formData: FormData
+  formData: FormData,
 ): Promise<BookingState> {
+  // Honeypot — if filled, a bot submitted this. Return fake success.
+  if (formData.get("_hp_name")) {
+    return { success: true };
+  }
+
+  // Turnstile CAPTCHA verification
+  const turnstileToken = formData.get("cf-turnstile-response") as string;
+  if (!turnstileToken) {
+    return { error: "Please complete the verification check." };
+  }
+  const tokenValid = await verifyTurnstileToken(turnstileToken);
+  if (!tokenValid) {
+    return { error: "Verification failed. Please try again." };
+  }
+
   const parsed = bookingSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -50,10 +68,10 @@ export async function createBooking(
     sessionType: formData.get("sessionType"),
     date: formData.get("date"),
     message: formData.get("message"),
-  })
+  });
 
   if (!parsed.success) {
-    return { errors: parsed.error.flatten().fieldErrors }
+    return { errors: parsed.error.flatten().fieldErrors };
   }
 
   await prisma.booking.create({
@@ -65,7 +83,7 @@ export async function createBooking(
       date: parsed.data.date || null,
       message: parsed.data.message || null,
     },
-  })
+  });
 
-  return { success: true }
+  return { success: true };
 }
