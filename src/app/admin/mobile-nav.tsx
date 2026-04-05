@@ -1,72 +1,73 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { logout } from "@/app/actions/auth"
+import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { logout } from "@/app/actions/auth";
 
 export function AdminMobileNav({ email }: { email: string }) {
-  const [open, setOpen] = useState(false)
-  const drawerRef = useRef<HTMLDivElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
-  const openRef = useRef<HTMLButtonElement>(null)
-  const pathname = usePathname()
+  const [open, setOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
 
-  const close = useCallback(() => setOpen(false), [])
+  const close = useCallback(() => setOpen(false), []);
 
   // Close on route change
   useEffect(() => {
-    setOpen(false)
-  }, [pathname])
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (open) {
-      document.body.style.overflow = "hidden"
-      closeRef.current?.focus()
+      document.body.style.overflow = "hidden";
+      closeRef.current?.focus();
     } else {
-      document.body.style.overflow = ""
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = ""
-    }
-  }, [open])
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        close()
-        openRef.current?.focus()
+        close();
+        openRef.current?.focus();
       }
 
       if (e.key === "Tab" && drawerRef.current) {
         const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button, [tabindex]:not([tabindex="-1"])'
-        )
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
+          'a[href], button, [tabindex]:not([tabindex="-1"])',
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
 
         if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last?.focus()
+          e.preventDefault();
+          last?.focus();
         } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first?.focus()
+          e.preventDefault();
+          first?.focus();
         }
       }
     }
 
-    document.addEventListener("keydown", onKeyDown)
-    return () => document.removeEventListener("keydown", onKeyDown)
-  }, [open, close])
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, close]);
 
   const links = [
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/galleries", label: "Galleries" },
     { href: "/admin/portfolios", label: "Portfolios" },
+    { href: "/admin/portfolio-groups", label: "Portfolio Groups" },
     { href: "/admin/bookings", label: "Bookings" },
-  ]
+  ];
 
   return (
     <div className="md:hidden">
@@ -104,7 +105,12 @@ export function AdminMobileNav({ email }: { email: string }) {
 
       {/* Drawer */}
       {open && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Admin navigation">
+        <div
+          className="fixed inset-0 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Admin navigation"
+        >
           <div
             className="absolute inset-0 bg-black/20"
             onClick={close}
@@ -140,7 +146,10 @@ export function AdminMobileNav({ email }: { email: string }) {
               </button>
             </div>
 
-            <nav aria-label="Admin navigation" className="flex flex-col gap-1 text-sm flex-1">
+            <nav
+              aria-label="Admin navigation"
+              className="flex flex-col gap-1 text-sm flex-1"
+            >
               {links.map((link) => (
                 <Link
                   key={link.href}
@@ -157,9 +166,7 @@ export function AdminMobileNav({ email }: { email: string }) {
             </nav>
 
             <div className="border-t border-stone-200 pt-4 mt-4">
-              <p className="text-xs text-stone-500 mb-2 truncate">
-                {email}
-              </p>
+              <p className="text-xs text-stone-500 mb-2 truncate">{email}</p>
               <div className="flex gap-3">
                 <a
                   href="/"
@@ -182,5 +189,5 @@ export function AdminMobileNav({ email }: { email: string }) {
         </div>
       )}
     </div>
-  )
+  );
 }

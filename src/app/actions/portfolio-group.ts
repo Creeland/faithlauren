@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
 import { UTApi } from "uploadthing/server";
@@ -62,8 +63,7 @@ export async function createGroup(
     },
   });
 
-  revalidatePath("/admin/portfolio-groups");
-  return undefined;
+  redirect("/admin/portfolio-groups");
 }
 
 export async function updateGroup(
@@ -94,7 +94,10 @@ export async function updateGroup(
   return undefined;
 }
 
-export async function deleteGroup(formData: FormData): Promise<GroupState> {
+export async function deleteGroup(
+  _prevState: GroupState,
+  formData: FormData,
+): Promise<GroupState> {
   await verifyAdmin();
   const id = formData.get("id") as string;
 
@@ -120,8 +123,7 @@ export async function deleteGroup(formData: FormData): Promise<GroupState> {
 
   await prisma.portfolioGroup.delete({ where: { id } });
 
-  revalidatePath("/admin/portfolio-groups");
-  return undefined;
+  redirect("/admin/portfolio-groups");
 }
 
 export async function reorderGroups(formData: FormData) {

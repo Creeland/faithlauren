@@ -25,6 +25,11 @@ const { mockPrisma, mockDeleteFiles } = vi.hoisted(() => {
 
 vi.mock("@/lib/dal", () => ({ verifyAdmin: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(() => {
+    throw new Error("NEXT_REDIRECT");
+  }),
+}));
 vi.mock("uploadthing/server", () => ({
   UTApi: vi.fn().mockImplementation(() => ({ deleteFiles: mockDeleteFiles })),
 }));
@@ -60,12 +65,10 @@ describe("createGroup", () => {
     });
     mockPrisma.portfolioGroup.create.mockResolvedValue({});
 
-    const result = await createGroup(
-      undefined,
-      formData({ title: "Wedding Photos" }),
-    );
+    await expect(
+      createGroup(undefined, formData({ title: "Wedding Photos" })),
+    ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(result).toBeUndefined();
     expect(mockPrisma.portfolioGroup.create).toHaveBeenCalledWith({
       data: {
         title: "Wedding Photos",
@@ -83,7 +86,9 @@ describe("createGroup", () => {
     });
     mockPrisma.portfolioGroup.create.mockResolvedValue({});
 
-    await createGroup(undefined, formData({ title: "Portraits" }));
+    await expect(
+      createGroup(undefined, formData({ title: "Portraits" })),
+    ).rejects.toThrow("NEXT_REDIRECT");
 
     expect(mockPrisma.portfolioGroup.create).toHaveBeenCalledWith({
       data: expect.objectContaining({ sortOrder: 0 }),
@@ -118,10 +123,15 @@ describe("createGroup", () => {
     });
     mockPrisma.portfolioGroup.create.mockResolvedValue({});
 
-    await createGroup(
-      undefined,
-      formData({ title: "Events", description: "Corporate and social events" }),
-    );
+    await expect(
+      createGroup(
+        undefined,
+        formData({
+          title: "Events",
+          description: "Corporate and social events",
+        }),
+      ),
+    ).rejects.toThrow("NEXT_REDIRECT");
 
     expect(mockPrisma.portfolioGroup.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
@@ -166,7 +176,7 @@ describe("deleteGroup", () => {
   it("blocks deletion when group contains portfolios", async () => {
     mockPrisma.portfolio.count.mockResolvedValue(3);
 
-    const result = await deleteGroup(formData({ id: "group-1" }));
+    const result = await deleteGroup(undefined, formData({ id: "group-1" }));
 
     expect(result?.error).toMatch(/cannot delete/i);
     expect(mockPrisma.portfolioGroup.delete).not.toHaveBeenCalled();
@@ -179,9 +189,9 @@ describe("deleteGroup", () => {
     });
     mockPrisma.portfolioGroup.delete.mockResolvedValue({});
 
-    const result = await deleteGroup(formData({ id: "group-1" }));
-
-    expect(result).toBeUndefined();
+    await expect(
+      deleteGroup(undefined, formData({ id: "group-1" })),
+    ).rejects.toThrow("NEXT_REDIRECT");
     expect(mockPrisma.portfolioGroup.delete).toHaveBeenCalledWith({
       where: { id: "group-1" },
     });
@@ -194,7 +204,9 @@ describe("deleteGroup", () => {
     });
     mockPrisma.portfolioGroup.delete.mockResolvedValue({});
 
-    await deleteGroup(formData({ id: "group-1" }));
+    await expect(
+      deleteGroup(undefined, formData({ id: "group-1" })),
+    ).rejects.toThrow("NEXT_REDIRECT");
 
     expect(mockDeleteFiles).toHaveBeenCalledWith(["file-key-123"]);
     expect(mockPrisma.portfolioGroup.delete).toHaveBeenCalled();

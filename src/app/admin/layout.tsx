@@ -1,15 +1,15 @@
-import { verifyAdmin } from "@/lib/dal"
-import { logout } from "@/app/actions/auth"
-import Link from "next/link"
-import { AdminMobileNav } from "./mobile-nav"
-import { Toaster } from "sonner"
+import { verifyAdmin } from "@/lib/dal";
+import { logout } from "@/app/actions/auth";
+import Link from "next/link";
+import { AdminMobileNav } from "./mobile-nav";
+import { Toaster } from "sonner";
 
 export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const session = await verifyAdmin()
+  const session = await verifyAdmin();
 
   return (
     <div className="min-h-screen bg-background md:flex">
@@ -25,7 +25,10 @@ export default async function AdminLayout({
           Faith Lauren
         </Link>
 
-        <nav aria-label="Admin navigation" className="flex flex-col gap-1 text-sm flex-1">
+        <nav
+          aria-label="Admin navigation"
+          className="flex flex-col gap-1 text-sm flex-1"
+        >
           <Link
             href="/admin"
             className="px-3 py-2 rounded hover:bg-accent-light transition-colors"
@@ -43,6 +46,12 @@ export default async function AdminLayout({
             className="px-3 py-2 rounded hover:bg-accent-light transition-colors"
           >
             Portfolios
+          </Link>
+          <Link
+            href="/admin/portfolio-groups"
+            className="px-3 py-2 rounded hover:bg-accent-light transition-colors"
+          >
+            Portfolio Groups
           </Link>
           <Link
             href="/admin/bookings"
@@ -79,5 +88,5 @@ export default async function AdminLayout({
       <main className="flex-1 min-w-0 p-4 sm:p-6 md:p-8">{children}</main>
       <Toaster position="bottom-right" />
     </div>
-  )
+  );
 }
