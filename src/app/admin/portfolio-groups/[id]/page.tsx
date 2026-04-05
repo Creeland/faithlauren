@@ -4,6 +4,7 @@ import { verifyAdmin } from "@/lib/dal";
 import { EditGroupForm } from "./edit-form";
 import { DeleteGroupButton } from "./delete-group-button";
 import { GroupCoverUploader } from "./cover-uploader";
+import { GroupPortfolios } from "./group-portfolios";
 
 export default async function EditGroupPage({
   params,
@@ -15,10 +16,53 @@ export default async function EditGroupPage({
 
   const group = await prisma.portfolioGroup.findUnique({
     where: { id },
-    include: { _count: { select: { portfolios: true } } },
+    include: {
+      portfolios: {
+        include: {
+          _count: { select: { photos: true } },
+          photos: { where: {}, take: 1 },
+        },
+        orderBy: { sortOrder: "asc" },
+      },
+    },
   });
 
   if (!group) notFound();
+
+  const ungroupedPortfolios = await prisma.portfolio.findMany({
+    where: { groupId: null },
+    include: {
+      _count: { select: { photos: true } },
+      photos: { where: {}, take: 1 },
+    },
+    orderBy: { title: "asc" },
+  });
+
+  const groupPortfolios = group.portfolios.map((p) => {
+    const coverPhoto = p.coverPhotoId
+      ? p.photos.find((photo) => photo.id === p.coverPhotoId)
+      : null;
+    return {
+      id: p.id,
+      title: p.title,
+      coverPhotoUrl: coverPhoto?.url ?? null,
+      photoCount: p._count.photos,
+      sortOrder: p.sortOrder,
+    };
+  });
+
+  const ungroupedItems = ungroupedPortfolios.map((p) => {
+    const coverPhoto = p.coverPhotoId
+      ? p.photos.find((photo) => photo.id === p.coverPhotoId)
+      : null;
+    return {
+      id: p.id,
+      title: p.title,
+      coverPhotoUrl: coverPhoto?.url ?? null,
+      photoCount: p._count.photos,
+      sortOrder: p.sortOrder,
+    };
+  });
 
   return (
     <div>
@@ -39,16 +83,12 @@ export default async function EditGroupPage({
       </div>
 
       <div className="mt-10">
-        <h2 className="text-lg font-light tracking-tight mb-2">Portfolios</h2>
-        <p className="text-sm text-stone-500">
-          {group._count.portfolios} portfolio
-          {group._count.portfolios !== 1 ? "s" : ""} in this group. Manage
-          portfolio assignments from the{" "}
-          <a href="/admin/portfolios" className="text-accent hover:underline">
-            Portfolios
-          </a>{" "}
-          page.
-        </p>
+        <h2 className="text-lg font-light tracking-tight mb-4">Portfolios</h2>
+        <GroupPortfolios
+          groupId={group.id}
+          portfolios={groupPortfolios}
+          ungroupedPortfolios={ungroupedItems}
+        />
       </div>
     </div>
   );

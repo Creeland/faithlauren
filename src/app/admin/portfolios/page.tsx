@@ -1,15 +1,19 @@
-import { prisma } from "@/lib/prisma"
-import { verifyAdmin } from "@/lib/dal"
-import Image from "next/image"
-import Link from "next/link"
+import { prisma } from "@/lib/prisma";
+import { verifyAdmin } from "@/lib/dal";
+import Image from "next/image";
+import Link from "next/link";
 
 export default async function PortfoliosPage() {
-  await verifyAdmin()
+  await verifyAdmin();
 
   const portfolios = await prisma.portfolio.findMany({
-    include: { _count: { select: { photos: true } }, photos: true },
+    include: {
+      _count: { select: { photos: true } },
+      photos: true,
+      group: { select: { id: true, title: true } },
+    },
     orderBy: { sortOrder: "asc" },
-  })
+  });
 
   return (
     <div>
@@ -30,7 +34,7 @@ export default async function PortfoliosPage() {
           {portfolios.map((portfolio) => {
             const coverPhoto = portfolio.coverPhotoId
               ? portfolio.photos.find((p) => p.id === portfolio.coverPhotoId)
-              : null
+              : null;
 
             return (
               <Link
@@ -58,17 +62,24 @@ export default async function PortfoliosPage() {
                   <p className="text-xs text-stone-500 mt-1">
                     {portfolio._count.photos} photo
                     {portfolio._count.photos !== 1 ? "s" : ""} &middot;{" "}
-                    {portfolio.aspectRatio} &middot; Order: {portfolio.sortOrder}
+                    {portfolio.group ? (
+                      <span className="text-accent">
+                        {portfolio.group.title}
+                      </span>
+                    ) : (
+                      <span className="text-stone-400">Ungrouped</span>
+                    )}{" "}
+                    &middot; Order: {portfolio.sortOrder}
                   </p>
                 </div>
                 <p className="text-xs text-stone-400 shrink-0 hidden sm:block">
                   /portfolio/{portfolio.slug}
                 </p>
               </Link>
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
+  );
 }
