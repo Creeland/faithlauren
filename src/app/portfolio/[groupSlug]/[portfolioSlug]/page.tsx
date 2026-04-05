@@ -1,21 +1,42 @@
-import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
-import Image from "next/image"
-import Link from "next/link"
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
 
-export default async function PortfolioPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
-  const { slug } = await params
+type Props = {
+  params: Promise<{ groupSlug: string; portfolioSlug: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { portfolioSlug } = await params;
+  const portfolio = await prisma.portfolio.findUnique({
+    where: { slug: portfolioSlug },
+    select: { title: true },
+  });
+
+  if (!portfolio) return {};
+
+  return {
+    title: `${portfolio.title} — Faith Lauren Photography`,
+  };
+}
+
+export default async function PortfolioPage({ params }: Props) {
+  const { groupSlug, portfolioSlug } = await params;
 
   const portfolio = await prisma.portfolio.findUnique({
-    where: { slug },
-    include: { photos: { orderBy: { sortOrder: "asc" } } },
-  })
+    where: { slug: portfolioSlug },
+    include: {
+      group: { select: { slug: true, title: true } },
+      photos: { orderBy: { sortOrder: "asc" } },
+    },
+  });
 
-  if (!portfolio) notFound()
+  if (!portfolio) notFound();
+
+  // Verify this portfolio belongs to the group in the URL
+  if (!portfolio.group || portfolio.group.slug !== groupSlug) notFound();
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,20 +91,20 @@ export default async function PortfolioPage({
                     loading={index < 3 ? undefined : "lazy"}
                   />
                 </div>
-              )
+              ),
             )}
           </div>
         )}
 
         <p className="mt-10">
           <Link
-            href="/"
+            href={`/portfolio/${groupSlug}`}
             className="text-sm text-stone-500 hover:text-accent transition-colors"
           >
-            &larr; Back to site
+            &larr; Back to {portfolio.group.title}
           </Link>
         </p>
       </main>
     </div>
-  )
+  );
 }
