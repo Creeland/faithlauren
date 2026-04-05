@@ -1,33 +1,34 @@
-import { MobileMenu } from "./mobile-menu"
-import { Reveal } from "./reveal"
-import { auth } from "@/auth"
-import { prisma } from "@/lib/prisma"
-import Link from "next/link"
-import Image from "next/image"
-import { BookingForm } from "./booking-form"
+import { MobileMenu } from "./mobile-menu";
+import { Reveal } from "./reveal";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import Image from "next/image";
+import { BookingForm } from "./booking-form";
 
 export default async function Home() {
-  const session = await auth()
+  const session = await auth();
 
-  const portfolios = await prisma.portfolio.findMany({
+  const groups = await prisma.portfolioGroup.findMany({
+    where: {
+      portfolios: { some: {} },
+      coverImageUrl: { not: null },
+    },
     orderBy: { sortOrder: "asc" },
-    include: { photos: true },
-  })
+    select: {
+      title: true,
+      slug: true,
+      coverImageUrl: true,
+      aspectRatio: true,
+    },
+  });
 
-  const work = portfolios
-    .filter((p) => {
-      if (!p.coverPhotoId) return false
-      return p.photos.some((photo) => photo.id === p.coverPhotoId)
-    })
-    .map((p) => {
-      const coverPhoto = p.photos.find((photo) => photo.id === p.coverPhotoId)!
-      return {
-        src: coverPhoto.url,
-        title: p.title,
-        aspect: p.aspectRatio,
-        slug: p.slug,
-      }
-    })
+  const work = groups.map((g) => ({
+    src: g.coverImageUrl!,
+    title: g.title,
+    aspect: g.aspectRatio,
+    slug: g.slug,
+  }));
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -257,5 +258,5 @@ export default async function Home() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
