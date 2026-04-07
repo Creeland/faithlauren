@@ -1,10 +1,10 @@
-import "dotenv/config"
-import { createClient } from "@libsql/client"
+import "dotenv/config";
+import { createClient } from "@libsql/client";
 
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN,
-})
+});
 
 const statements = [
   `CREATE TABLE IF NOT EXISTS "User" (
@@ -105,33 +105,48 @@ const statements = [
     CONSTRAINT "PortfolioPhoto_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio" ("id") ON DELETE CASCADE ON UPDATE CASCADE
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "Portfolio_slug_key" ON "Portfolio"("slug")`,
+  `CREATE TABLE IF NOT EXISTS "PortfolioGroup" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT,
+    "coverImageUrl" TEXT,
+    "coverImageFileKey" TEXT,
+    "aspectRatio" TEXT NOT NULL DEFAULT 'aspect-3/4',
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "PortfolioGroup_slug_key" ON "PortfolioGroup"("slug")`,
+  // Add groupId to Portfolio for group assignment
+  `ALTER TABLE "Portfolio" ADD COLUMN "groupId" TEXT REFERENCES "PortfolioGroup"("id") ON DELETE SET NULL`,
   // Add width/height to PortfolioPhoto for natural aspect ratios
   `ALTER TABLE "PortfolioPhoto" ADD COLUMN "width" INTEGER`,
   `ALTER TABLE "PortfolioPhoto" ADD COLUMN "height" INTEGER`,
   // Add width/height to Photo for natural aspect ratios in gallery
   `ALTER TABLE "Photo" ADD COLUMN "width" INTEGER`,
   `ALTER TABLE "Photo" ADD COLUMN "height" INTEGER`,
-]
+];
 
 async function main() {
   for (const sql of statements) {
     try {
-      await client.execute(sql)
+      await client.execute(sql);
     } catch (e: any) {
       // Ignore "duplicate column" errors from ALTER TABLE re-runs
       if (e?.message?.includes("duplicate column")) {
-        console.log(`  (skipped, column already exists)`)
+        console.log(`  (skipped, column already exists)`);
       } else {
-        throw e
+        throw e;
       }
     }
   }
-  console.log("All tables created/updated in Turso successfully!")
+  console.log("All tables created/updated in Turso successfully!");
 }
 
 main()
   .then(() => client.close())
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
+    console.error(e);
+    process.exit(1);
+  });

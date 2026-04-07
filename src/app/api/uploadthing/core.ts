@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -42,6 +43,14 @@ export const uploadRouter = {
           },
         });
       });
+
+      const gallery = await prisma.gallery.findUnique({
+        where: { id: metadata.galleryId },
+        select: { slug: true },
+      });
+      if (gallery) revalidatePath(`/gallery/${gallery.slug}`);
+      revalidatePath(`/admin/galleries/${metadata.galleryId}`);
+
       // Backfill dimensions async — don't block the upload response
       import("sharp").then(({ default: sharp }) =>
         fetch(file.ufsUrl)
@@ -96,6 +105,17 @@ export const uploadRouter = {
           },
         });
       });
+
+      const portfolio = await prisma.portfolio.findUnique({
+        where: { id: metadata.portfolioId },
+        select: { slug: true, group: { select: { slug: true } } },
+      });
+      if (portfolio?.group) {
+        revalidatePath(`/portfolio/${portfolio.group.slug}/${portfolio.slug}`);
+        revalidatePath(`/portfolio/${portfolio.group.slug}`);
+      }
+      revalidatePath("/");
+      revalidatePath(`/admin/portfolios/${metadata.portfolioId}`);
 
       // Backfill dimensions async — don't block the upload response
       import("sharp").then(({ default: sharp }) =>
