@@ -6,667 +6,125 @@
 <meta name="theme-color" content="#1c1917" />
 <title>Faith Lauren Studio — Codebase World</title>
 <style>
-  :root {
-    --bg: #faf8f5;
-    --bg-2: #f2ede6;
-    --ink: #1c1917;
-    --stone: #57534e;
-    --stone-2: #78716c;
-    --line: #e7e1d8;
-    --accent: #b08968;
-    --accent-2: #9a7355;
-    --accent-soft: #f4ece4;
-    --good: #4d7c5a;
-    --warn: #b45309;
-    --card: #ffffff;
-    --shadow: 0 1px 2px rgba(28,25,23,.06), 0 8px 24px rgba(28,25,23,.06);
-    --radius: 16px;
+  :root{
+    --bg:#faf8f5; --bg-2:#f2ede6; --ink:#1c1917; --stone:#57534e; --stone-2:#78716c;
+    --line:#e7e1d8; --accent:#b08968; --accent-2:#9a7355; --accent-soft:#f4ece4;
+    --good:#4d7c5a; --card:#fff; --shadow:0 1px 2px rgba(28,25,23,.06),0 8px 24px rgba(28,25,23,.06);
+    --radius:16px;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    overscroll-behavior-y: none;
-  }
-  .app {
-    max-width: 720px;
-    margin: 0 auto;
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .app{max-width:720px;margin:0 auto;min-height:100svh;}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
 
-  /* Top bar */
-  header.bar {
-    position: sticky; top: 0; z-index: 40;
-    background: rgba(250,248,245,.88);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
-    padding: max(10px, env(safe-area-inset-top)) 16px 10px;
-  }
-  .bar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .brand { font-size: 13px; letter-spacing: .28em; text-transform: uppercase; font-weight: 400; color: var(--ink); }
-  .brand small { display:block; letter-spacing:.12em; font-size:9.5px; color: var(--stone-2); margin-top:2px;}
-  .xp-wrap { flex: 1; max-width: 190px; }
-  .xp-track { height: 8px; background: var(--bg-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
-  .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .5s cubic-bezier(.2,.8,.2,1); }
-  .xp-label { font-size: 10px; color: var(--stone-2); text-align: right; margin-top: 3px; letter-spacing:.04em; }
+  header.bar{position:sticky;top:0;z-index:40;background:rgba(250,248,245,.9);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+    padding:max(10px,env(safe-area-inset-top)) 16px 12px;}
+  .brand{font-size:13px;letter-spacing:.28em;text-transform:uppercase;font-weight:400;}
+  .brand small{display:block;letter-spacing:.12em;font-size:9.5px;color:var(--stone-2);margin-top:3px;}
 
-  main { flex: 1; padding: 18px 16px 120px; }
+  main{padding:18px 16px calc(60px + env(safe-area-inset-bottom));}
 
-  h1.title { font-size: 26px; font-weight: 300; letter-spacing: -.01em; margin: 4px 0 8px; }
-  .lead { color: var(--stone); font-size: 15px; margin: 0 0 18px; }
+  .intro-hero{border-radius:var(--radius);overflow:hidden;margin-bottom:20px;
+    background:linear-gradient(150deg,#2a2622,#4a3f36 60%,var(--accent-2));
+    color:#f5efe8;padding:26px 20px 24px;}
+  .intro-hero .kicker{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;opacity:.75;}
+  .intro-hero h1{font-size:26px;font-weight:300;margin:8px 0 8px;line-height:1.15;}
+  .intro-hero p{font-size:14px;opacity:.92;margin:0;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .chip{font-size:10.5px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);
+    padding:4px 9px;border-radius:99px;letter-spacing:.03em;}
+  .hint{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone-2);
+    background:var(--accent-soft);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:18px;}
 
-  /* Map / zone grid */
-  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  @media (max-width: 380px){ .grid { grid-template-columns: 1fr; } }
+  .section-h{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--stone-2);margin:26px 0 12px;}
 
-  .zone {
-    position: relative;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 16px 14px 14px;
-    text-align: left;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: transform .12s ease, border-color .2s;
-    overflow: hidden;
-    min-height: 128px;
-    display: flex; flex-direction: column;
-  }
-  .zone:active { transform: scale(.975); }
-  .zone .emoji { font-size: 26px; margin-bottom: 8px; }
-  .zone h3 { margin: 0 0 3px; font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
-  .zone p { margin: 0; font-size: 12px; color: var(--stone-2); }
-  .zone .tick {
-    position: absolute; top: 12px; right: 12px;
-    width: 22px; height: 22px; border-radius: 99px;
-    background: var(--good); color: #fff; font-size: 13px;
-    display: none; align-items: center; justify-content: center;
-  }
-  .zone.done .tick { display: flex; }
-  .zone.done { border-color: #cfe0d3; }
-  .zone .pathtag { margin-top: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; color: var(--accent-2); padding-top:10px; }
+  /* Zone cards = native <details>, no JS */
+  details{margin-bottom:12px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  details[open]{border-color:#dccdb9;}
+  summary{list-style:none;cursor:pointer;padding:15px 15px;display:flex;align-items:center;gap:13px;}
+  summary::-webkit-details-marker{display:none;}
+  summary:active{background:var(--bg-2);}
+  .s-emoji{font-size:26px;flex:0 0 auto;}
+  .s-txt h3{margin:0 0 2px;font-size:15.5px;font-weight:600;letter-spacing:-.01em;}
+  .s-txt p{margin:0;font-size:12px;color:var(--stone-2);}
+  .s-txt .path{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--accent-2);margin-top:4px;}
+  .chev{margin-left:auto;flex:0 0 auto;color:var(--accent);font-size:18px;transition:transform .2s;}
+  details[open] .chev{transform:rotate(90deg);}
 
-  .section-h { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--stone-2); margin: 26px 0 12px; }
+  .body{padding:2px 16px 18px;border-top:1px solid var(--line);}
+  .lore{font-size:14.5px;margin:14px 0 4px;}
+  .lore em{color:var(--accent-2);font-style:normal;font-weight:600;}
 
-  /* Trace cards */
-  .trace-card {
-    background: linear-gradient(160deg, var(--card), var(--accent-soft));
-    border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 15px 15px; margin-bottom: 12px; cursor: pointer;
-    box-shadow: var(--shadow); transition: transform .12s;
-    display:flex; align-items:center; gap:13px;
-  }
-  .trace-card:active { transform: scale(.98); }
-  .trace-card .t-emoji { font-size: 24px; }
-  .trace-card h3 { margin: 0 0 2px; font-size: 15px; font-weight: 600; }
-  .trace-card p { margin: 0; font-size: 12px; color: var(--stone-2); }
-  .trace-card .arrow { margin-left:auto; color: var(--accent); font-size: 20px; }
+  .block-h{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--stone-2);
+    margin:20px 0 10px;display:flex;align-items:center;gap:8px;}
+  .block-h::before{content:"";width:14px;height:1px;background:var(--accent);}
 
-  /* Overlay / detail sheet */
-  .sheet-backdrop {
-    position: fixed; inset: 0; z-index: 60;
-    background: rgba(28,25,23,.42);
-    opacity: 0; pointer-events: none; transition: opacity .28s;
-    backdrop-filter: blur(2px);
-  }
-  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
-  .sheet {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 61;
-    max-width: 720px; margin: 0 auto;
-    background: var(--bg);
-    border-radius: 22px 22px 0 0;
-    max-height: 92svh; height: 92svh;
-    transform: translateY(100%);
-    transition: transform .34s cubic-bezier(.2,.85,.25,1);
-    display: flex; flex-direction: column;
-    box-shadow: 0 -10px 40px rgba(0,0,0,.2);
-  }
-  .sheet.open { transform: translateY(0); }
-  .sheet-grab { padding: 10px 0 4px; display: flex; justify-content: center; flex: 0 0 auto; }
-  .sheet-grab span { width: 40px; height: 5px; border-radius: 99px; background: var(--line); }
-  .sheet-head {
-    padding: 4px 20px 12px; border-bottom: 1px solid var(--line);
-    display: flex; align-items: flex-start; gap: 12px; flex: 0 0 auto;
-  }
-  .sheet-head .big { font-size: 30px; line-height:1; }
-  .sheet-head h2 { margin: 2px 0 3px; font-size: 20px; font-weight: 500; }
-  .sheet-head .sub { font-size: 12px; color: var(--stone-2); font-family: ui-monospace, Menlo, monospace; }
-  .sheet-close {
-    margin-left: auto; flex: 0 0 auto;
-    width: 34px; height: 34px; border-radius: 99px; border: 1px solid var(--line);
-    background: var(--card); font-size: 17px; color: var(--stone); cursor: pointer;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .sheet-body { overflow-y: auto; padding: 18px 20px calc(40px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
+  ul.files{list-style:none;padding:0;margin:0;}
+  ul.files li{background:var(--bg);border:1px solid var(--line);border-radius:11px;
+    padding:10px 12px;margin-bottom:8px;font-family:ui-monospace,Menlo,monospace;font-size:12px;}
+  ul.files li b{color:var(--accent-2);font-weight:600;}
+  ul.files li span{display:block;font-family:ui-sans-serif,system-ui,sans-serif;
+    font-size:12px;color:var(--stone-2);margin-top:3px;}
 
-  .lore { font-size: 15px; color: var(--ink); margin: 0 0 18px; }
-  .lore em { color: var(--accent-2); font-style: normal; font-weight: 600; }
+  .flow-step{display:flex;gap:12px;}
+  .flow-line{position:relative;}
+  .flow-line::before{content:"";position:absolute;left:12px;top:26px;bottom:-4px;width:2px;background:var(--line);}
+  .flow-step:last-child .flow-line::before{display:none;}
+  .flow-num{width:26px;height:26px;border-radius:99px;background:var(--accent-soft);
+    color:var(--accent-2);border:1px solid #e6d8c9;font-size:12px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;}
+  .flow-txt{padding:2px 0 16px;font-size:13.5px;}
+  .flow-txt code{background:var(--bg-2);padding:1px 5px;border-radius:5px;font-size:11.5px;color:var(--accent-2);}
 
-  .block-h { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--stone-2); margin: 22px 0 10px; display:flex; align-items:center; gap:8px;}
-  .block-h::before { content:""; width:14px; height:1px; background: var(--accent); }
+  /* Quest — pure CSS radio quiz */
+  .quest{margin-top:20px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:15px;}
+  .q-label{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-2);font-weight:700;}
+  .q{font-size:14.5px;font-weight:500;margin:6px 0 13px;}
+  .quiz input{position:absolute;opacity:0;width:0;height:0;}
+  .quiz label{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:12px 13px;margin-bottom:9px;font-size:13.5px;cursor:pointer;transition:border-color .15s,background .15s;}
+  .quiz label:active{background:var(--bg-2);}
+  .quiz .fb{display:none;font-size:13px;margin:-3px 0 11px;padding:10px 12px;border-radius:9px;}
+  .quiz input:checked + label + .fb{display:block;}
+  .quiz input:checked + label{font-weight:500;}
+  .quiz input:checked + label.correct{border-color:var(--good);background:#eef5ef;color:#2f5d3a;}
+  .quiz input:checked + label.wrong{border-color:#d99;background:#fbeeee;color:#8a3a3a;}
+  .fb.ok{background:#eef5ef;color:#2f5d3a;}
+  .fb.no{background:#fbeeee;color:#8a3a3a;}
 
-  ul.files { list-style: none; padding: 0; margin: 0; }
-  ul.files li {
-    background: var(--card); border: 1px solid var(--line); border-radius: 11px;
-    padding: 10px 12px; margin-bottom: 8px;
-    font-family: ui-monospace, Menlo, monospace; font-size: 12px;
-  }
-  ul.files li b { color: var(--accent-2); font-weight: 600; }
-  ul.files li span { display:block; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; color: var(--stone-2); margin-top: 3px; }
+  /* Trace steps */
+  .stage{border-left:2px solid var(--line);margin-left:6px;padding:0 0 4px 16px;position:relative;}
+  .stage:not(:last-child){padding-bottom:18px;}
+  .stage .dot{position:absolute;left:-9px;top:2px;width:16px;height:16px;border-radius:99px;
+    background:var(--accent-soft);border:2px solid var(--accent);}
+  .stage .st-emoji{font-size:20px;}
+  .stage h4{margin:2px 0 2px;font-size:15px;font-weight:600;}
+  .stage .where{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--accent-2);margin-bottom:8px;}
+  .stage p{font-size:13.5px;margin:0 0 10px;}
+  .snippet{background:#1c1917;color:#e7e1d8;border-radius:12px;padding:12px 13px;
+    font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.65;
+    overflow-x:auto;white-space:pre;-webkit-overflow-scrolling:touch;}
+  .snippet .k{color:#d8a877;} .snippet .c{color:#7d8f7a;} .snippet .s{color:#c8a2a2;}
 
-  .flow { margin: 4px 0 6px; }
-  .flow-step {
-    display: flex; gap: 12px; padding: 0 0 2px;
-  }
-  .flow-num {
-    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 99px;
-    background: var(--accent-soft); color: var(--accent-2); border: 1px solid #e6d8c9;
-    font-size: 12px; font-weight: 700; display:flex; align-items:center; justify-content:center;
-    position: relative; z-index: 1;
-  }
-  .flow-line { position: relative; }
-  .flow-line::before {
-    content:""; position:absolute; left: 12px; top: 26px; bottom: -6px; width: 2px; background: var(--line);
-  }
-  .flow-step:last-child .flow-line::before { display:none; }
-  .flow-txt { padding: 1px 0 16px; font-size: 13.5px; color: var(--ink); }
-  .flow-txt code { background: var(--bg-2); padding: 1px 5px; border-radius: 5px; font-size: 11.5px; color: var(--accent-2); }
-
-  /* Quest / quiz */
-  .quest {
-    margin-top: 22px; background: var(--card); border: 1px solid var(--line);
-    border-radius: 14px; padding: 16px; box-shadow: var(--shadow);
-  }
-  .quest .q-label { font-size: 10.5px; letter-spacing:.16em; text-transform:uppercase; color: var(--accent-2); font-weight:700; }
-  .quest .q { font-size: 15px; font-weight: 500; margin: 6px 0 14px; }
-  .opt {
-    display: block; width: 100%; text-align: left;
-    background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
-    padding: 12px 13px; margin-bottom: 9px; font-size: 13.5px; color: var(--ink);
-    cursor: pointer; transition: border-color .15s, background .15s;
-  }
-  .opt:active { background: var(--bg-2); }
-  .opt.correct { border-color: var(--good); background: #eef5ef; color: #2f5d3a; font-weight:500; }
-  .opt.wrong { border-color: #d99; background: #fbeeee; color: #8a3a3a; }
-  .opt:disabled { cursor: default; }
-  .q-feedback { font-size: 13px; margin-top: 4px; padding: 10px 12px; border-radius: 9px; display:none; }
-  .q-feedback.show { display: block; }
-  .q-feedback.ok { background: #eef5ef; color: #2f5d3a; }
-  .q-feedback.no { background: #fbeeee; color: #8a3a3a; }
-
-  .btn {
-    display:block; width:100%; text-align:center;
-    background: var(--ink); color: #fff; border: none; border-radius: 12px;
-    padding: 15px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 20px;
-    letter-spacing: .02em;
-  }
-  .btn:active { opacity: .85; }
-  .btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
-
-  /* Trace player */
-  .trace-progress { display:flex; gap:5px; margin: 2px 0 18px; }
-  .trace-progress i { flex:1; height: 4px; border-radius: 99px; background: var(--line); transition: background .3s; }
-  .trace-progress i.on { background: var(--accent); }
-  .trace-stage { animation: fade .3s ease; }
-  @keyframes fade { from { opacity:0; transform: translateY(6px);} to {opacity:1; transform:none;} }
-  .trace-stage .stage-emoji { font-size: 40px; margin-bottom: 6px; }
-  .trace-stage h3 { font-size: 19px; font-weight: 500; margin: 0 0 4px; }
-  .trace-stage .where { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--accent-2); margin-bottom: 12px; }
-  .trace-stage p { font-size: 14.5px; color: var(--ink); margin: 0 0 12px; }
-  .trace-stage .snippet {
-    background: #1c1917; color: #e7e1d8; border-radius: 12px; padding: 13px 14px;
-    font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; line-height: 1.65;
-    overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch;
-  }
-  .trace-stage .snippet .k { color: #d8a877; }
-  .trace-stage .snippet .c { color: #7d8f7a; }
-  .trace-stage .snippet .s { color: #c8a2a2; }
-  .trace-nav { display:flex; gap: 10px; margin-top: 20px; }
-  .trace-nav button { flex:1; }
-
-  /* Intro */
-  .intro-hero {
-    border-radius: var(--radius); overflow: hidden; margin-bottom: 18px;
-    background: linear-gradient(150deg, #2a2622, #4a3f36 60%, var(--accent-2));
-    color: #f5efe8; padding: 26px 20px 24px; position: relative;
-  }
-  .intro-hero .kicker { font-size: 10.5px; letter-spacing:.3em; text-transform:uppercase; opacity:.75; }
-  .intro-hero h1 { font-size: 27px; font-weight: 300; margin: 8px 0 8px; line-height:1.15; }
-  .intro-hero p { font-size: 14px; opacity:.9; margin:0; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
-  .chip { font-size:10.5px; background: rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2); padding:4px 9px; border-radius:99px; letter-spacing:.03em; }
-
-  .mini-legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--stone-2); margin: 4px 0 2px; }
-  .mini-legend span { display:flex; align-items:center; gap:5px; }
-  .dot { width:9px;height:9px;border-radius:99px;display:inline-block; }
-
-  .reset { text-align:center; margin-top: 28px; }
-  .reset button { background:none; border:none; color: var(--stone-2); font-size:12px; text-decoration: underline; cursor:pointer; }
-
-  .toast {
-    position: fixed; left:50%; bottom: 26px; transform: translate(-50%, 20px);
-    background: var(--ink); color:#fff; padding: 11px 18px; border-radius: 99px;
-    font-size: 13px; opacity: 0; pointer-events:none; transition: all .3s; z-index: 80;
-    box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: 90%;
-  }
-  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  details.trace{background:linear-gradient(160deg,var(--card),var(--accent-soft));}
+  footer{text-align:center;color:var(--stone-2);font-size:11.5px;padding:10px 0 4px;}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="bar">
-    <div class="bar-row">
-      <div class="brand">Faith Lauren<small>codebase world</small></div>
-      <div class="xp-wrap">
-        <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
-        <div class="xp-label" id="xpLabel">0 / 0 explored</div>
-      </div>
-    </div>
+    <div class="brand">Faith Lauren<small>codebase world · field guide</small></div>
   </header>
+  <main>
 
-  <main id="main"></main>
-</div>
-
-<div class="sheet-backdrop" id="backdrop"></div>
-<div class="sheet" id="sheet">
-  <div class="sheet-grab"><span></span></div>
-  <div class="sheet-head">
-    <div class="big" id="sheetEmoji">📍</div>
-    <div>
-      <h2 id="sheetTitle">Zone</h2>
-      <div class="sub" id="sheetSub">path</div>
-    </div>
-    <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
-  </div>
-  <div class="sheet-body" id="sheetBody"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-/* ============================================================
-   DATA — the codebase, told as an explorable world.
-   Everything here maps to real files/flows in the repo.
-   ============================================================ */
-
-const ZONES = [
-  {
-    id: "lawn",
-    emoji: "🌿",
-    name: "The Front Lawn",
-    tag: "src/app/page.tsx",
-    blurb: "Where every visitor arrives.",
-    lore: "This is the public homepage — the first thing a potential client sees. It's a <em>Server Component</em>: it runs on the server, greets you with a full-viewport hero, then queries the database for a <em>“Selected Work”</em> grid and ends with a booking form. No client to your machine until it hands you finished HTML.",
-    files: [
-      { f: "src/app/page.tsx", d: "The homepage. Queries PortfolioGroups that have photos + a cover image, renders hero, work grid, about & contact." },
-      { f: "src/app/layout.tsx", d: "Root layout — fonts, global chrome wrapping every page." },
-      { f: "src/app/mobile-menu.tsx / reveal.tsx", d: "Client components for the nav menu and scroll-reveal animations." },
-      { f: "src/app/booking-form.tsx", d: "The contact form that feeds the Booking table." },
-    ],
-    flow: [
-      "A visitor requests <code>/</code>. Next.js runs <code>Home()</code> on the server.",
-      "It calls <code>auth()</code> (to show an Admin link if you're logged in) and <code>prisma.portfolioGroup.findMany()</code>.",
-      "Only groups that <code>have some portfolios</code> AND a <code>coverImageUrl</code> make the grid — empties are hidden.",
-      "Each group card links to <code>/portfolio/[slug]</code>. Finished HTML ships to the phone.",
-    ],
-    quest: {
-      q: "Why might a PortfolioGroup you created NOT show up in the homepage 'Selected Work' grid?",
-      opts: [
-        { t: "It has no cover image or no portfolios inside it", ok: true },
-        { t: "It was created less than 24 hours ago" },
-        { t: "You're not logged in as admin" },
-      ],
-      why: "The query filters on <code>portfolios: { some: {} }</code> and <code>coverImageUrl: { not: null }</code>. Empty or cover-less groups are excluded."
-    }
-  },
-  {
-    id: "portfolio",
-    emoji: "🖼️",
-    name: "The Portfolio Wing",
-    tag: "src/app/portfolio/[groupSlug]/…",
-    blurb: "Public galleries of work, nested.",
-    lore: "The public body of work is organized in three tiers: <em>PortfolioGroup → Portfolio → PortfolioPhoto</em>. Groups are the categories on the front page; tap one to see its portfolios, tap a portfolio to see its photos. The URLs are nested to match: <code>/portfolio/weddings/emma-and-sam</code>.",
-    files: [
-      { f: "portfolio/[groupSlug]/page.tsx", d: "Lists the portfolios inside one group." },
-      { f: "portfolio/[groupSlug]/[portfolioSlug]/page.tsx", d: "Shows the photos of a single portfolio." },
-    ],
-    flow: [
-      "Front page links to a group by its <code>slug</code>.",
-      "The group page loads that group + its portfolios from Prisma, ordered by <code>sortOrder</code>.",
-      "Each portfolio links deeper to <code>[groupSlug]/[portfolioSlug]</code>.",
-      "That leaf page renders <code>PortfolioPhoto</code> rows in <code>sortOrder</code>.",
-    ],
-    quest: {
-      q: "How deep is the public portfolio hierarchy?",
-      opts: [
-        { t: "Three levels: Group → Portfolio → Photo", ok: true },
-        { t: "Two levels: Gallery → Photo" },
-        { t: "One flat list of images" },
-      ],
-      why: "The schema chains <code>PortfolioGroup</code> → <code>Portfolio</code> → <code>PortfolioPhoto</code>, and the routes mirror that nesting."
-    }
-  },
-  {
-    id: "vault",
-    emoji: "🔐",
-    name: "The Gallery Vault",
-    tag: "src/app/gallery/[slug]",
-    blurb: "Password-protected client deliveries.",
-    lore: "Separate from the public portfolio: this is how finished photos are <em>delivered privately to a client</em>. Each <em>Gallery</em> has a randomly generated password. The client opens a link, types the password once, and a signed cookie remembers them for 30 days. Inside, they browse a lightbox, select favorites, and download a ZIP.",
-    files: [
-      { f: "gallery/[slug]/page.tsx", d: "Server component: loads the gallery, checks the access cookie, gates on the password form." },
-      { f: "gallery/[slug]/password-form.tsx", d: "Client form that posts to verifyAlbumPassword." },
-      { f: "gallery/[slug]/gallery-client.tsx / lightbox.tsx", d: "The interactive viewer + selection UI." },
-      { f: "api/gallery/[slug]/download/route.ts", d: "Streams selected photos as a ZIP (archiver)." },
-      { f: "actions/gallery.ts → verifyAlbumPassword", d: "Checks the password, sets an httpOnly cookie." },
-    ],
-    flow: [
-      "Client visits <code>/gallery/emma-wedding</code>. The page reads cookie <code>gallery-emma-wedding-access</code>.",
-      "No cookie → render the password form instead of photos.",
-      "They submit; <code>verifyAlbumPassword()</code> compares against <code>gallery.password</code>.",
-      "Match → set an <code>httpOnly</code>, <code>sameSite: lax</code> cookie for 30 days, then revalidate the page.",
-      "Now the cookie exists → the full <code>GalleryClient</code> with lightbox + ZIP download renders.",
-    ],
-    quest: {
-      q: "How does the gallery remember that a client already entered the password?",
-      opts: [
-        { t: "A 30-day httpOnly cookie named per-gallery slug", ok: true },
-        { t: "Their IP address is whitelisted" },
-        { t: "A NextAuth login session, same as admins" },
-      ],
-      why: "<code>verifyAlbumPassword</code> sets <code>gallery-&lt;slug&gt;-access = granted</code> as an httpOnly cookie with <code>maxAge</code> of 30 days. Clients are NOT NextAuth users."
-    }
-  },
-  {
-    id: "studio",
-    emoji: "🎛️",
-    name: "The Admin Studio",
-    tag: "src/app/admin/*",
-    blurb: "The photographer's control room.",
-    lore: "Behind the login lives the CMS. Faith manages everything here: create galleries, build portfolios & groups, upload and <em>drag-to-reorder</em> photos, and triage incoming <em>Bookings</em>. Every admin page is guarded twice — by middleware at the edge and by <code>verifyAdmin()</code> inside the page.",
-    files: [
-      { f: "admin/layout.tsx / mobile-nav.tsx", d: "Shell + navigation for the whole admin area." },
-      { f: "admin/galleries, /portfolios, /portfolio-groups", d: "CRUD screens for each content type, with new/[id] sub-routes." },
-      { f: "admin/bookings", d: "Inbox of session requests with a status workflow." },
-      { f: "…/reorder-photos.ts + use-admin-photo-selection.ts", d: "The drag-and-drop reordering logic (dnd-kit), with tests." },
-    ],
-    flow: [
-      "Request hits <code>/admin/...</code>. First <code>proxy.ts</code> (middleware) checks for a session.",
-      "No session → redirect to <code>/login</code> before the page even renders.",
-      "Inside the page, <code>verifyAdmin()</code> from <code>lib/dal.ts</code> re-checks role === 'ADMIN'.",
-      "Mutations go through <code>app/actions/*</code> server actions, each starting with <code>await verifyAdmin()</code>.",
-    ],
-    quest: {
-      q: "Admin routes are protected in TWO places. Why belt-and-suspenders?",
-      opts: [
-        { t: "Middleware guards navigation; verifyAdmin() guards data/mutations even if middleware is bypassed", ok: true },
-        { t: "One is for mobile, one is for desktop" },
-        { t: "It's redundant/accidental and should be removed" },
-      ],
-      why: "Middleware (<code>proxy.ts</code>) redirects at the edge, but server actions can be invoked directly — so each action also calls <code>verifyAdmin()</code>. Defense in depth."
-    }
-  },
-  {
-    id: "darkroom",
-    emoji: "🧪",
-    name: "The Darkroom",
-    tag: "src/app/api/uploadthing/core.ts",
-    blurb: "Where uploaded photos are developed.",
-    lore: "The upload pipeline. Photos don't touch the server's disk — they go to <em>UploadThing</em>. This file defines three routers (gallery photos, portfolio photos, group covers). Each checks you're an admin, records the photo in a <em>transaction</em> with the next <code>sortOrder</code>, revalidates the right pages, and then — without blocking your upload — quietly backfills width & height with <em>sharp</em>.",
-    files: [
-      { f: "api/uploadthing/core.ts", d: "The FileRouter: galleryPhoto, portfolioPhoto, groupCoverImage." },
-      { f: "api/uploadthing/route.ts", d: "Wires the router into a Next.js route handler." },
-      { f: "lib/uploadthing.ts + hooks/use-upload-queue.ts", d: "Client helpers + a resilient upload queue (with tests)." },
-    ],
-    flow: [
-      "Admin drops files. UploadThing’s <code>.middleware()</code> runs — rejects anyone whose role isn't ADMIN.",
-      "File lands in cloud storage; <code>.onUploadComplete()</code> fires on the server.",
-      "In a <code>prisma.$transaction</code>, it reads the current <code>max(sortOrder)</code> and inserts the new photo at <code>max + 1</code>.",
-      "It calls <code>revalidatePath()</code> for the public page AND the admin page so both refresh.",
-      "Then it <code>import('sharp')</code> lazily, fetches the image, reads dimensions, and updates the row — all fire-and-forget so the response isn't delayed.",
-    ],
-    quest: {
-      q: "Why are image width/height read with sharp in a fire-and-forget block instead of before responding?",
-      opts: [
-        { t: "So the upload response returns fast; dimensions backfill asynchronously after", ok: true },
-        { t: "Because sharp can only run outside of transactions" },
-        { t: "To avoid needing admin permission for that step" },
-      ],
-      why: "The comment says it: <code>Backfill dimensions async — don't block the upload response</code>. The <code>import('sharp').then(...)</code> chain isn't awaited."
-    }
-  },
-  {
-    id: "gatehouse",
-    emoji: "🛡️",
-    name: "The Gatehouse",
-    tag: "auth.ts · dal.ts · proxy.ts",
-    blurb: "Identity, sessions & route guards.",
-    lore: "Three cooperating guards. <em>auth.ts</em> configures NextAuth with a credentials provider (email + bcrypt-hashed password) and JWT sessions. <em>proxy.ts</em> is edge middleware that redirects at navigation time. <em>dal.ts</em> is the data-access layer whose <code>verifyAdmin()</code> is the last word before protected data loads.",
-    files: [
-      { f: "src/auth.ts", d: "NextAuth v5: Credentials provider, bcrypt compare, JWT callbacks injecting id + role." },
-      { f: "src/lib/dal.ts", d: "verifyAdmin() (redirects non-admins) and getCurrentUser(), both React-cached." },
-      { f: "src/proxy.ts", d: "Middleware: bounce unauthenticated users off /admin, and logged-in users off /login." },
-      { f: "api/auth/[...nextauth]/route.ts", d: "NextAuth's request handlers." },
-    ],
-    flow: [
-      "Login form posts email + password. NextAuth's <code>authorize()</code> looks up the user.",
-      "<code>bcrypt.compare()</code> validates the password; failure returns null → rejected.",
-      "On success a JWT is minted; the <code>jwt</code> callback stuffs <code>id</code> and <code>role</code> into the token.",
-      "Later, <code>session</code> callback copies those onto <code>session.user</code> so pages can read the role.",
-      "<code>verifyAdmin()</code> is wrapped in React <code>cache()</code> so repeated calls in one request are free.",
-    ],
-    quest: {
-      q: "Where do a user's id and role come from when a page reads session.user.role?",
-      opts: [
-        { t: "The JWT — the jwt() callback writes them into the token, session() copies them out", ok: true },
-        { t: "A fresh database query on every page load" },
-        { t: "A cookie the browser sets directly" },
-      ],
-      why: "Session strategy is <code>jwt</code>. The <code>jwt</code> callback writes <code>token.id/role</code>; the <code>session</code> callback mirrors them onto <code>session.user</code>. No per-page DB hit for that."
-    }
-  },
-  {
-    id: "records",
-    emoji: "🗄️",
-    name: "The Records Room",
-    tag: "prisma/schema.prisma",
-    blurb: "The shape of everything.",
-    lore: "The single source of truth for data. It's a <em>SQLite</em> database (served via libSQL/Turso) modeled with <em>Prisma</em>. Two worlds live here: the <em>public</em> content (PortfolioGroup/Portfolio/PortfolioPhoto), the <em>private</em> deliveries (Gallery/Photo), the <em>auth</em> tables (User/Account/Session), and <em>Booking</em> requests.",
-    files: [
-      { f: "prisma/schema.prisma", d: "All models. Note onDelete: Cascade on photo→parent relations." },
-      { f: "prisma/seed.ts", d: "Seeds initial data (npm run seed)." },
-      { f: "src/lib/prisma.ts", d: "The shared Prisma client (libSQL adapter)." },
-    ],
-    flow: [
-      "<b>Public:</b> PortfolioGroup 1—* Portfolio 1—* PortfolioPhoto. Each has <code>slug</code>, <code>sortOrder</code>, <code>aspectRatio</code>.",
-      "<b>Private:</b> Gallery 1—* Photo. Gallery carries the <code>password</code>.",
-      "<b>Auth:</b> User/Account/Session/VerificationToken (NextAuth's Prisma adapter). User.role defaults to ADMIN.",
-      "<b>Leads:</b> Booking rows with a <code>status</code> (defaults to PENDING).",
-      "Deleting a parent cascades to its photos via <code>onDelete: Cascade</code>.",
-    ],
-    quest: {
-      q: "What happens to a Gallery's Photo rows when the Gallery is deleted?",
-      opts: [
-        { t: "They're deleted automatically — the relation is onDelete: Cascade", ok: true },
-        { t: "They're kept as orphans with a null galleryId" },
-        { t: "The delete is blocked until you remove photos first" },
-      ],
-      why: "<code>Photo.gallery</code> is defined with <code>onDelete: Cascade</code>, so removing the Gallery removes its Photos. (The action also deletes the files from UploadThing first.)"
-    }
-  },
-  {
-    id: "bench",
-    emoji: "⚙️",
-    name: "The Action Bench",
-    tag: "src/app/actions/*",
-    blurb: "Every write to the world.",
-    lore: "Server Actions are the mutation layer — the only sanctioned way to change data. Each file owns one domain (gallery, portfolio, photo, booking…). The pattern is consistent: <em>verifyAdmin → validate with Zod → touch Prisma → revalidatePath → redirect</em>. Public actions (like booking) skip the admin check but add a CAPTCHA instead.",
-    files: [
-      { f: "actions/gallery.ts", d: "create/update/delete galleries, regenerate password, verifyAlbumPassword." },
-      { f: "actions/portfolio.ts / portfolio-group.ts / portfolio-photo.ts", d: "Public content CRUD + reordering. Has tests." },
-      { f: "actions/booking.ts", d: "Public: validates + Turnstile CAPTCHA, then stores a Booking." },
-      { f: "actions/photo.ts / auth.ts", d: "Photo ops and auth helpers." },
-    ],
-    flow: [
-      "A form/component invokes a <code>'use server'</code> action.",
-      "Admin actions immediately <code>await verifyAdmin()</code> — no exceptions.",
-      "Input is parsed with a <code>zod</code> schema; failures return typed <code>errors</code> to the form.",
-      "Prisma performs the write; slugs are generated with a local <code>slugify()</code>.",
-      "<code>revalidatePath()</code> refreshes affected pages; many end in <code>redirect()</code>.",
-    ],
-    quest: {
-      q: "A brand-new gallery gets its password from…",
-      opts: [
-        { t: "crypto.randomBytes(4).toString('hex') — a random 8-char hex string", ok: true },
-        { t: "The admin types it in the create form" },
-        { t: "It's always the gallery's slug" },
-      ],
-      why: "<code>createGallery</code> calls <code>generatePassword()</code> = <code>crypto.randomBytes(4).toString('hex')</code>. Admins regenerate it later via <code>regeneratePassword</code>."
-    }
-  },
-  {
-    id: "gate",
-    emoji: "🚦",
-    name: "The Booking Gate",
-    tag: "booking-form.tsx · turnstile.ts",
-    blurb: "Turning visitors into clients.",
-    lore: "The contact form on the homepage. To keep spam out, it's protected by <em>Cloudflare Turnstile</em> — a privacy-friendly CAPTCHA. The widget sits just below the submit button; on submit, the server <em>re-verifies the token</em> with Cloudflare before a Booking is ever written.",
-    files: [
-      { f: "src/app/booking-form.tsx", d: "The client form + Turnstile widget (@marsidev/react-turnstile)." },
-      { f: "src/lib/turnstile.ts", d: "Server-side token verification against Cloudflare." },
-      { f: "actions/booking.ts", d: "Validates fields (zod), verifies Turnstile, creates the Booking." },
-    ],
-    flow: [
-      "Visitor fills name/email/session type and solves the Turnstile challenge → gets a token.",
-      "Form submits the token with the fields to the booking server action.",
-      "Server calls <code>lib/turnstile.ts</code> to verify the token with Cloudflare's siteverify.",
-      "Invalid/absent token → rejected. Valid → a <code>Booking</code> row is created with status PENDING.",
-      "It later appears in <code>/admin/bookings</code> for Faith to act on.",
-    ],
-    quest: {
-      q: "The Turnstile token from the browser is trusted because…",
-      opts: [
-        { t: "The server re-verifies it with Cloudflare before creating the Booking", ok: true },
-        { t: "The widget can't be faked, so the client check is enough" },
-        { t: "It's stored and checked on the next visit" },
-      ],
-      why: "Client-side widgets can be bypassed, so <code>lib/turnstile.ts</code> does a server-to-server verification of the token before <code>booking.ts</code> writes anything."
-    }
-  },
-];
-
-/* Step-through traces of real request flows */
-const TRACES = [
-  {
-    id: "deliver",
-    emoji: "📸",
-    name: "Deliver photos to a client",
-    sub: "Upload → private gallery → download",
-    stages: [
-      { emoji:"🎛️", h:"Admin creates a gallery", where:"actions/gallery.ts → createGallery",
-        p:"Faith names a gallery. The action slugifies the title and generates a random password with crypto.",
-        code:"<span class='k'>const</span> slug = slugify(title)\n<span class='k'>await</span> prisma.gallery.create({\n  data: { title, slug,\n    password: generatePassword() } <span class='c'>// 8 hex chars</span>\n})" },
-      { emoji:"🧪", h:"She uploads photos", where:"api/uploadthing/core.ts → galleryPhoto",
-        p:"The middleware confirms she's ADMIN. Files go to UploadThing (not local disk). On complete, a transaction inserts each photo at max(sortOrder)+1.",
-        code:"<span class='k'>await</span> prisma.$transaction(<span class='k'>async</span> (tx) => {\n  <span class='k'>const</span> m = <span class='k'>await</span> tx.photo.aggregate({\n    _max: { sortOrder: <span class='k'>true</span> } })\n  <span class='k'>return</span> tx.photo.create({ data: {\n    url: file.ufsUrl, fileKey: file.key,\n    sortOrder: (m._max.sortOrder ?? -1) + 1 }})\n})" },
-      { emoji:"📐", h:"Dimensions fill in quietly", where:"api/uploadthing/core.ts (fire-and-forget)",
-        p:"Without blocking the response, sharp is lazily imported, the image is fetched, and width/height are written back to the row.",
-        code:"<span class='k'>import</span>(<span class='s'>'sharp'</span>).then(({default: sharp}) =>\n  fetch(file.ufsUrl)\n   .then(r => r.arrayBuffer())\n   .then(buf => sharp(Buffer.from(buf)).metadata())\n   .then(meta => prisma.photo.update(...)))" },
-      { emoji:"🔗", h:"Client opens the link", where:"gallery/[slug]/page.tsx",
-        p:"The page reads the per-gallery access cookie. Missing → it renders only the password form, never the photos.",
-        code:"<span class='k'>const</span> c = cookieStore.get(`gallery-${slug}-access`)\n<span class='k'>if</span> (c?.value !== <span class='s'>'granted'</span>)\n  <span class='k'>return</span> &lt;AlbumPasswordForm slug={slug} /&gt;" },
-      { emoji:"🔐", h:"Password unlocks it", where:"actions/gallery.ts → verifyAlbumPassword",
-        p:"On a correct password, an httpOnly cookie is set for 30 days and the page revalidates — now the lightbox renders.",
-        code:"<span class='k'>if</span> (gallery.password === password)\n  cookieStore.set(`gallery-${slug}-access`,\n    <span class='s'>'granted'</span>, { httpOnly: <span class='k'>true</span>,\n      maxAge: 60*60*24*30 })" },
-      { emoji:"⬇️", h:"They download favorites", where:"api/gallery/[slug]/download/route.ts",
-        p:"Selected photos are streamed as a ZIP built on the fly with archiver — no pre-zipping, no temp files.",
-        code:"<span class='c'>// archiver streams selected photos</span>\n<span class='k'>const</span> archive = archiver(<span class='s'>'zip'</span>)\nphotos.forEach(p => archive.append(stream, ...))\narchive.finalize()" },
-    ]
-  },
-  {
-    id: "login",
-    emoji: "🔑",
-    name: "Admin logs in & edits",
-    sub: "Credentials → JWT → guarded page",
-    stages: [
-      { emoji:"🚦", h:"Hitting /admin while logged out", where:"src/proxy.ts (middleware)",
-        p:"Edge middleware runs first. No session on an /admin path → immediate redirect to /login, before any page code runs.",
-        code:"<span class='k'>if</span> (pathname.startsWith(<span class='s'>'/admin'</span>)\n    && !session?.user)\n  <span class='k'>return</span> NextResponse.redirect(\n    <span class='k'>new</span> URL(<span class='s'>'/login'</span>, request.url))" },
-      { emoji:"🛡️", h:"Submitting credentials", where:"src/auth.ts → authorize()",
-        p:"NextAuth looks up the user by email and bcrypt-compares the password. A mismatch returns null and login fails.",
-        code:"<span class='k'>const</span> user = <span class='k'>await</span> prisma.user.findUnique({\n  where: { email } })\n<span class='k'>const</span> ok = <span class='k'>await</span> bcrypt.compare(\n  password, user.password)\n<span class='k'>if</span> (!ok) <span class='k'>return null</span>" },
-      { emoji:"🎫", h:"A token is minted", where:"src/auth.ts → callbacks",
-        p:"Session strategy is JWT. The jwt callback writes id + role into the token; the session callback copies them onto session.user.",
-        code:"<span class='k'>async</span> jwt({ token, user }) {\n  <span class='k'>if</span> (user) { token.id = user.id;\n    token.role = user.role } <span class='k'>return</span> token }" },
-      { emoji:"🎛️", h:"The admin page loads", where:"src/lib/dal.ts → verifyAdmin()",
-        p:"Inside the page, verifyAdmin() re-checks role === 'ADMIN' (redirecting otherwise). It's React-cached so repeats are free.",
-        code:"<span class='k'>export const</span> verifyAdmin = cache(<span class='k'>async</span> () => {\n  <span class='k'>const</span> s = <span class='k'>await</span> auth()\n  <span class='k'>if</span> (s?.user?.role !== <span class='s'>'ADMIN'</span>)\n    redirect(<span class='s'>'/login'</span>)\n  <span class='k'>return</span> s })" },
-      { emoji:"⚙️", h:"An edit is saved", where:"app/actions/*.ts",
-        p:"The edit form invokes a server action that ALSO starts with verifyAdmin(), validates with zod, writes via Prisma, then revalidates.",
-        code:"<span class='s'>'use server'</span>\n<span class='k'>await</span> verifyAdmin()\n<span class='k'>const</span> parsed = schema.safeParse(input)\n<span class='k'>await</span> prisma.gallery.update(...)\nrevalidatePath(`/admin/galleries/${id}`)" },
-    ]
-  },
-  {
-    id: "book",
-    emoji: "✉️",
-    name: "A visitor books a session",
-    sub: "Form → CAPTCHA → lead in admin",
-    stages: [
-      { emoji:"🌿", h:"Filling out the form", where:"src/app/page.tsx → booking-form.tsx",
-        p:"At the bottom of the homepage, a visitor enters their details and solves a Cloudflare Turnstile challenge.",
-        code:"&lt;BookingForm /&gt; <span class='c'>// includes</span>\n&lt;Turnstile siteKey={...} /&gt;\n<span class='c'>// yields a token on success</span>" },
-      { emoji:"🚦", h:"The server re-verifies", where:"actions/booking.ts + lib/turnstile.ts",
-        p:"The action validates fields with zod, then verifies the Turnstile token server-to-server with Cloudflare. Bots don't get through.",
-        code:"<span class='k'>const</span> ok = <span class='k'>await</span> verifyTurnstile(token)\n<span class='k'>if</span> (!ok) <span class='k'>return</span> { error: <span class='s'>'captcha'</span> }" },
-      { emoji:"🗄️", h:"A lead is recorded", where:"prisma → Booking",
-        p:"A Booking row is created with status PENDING and the visitor's session type, date and message.",
-        code:"<span class='k'>await</span> prisma.booking.create({ data: {\n  name, email, sessionType,\n  status: <span class='s'>'PENDING'</span> } })" },
-      { emoji:"🎛️", h:"Faith sees it", where:"admin/bookings/page.tsx",
-        p:"The new request appears in the admin bookings inbox, where she can open it and move it through its status workflow.",
-        code:"<span class='c'>// admin-only, guarded by verifyAdmin()</span>\nprisma.booking.findMany({\n  orderBy: { createdAt: <span class='s'>'desc'</span> } })" },
-    ]
-  },
-];
-
-/* ============================================================
-   STATE + RENDER
-   ============================================================ */
-const KEY = "fl-codebase-world-v1";
-let state = load();
-
-function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {visited:[], quests:[]}; } catch(e){ return {visited:[], quests:[]}; } }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
-
-const totalGoals = ZONES.length + ZONES.length; // visit + quest per zone
-function progress(){
-  const v = new Set(state.visited).size;
-  const q = new Set(state.quests).size;
-  return { done: v + q, total: totalGoals, zonesVisited: v, questsDone: q };
-}
-function updateXP(){
-  const p = progress();
-  document.getElementById("xpFill").style.width = (p.done/p.total*100) + "%";
-  document.getElementById("xpLabel").textContent =
-    p.zonesVisited + "/" + ZONES.length + " zones · " + p.questsDone + "/" + ZONES.length + " quests";
-}
-
-const main = document.getElementById("main");
-function renderHub(){
-  const p = progress();
-  const complete = p.done === p.total;
-  main.innerHTML = `
     <div class="intro-hero">
       <div class="kicker">Interactive Field Guide</div>
       <h1>Explore the studio, one room at a time.</h1>
-      <p>${complete ? "You've explored every room and passed every quest. Legend. 🏆" : "Tap a zone to learn what lives there, trace how real requests flow, and test yourself. Progress saves on this device."}</p>
+      <p>Each room is a real part of the codebase. Tap to open it — read what lives there, follow how a real request flows, then test yourself with a quest.</p>
       <div class="chips">
         <span class="chip">Next.js 16</span><span class="chip">React 19</span>
         <span class="chip">Prisma · SQLite</span><span class="chip">NextAuth</span>
@@ -674,171 +132,446 @@ function renderHub(){
       </div>
     </div>
 
-    <div class="mini-legend">
-      <span><i class="dot" style="background:var(--accent)"></i> tap to enter</span>
-      <span><i class="dot" style="background:var(--good)"></i> quest passed</span>
-    </div>
+    <div class="hint">👆 Tap any card to expand it. Tap an answer to check it.</div>
 
-    <div class="section-h">The Grounds — ${p.zonesVisited}/${ZONES.length} explored</div>
-    <div class="grid" id="zoneGrid"></div>
+    <div class="section-h">The Grounds — 9 rooms</div>
+
+    <!-- ============ ZONE: LAWN ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🌿</div><div class="s-txt">
+        <h3>The Front Lawn</h3><p>Where every visitor arrives.</p>
+        <div class="path">src/app/page.tsx</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">The public homepage — the first thing a client sees. It's a <em>Server Component</em>: it runs on the server, renders a full-viewport hero, queries the database for a <em>“Selected Work”</em> grid, and ends with a booking form. Nothing ships to your phone until it's finished HTML.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>src/app/page.tsx</b><span>The homepage. Queries PortfolioGroups that have photos + a cover image.</span></li>
+          <li><b>src/app/layout.tsx</b><span>Root layout — fonts and chrome wrapping every page.</span></li>
+          <li><b>mobile-menu.tsx / reveal.tsx</b><span>Client components: nav menu + scroll-reveal animations.</span></li>
+          <li><b>src/app/booking-form.tsx</b><span>The contact form that feeds the Booking table.</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">A visitor requests <code>/</code>; Next.js runs <code>Home()</code> on the server.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">It calls <code>auth()</code> (to show an Admin link if logged in) and <code>prisma.portfolioGroup.findMany()</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">Only groups with <code>some portfolios</code> AND a <code>coverImageUrl</code> make the grid — empties are hidden.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">Each card links to <code>/portfolio/[slug]</code>. Finished HTML ships to the phone.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">Why might a PortfolioGroup you created NOT appear in the homepage grid?</div>
+          <div class="quiz">
+            <input type="radio" name="q-lawn" id="lawn-a"><label for="lawn-a" class="correct">It has no cover image, or no portfolios inside it</label>
+            <div class="fb ok">✓ The query filters on <code>portfolios:{some:{}}</code> and <code>coverImageUrl:{not:null}</code>.</div>
+            <input type="radio" name="q-lawn" id="lawn-b"><label for="lawn-b" class="wrong">It was created less than 24 hours ago</label>
+            <div class="fb no">There's no time filter — it's about cover image + having portfolios.</div>
+            <input type="radio" name="q-lawn" id="lawn-c"><label for="lawn-c" class="wrong">You're not logged in as admin</label>
+            <div class="fb no">The grid is public; login only toggles the Admin link.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: PORTFOLIO ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🖼️</div><div class="s-txt">
+        <h3>The Portfolio Wing</h3><p>Public galleries of work, nested.</p>
+        <div class="path">src/app/portfolio/[groupSlug]/…</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">The public body of work has three tiers: <em>PortfolioGroup → Portfolio → PortfolioPhoto</em>. Groups are the front-page categories; tap one to see its portfolios, tap a portfolio to see photos. URLs nest to match: <code>/portfolio/weddings/emma-and-sam</code>.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>[groupSlug]/page.tsx</b><span>Lists the portfolios inside one group.</span></li>
+          <li><b>[groupSlug]/[portfolioSlug]/page.tsx</b><span>Shows the photos of a single portfolio.</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">Front page links to a group by its <code>slug</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">The group page loads that group + its portfolios, ordered by <code>sortOrder</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">Each portfolio links deeper to <code>[groupSlug]/[portfolioSlug]</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">That leaf page renders <code>PortfolioPhoto</code> rows in <code>sortOrder</code>.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">How deep is the public portfolio hierarchy?</div>
+          <div class="quiz">
+            <input type="radio" name="q-pf" id="pf-a"><label for="pf-a" class="correct">Three levels: Group → Portfolio → Photo</label>
+            <div class="fb ok">✓ The schema and routes both chain those three models.</div>
+            <input type="radio" name="q-pf" id="pf-b"><label for="pf-b" class="wrong">Two: Gallery → Photo</label>
+            <div class="fb no">That's the private client-gallery side, a separate structure.</div>
+            <input type="radio" name="q-pf" id="pf-c"><label for="pf-c" class="wrong">One flat list of images</label>
+            <div class="fb no">It's nested — groups contain portfolios contain photos.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: VAULT ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🔐</div><div class="s-txt">
+        <h3>The Gallery Vault</h3><p>Password-protected client deliveries.</p>
+        <div class="path">src/app/gallery/[slug]</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">Separate from the public portfolio: this is how finished photos are <em>delivered privately to a client</em>. Each <em>Gallery</em> has a random password. The client opens a link, types it once, and a signed cookie remembers them for 30 days. Inside: a lightbox, favorites selection, and a ZIP download.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>gallery/[slug]/page.tsx</b><span>Loads the gallery, checks the access cookie, gates on the password form.</span></li>
+          <li><b>password-form.tsx</b><span>Client form posting to verifyAlbumPassword.</span></li>
+          <li><b>gallery-client.tsx / lightbox.tsx</b><span>The interactive viewer + selection UI.</span></li>
+          <li><b>api/gallery/[slug]/download/route.ts</b><span>Streams selected photos as a ZIP (archiver).</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">Client visits <code>/gallery/emma-wedding</code>; page reads cookie <code>gallery-emma-wedding-access</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">No cookie → render the password form instead of photos.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt"><code>verifyAlbumPassword()</code> compares against <code>gallery.password</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">Match → set an <code>httpOnly</code> cookie for 30 days, then revalidate.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">5</div></div><div class="flow-txt">Cookie now exists → the full lightbox + ZIP download renders.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">How does the gallery remember a client already entered the password?</div>
+          <div class="quiz">
+            <input type="radio" name="q-vault" id="vault-a"><label for="vault-a" class="correct">A 30-day httpOnly cookie named per gallery slug</label>
+            <div class="fb ok">✓ <code>verifyAlbumPassword</code> sets <code>gallery-&lt;slug&gt;-access=granted</code>, maxAge 30 days.</div>
+            <input type="radio" name="q-vault" id="vault-b"><label for="vault-b" class="wrong">Their IP is whitelisted</label>
+            <div class="fb no">No IP logic — it's a cookie.</div>
+            <input type="radio" name="q-vault" id="vault-c"><label for="vault-c" class="wrong">A NextAuth login, same as admins</label>
+            <div class="fb no">Clients are not NextAuth users; only admins log in.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: STUDIO ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🎛️</div><div class="s-txt">
+        <h3>The Admin Studio</h3><p>The photographer's control room.</p>
+        <div class="path">src/app/admin/*</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">Behind the login lives the CMS. Faith manages everything here: galleries, portfolios &amp; groups, <em>drag-to-reorder</em> photos, and incoming <em>Bookings</em>. Every admin page is guarded twice — by edge middleware and by <code>verifyAdmin()</code> inside the page.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>admin/layout.tsx / mobile-nav.tsx</b><span>Shell + navigation for the admin area.</span></li>
+          <li><b>galleries · portfolios · portfolio-groups</b><span>CRUD screens with new/[id] sub-routes.</span></li>
+          <li><b>admin/bookings</b><span>Inbox of session requests with a status workflow.</span></li>
+          <li><b>reorder-photos.ts + use-admin-photo-selection.ts</b><span>Drag-and-drop logic (dnd-kit), with tests.</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">Request hits <code>/admin/...</code>; <code>proxy.ts</code> middleware checks for a session.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">No session → redirect to <code>/login</code> before the page renders.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">Inside the page, <code>verifyAdmin()</code> re-checks role === 'ADMIN'.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">Mutations go through <code>app/actions/*</code>, each starting with <code>await verifyAdmin()</code>.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">Admin routes are protected in two places. Why belt-and-suspenders?</div>
+          <div class="quiz">
+            <input type="radio" name="q-studio" id="studio-a"><label for="studio-a" class="correct">Middleware guards navigation; verifyAdmin() guards data even if middleware is bypassed</label>
+            <div class="fb ok">✓ Server actions can be invoked directly, so each re-checks. Defense in depth.</div>
+            <input type="radio" name="q-studio" id="studio-b"><label for="studio-b" class="wrong">One is for mobile, one for desktop</label>
+            <div class="fb no">Both apply everywhere — it's about layers, not devices.</div>
+            <input type="radio" name="q-studio" id="studio-c"><label for="studio-c" class="wrong">It's accidental and should be removed</label>
+            <div class="fb no">It's intentional layered security.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: DARKROOM ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🧪</div><div class="s-txt">
+        <h3>The Darkroom</h3><p>Where uploaded photos are developed.</p>
+        <div class="path">src/app/api/uploadthing/core.ts</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">The upload pipeline. Photos never touch the server's disk — they go to <em>UploadThing</em>. Three routers (gallery photos, portfolio photos, group covers) each verify you're admin, record the photo in a <em>transaction</em> at the next <code>sortOrder</code>, revalidate the right pages, then — without blocking — backfill width &amp; height with <em>sharp</em>.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>api/uploadthing/core.ts</b><span>The FileRouter: galleryPhoto, portfolioPhoto, groupCoverImage.</span></li>
+          <li><b>api/uploadthing/route.ts</b><span>Wires the router into a Next.js route handler.</span></li>
+          <li><b>lib/uploadthing.ts + hooks/use-upload-queue.ts</b><span>Client helpers + a resilient upload queue (tested).</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt"><code>.middleware()</code> runs — rejects anyone whose role isn't ADMIN.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">File lands in cloud storage; <code>.onUploadComplete()</code> fires on the server.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">A <code>$transaction</code> reads <code>max(sortOrder)</code> and inserts the photo at <code>max+1</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt"><code>revalidatePath()</code> refreshes both the public and admin pages.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">5</div></div><div class="flow-txt">Then <code>import('sharp')</code> lazily reads dimensions and updates the row — fire-and-forget.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">Why read width/height with sharp in a fire-and-forget block?</div>
+          <div class="quiz">
+            <input type="radio" name="q-dark" id="dark-a"><label for="dark-a" class="correct">So the upload response returns fast; dimensions backfill asynchronously</label>
+            <div class="fb ok">✓ The comment says exactly this; the <code>import('sharp').then(...)</code> chain isn't awaited.</div>
+            <input type="radio" name="q-dark" id="dark-b"><label for="dark-b" class="wrong">sharp can only run outside transactions</label>
+            <div class="fb no">Not the reason — it's about response latency.</div>
+            <input type="radio" name="q-dark" id="dark-c"><label for="dark-c" class="wrong">To avoid needing admin permission</label>
+            <div class="fb no">The whole route already required admin in the middleware.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: GATEHOUSE ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🛡️</div><div class="s-txt">
+        <h3>The Gatehouse</h3><p>Identity, sessions &amp; route guards.</p>
+        <div class="path">auth.ts · dal.ts · proxy.ts</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">Three cooperating guards. <em>auth.ts</em> configures NextAuth (email + bcrypt password, JWT sessions). <em>proxy.ts</em> is edge middleware that redirects at navigation time. <em>dal.ts</em> holds <code>verifyAdmin()</code> — the last word before protected data loads.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>src/auth.ts</b><span>NextAuth v5: Credentials provider, bcrypt compare, JWT callbacks with id + role.</span></li>
+          <li><b>src/lib/dal.ts</b><span>verifyAdmin() and getCurrentUser(), both React-cached.</span></li>
+          <li><b>src/proxy.ts</b><span>Middleware: bounce guests off /admin, logged-in users off /login.</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">Login posts email + password; <code>authorize()</code> looks up the user.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt"><code>bcrypt.compare()</code> validates; failure returns null → rejected.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">On success a JWT is minted; the <code>jwt</code> callback adds <code>id</code> and <code>role</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">The <code>session</code> callback copies them onto <code>session.user</code>.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">Where do id and role come from when a page reads session.user.role?</div>
+          <div class="quiz">
+            <input type="radio" name="q-gate" id="gate-a"><label for="gate-a" class="correct">The JWT — jwt() writes them in, session() copies them out</label>
+            <div class="fb ok">✓ Session strategy is <code>jwt</code>; no per-page DB hit for the role.</div>
+            <input type="radio" name="q-gate" id="gate-b"><label for="gate-b" class="wrong">A fresh DB query every page load</label>
+            <div class="fb no">They ride in the token instead.</div>
+            <input type="radio" name="q-gate" id="gate-c"><label for="gate-c" class="wrong">A cookie the browser sets directly</label>
+            <div class="fb no">The server mints the JWT; the browser can't set role.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: RECORDS ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🗄️</div><div class="s-txt">
+        <h3>The Records Room</h3><p>The shape of everything.</p>
+        <div class="path">prisma/schema.prisma</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">The single source of truth for data — <em>SQLite</em> (via libSQL/Turso) modeled with <em>Prisma</em>. Public content, private deliveries, auth tables, and booking leads all live here.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>prisma/schema.prisma</b><span>All models. Photo→parent relations use onDelete: Cascade.</span></li>
+          <li><b>prisma/seed.ts</b><span>Seeds initial data (npm run seed).</span></li>
+          <li><b>src/lib/prisma.ts</b><span>The shared Prisma client (libSQL adapter).</span></li>
+        </ul>
+        <div class="block-h">The models</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">▸</div></div><div class="flow-txt"><b>Public:</b> PortfolioGroup 1—* Portfolio 1—* PortfolioPhoto (each has <code>slug</code>, <code>sortOrder</code>, <code>aspectRatio</code>).</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">▸</div></div><div class="flow-txt"><b>Private:</b> Gallery 1—* Photo. Gallery carries the <code>password</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">▸</div></div><div class="flow-txt"><b>Auth:</b> User/Account/Session/VerificationToken. User.role defaults to ADMIN.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">▸</div></div><div class="flow-txt"><b>Leads:</b> Booking rows with a <code>status</code> (defaults to PENDING).</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">What happens to a Gallery's Photo rows when the Gallery is deleted?</div>
+          <div class="quiz">
+            <input type="radio" name="q-rec" id="rec-a"><label for="rec-a" class="correct">Deleted automatically — the relation is onDelete: Cascade</label>
+            <div class="fb ok">✓ And the action also deletes the files from UploadThing first.</div>
+            <input type="radio" name="q-rec" id="rec-b"><label for="rec-b" class="wrong">Kept as orphans with null galleryId</label>
+            <div class="fb no">Cascade removes them rather than orphaning.</div>
+            <input type="radio" name="q-rec" id="rec-c"><label for="rec-c" class="wrong">The delete is blocked</label>
+            <div class="fb no">Cascade allows it and cleans up children.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: BENCH ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">⚙️</div><div class="s-txt">
+        <h3>The Action Bench</h3><p>Every write to the world.</p>
+        <div class="path">src/app/actions/*</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">Server Actions are the mutation layer — the sanctioned way to change data. The pattern is consistent: <em>verifyAdmin → validate with Zod → touch Prisma → revalidatePath → redirect</em>. Public actions (booking) swap the admin check for a CAPTCHA.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>actions/gallery.ts</b><span>create/update/delete, regenerate password, verifyAlbumPassword.</span></li>
+          <li><b>actions/portfolio*.ts</b><span>Public content CRUD + reordering. Tested.</span></li>
+          <li><b>actions/booking.ts</b><span>Public: validates + Turnstile CAPTCHA, then stores a Booking.</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">A form invokes a <code>'use server'</code> action.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">Admin actions <code>await verifyAdmin()</code> first — no exceptions.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">Input is parsed with a <code>zod</code> schema; failures return typed errors.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">Prisma writes; slugs are made with a local <code>slugify()</code>.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">5</div></div><div class="flow-txt"><code>revalidatePath()</code> refreshes pages; many end in <code>redirect()</code>.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">A brand-new gallery gets its password from…</div>
+          <div class="quiz">
+            <input type="radio" name="q-bench" id="bench-a"><label for="bench-a" class="correct">crypto.randomBytes(4).toString('hex') — a random 8-char hex string</label>
+            <div class="fb ok">✓ <code>createGallery</code> calls <code>generatePassword()</code>; admins regenerate later.</div>
+            <input type="radio" name="q-bench" id="bench-b"><label for="bench-b" class="wrong">The admin types it in the form</label>
+            <div class="fb no">It's generated automatically on create.</div>
+            <input type="radio" name="q-bench" id="bench-c"><label for="bench-c" class="wrong">It's always the gallery's slug</label>
+            <div class="fb no">Slug and password are independent.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- ============ ZONE: BOOKING GATE ============ -->
+    <details class="zone">
+      <summary><div class="s-emoji">🚦</div><div class="s-txt">
+        <h3>The Booking Gate</h3><p>Turning visitors into clients.</p>
+        <div class="path">booking-form.tsx · turnstile.ts</div></div><div class="chev">›</div></summary>
+      <div class="body">
+        <p class="lore">The homepage contact form. To keep spam out, it's guarded by <em>Cloudflare Turnstile</em> — a privacy-friendly CAPTCHA. The widget sits below the submit button; on submit, the server <em>re-verifies the token</em> with Cloudflare before a Booking is written.</p>
+        <div class="block-h">What lives here</div>
+        <ul class="files">
+          <li><b>src/app/booking-form.tsx</b><span>Client form + Turnstile widget (@marsidev/react-turnstile).</span></li>
+          <li><b>src/lib/turnstile.ts</b><span>Server-side token verification against Cloudflare.</span></li>
+          <li><b>actions/booking.ts</b><span>Validates fields, verifies Turnstile, creates the Booking.</span></li>
+        </ul>
+        <div class="block-h">How it flows</div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">1</div></div><div class="flow-txt">Visitor fills the form and solves Turnstile → gets a token.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">2</div></div><div class="flow-txt">Form submits the token with the fields to the action.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">3</div></div><div class="flow-txt">Server verifies the token with Cloudflare's siteverify.</div></div>
+        <div class="flow-step"><div class="flow-line"><div class="flow-num">4</div></div><div class="flow-txt">Valid → a <code>Booking</code> row is created with status PENDING.</div></div>
+        <div class="quest">
+          <div class="q-label">Quest</div>
+          <div class="q">The Turnstile token from the browser is trusted because…</div>
+          <div class="quiz">
+            <input type="radio" name="q-book" id="book-a"><label for="book-a" class="correct">The server re-verifies it with Cloudflare before creating the Booking</label>
+            <div class="fb ok">✓ Client widgets can be bypassed, so <code>lib/turnstile.ts</code> does a server check.</div>
+            <input type="radio" name="q-book" id="book-b"><label for="book-b" class="wrong">The widget can't be faked, so the client check is enough</label>
+            <div class="fb no">Never trust the client alone — hence the server verify.</div>
+            <input type="radio" name="q-book" id="book-c"><label for="book-c" class="wrong">It's stored and checked next visit</label>
+            <div class="fb no">It's verified immediately, per submission.</div>
+          </div>
+        </div>
+      </div>
+    </details>
 
     <div class="section-h">Trace a Journey</div>
-    <div id="traceList"></div>
 
-    <div class="reset"><button id="resetBtn">Reset my progress</button></div>
-  `;
-
-  const grid = document.getElementById("zoneGrid");
-  ZONES.forEach(z => {
-    const done = state.quests.includes(z.id);
-    const visited = state.visited.includes(z.id);
-    const el = document.createElement("button");
-    el.className = "zone" + (done ? " done" : "");
-    el.innerHTML = `
-      <div class="tick">✓</div>
-      <div class="emoji">${z.emoji}</div>
-      <h3>${z.name}</h3>
-      <p>${z.blurb}</p>
-      <div class="pathtag">${visited && !done ? "▸ visited" : z.tag}</div>`;
-    el.onclick = () => openZone(z);
-    grid.appendChild(el);
-  });
-
-  const tl = document.getElementById("traceList");
-  TRACES.forEach(t => {
-    const el = document.createElement("div");
-    el.className = "trace-card";
-    el.innerHTML = `<div class="t-emoji">${t.emoji}</div>
-      <div><h3>${t.name}</h3><p>${t.sub}</p></div>
-      <div class="arrow">›</div>`;
-    el.onclick = () => openTrace(t);
-    tl.appendChild(el);
-  });
-
-  document.getElementById("resetBtn").onclick = () => {
-    state = {visited:[], quests:[]}; save(); updateXP(); renderHub();
-    toast("Progress reset");
-  };
-  updateXP();
-}
-
-/* ---- Zone sheet ---- */
-const sheet = document.getElementById("sheet");
-const backdrop = document.getElementById("backdrop");
-const sheetBody = document.getElementById("sheetBody");
-
-function openSheet(){ sheet.classList.add("open"); backdrop.classList.add("open"); document.body.style.overflow="hidden"; }
-function closeSheet(){ sheet.classList.remove("open"); backdrop.classList.remove("open"); document.body.style.overflow=""; }
-document.getElementById("sheetClose").onclick = closeSheet;
-backdrop.onclick = closeSheet;
-
-function openZone(z){
-  if(!state.visited.includes(z.id)){ state.visited.push(z.id); save(); }
-  document.getElementById("sheetEmoji").textContent = z.emoji;
-  document.getElementById("sheetTitle").textContent = z.name;
-  document.getElementById("sheetSub").textContent = z.tag;
-
-  let flowHtml = z.flow.map((s,i)=>`
-    <div class="flow-step">
-      <div class="flow-line"><div class="flow-num">${i+1}</div></div>
-      <div class="flow-txt">${s}</div>
-    </div>`).join("");
-
-  let filesHtml = z.files.map(f=>`<li><b>${f.f}</b><span>${f.d}</span></li>`).join("");
-
-  sheetBody.innerHTML = `
-    <p class="lore">${z.lore}</p>
-    <div class="block-h">What lives here</div>
-    <ul class="files">${filesHtml}</ul>
-    <div class="block-h">How it flows</div>
-    <div class="flow">${flowHtml}</div>
-    <div class="quest" id="quest"></div>
-  `;
-  renderQuest(z);
-  sheetBody.scrollTop = 0;
-  openSheet();
-  updateXP();
-  renderHub(); // reflect "visited" underneath
-}
-
-function renderQuest(z){
-  const host = document.getElementById("quest");
-  const already = state.quests.includes(z.id);
-  const optsHtml = z.quest.opts.map((o,i)=>`<button class="opt" data-i="${i}" ${already?"disabled":""}>${o.t}</button>`).join("");
-  host.innerHTML = `
-    <div class="q-label">Quest · Test your understanding</div>
-    <div class="q">${z.quest.q}</div>
-    <div id="opts">${optsHtml}</div>
-    <div class="q-feedback ${already?'ok show':''}" id="qfb">${already?('✓ '+z.quest.why):''}</div>
-  `;
-  if(already){
-    // reveal correct styling
-    [...host.querySelectorAll(".opt")].forEach((b,i)=>{ if(z.quest.opts[i].ok) b.classList.add("correct"); });
-    return;
-  }
-  host.querySelectorAll(".opt").forEach(btn=>{
-    btn.onclick = ()=>{
-      const i = +btn.dataset.i;
-      const correct = z.quest.opts[i].ok;
-      host.querySelectorAll(".opt").forEach(b=>b.disabled=true);
-      const fb = document.getElementById("qfb");
-      if(correct){
-        btn.classList.add("correct");
-        fb.className = "q-feedback ok show"; fb.innerHTML = "✓ " + z.quest.why;
-        if(!state.quests.includes(z.id)){ state.quests.push(z.id); save(); toast("Quest passed ✓ +XP"); }
-        updateXP();
-      } else {
-        btn.classList.add("wrong");
-        [...host.querySelectorAll(".opt")].forEach((b,j)=>{ if(z.quest.opts[j].ok) b.classList.add("correct"); });
-        fb.className = "q-feedback no show"; fb.innerHTML = "Not quite. " + z.quest.why;
-      }
-    };
-  });
-}
-
-/* ---- Trace player ---- */
-function openTrace(t){
-  document.getElementById("sheetEmoji").textContent = t.emoji;
-  document.getElementById("sheetTitle").textContent = t.name;
-  document.getElementById("sheetSub").textContent = t.sub;
-  let idx = 0;
-  function draw(){
-    const s = t.stages[idx];
-    const dots = t.stages.map((_,i)=>`<i class="${i<=idx?'on':''}"></i>`).join("");
-    sheetBody.innerHTML = `
-      <div class="trace-progress">${dots}</div>
-      <div class="trace-stage">
-        <div class="stage-emoji">${s.emoji}</div>
-        <h3>${s.h}</h3>
-        <div class="where">${s.where}</div>
-        <p>${s.p}</p>
-        <div class="snippet">${s.code}</div>
+    <!-- ============ TRACE: DELIVER ============ -->
+    <details class="trace">
+      <summary><div class="s-emoji">📸</div><div class="s-txt">
+        <h3>Deliver photos to a client</h3><p>Upload → private gallery → download</p></div><div class="chev">›</div></summary>
+      <div class="body">
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🎛️</div>
+          <h4>1 · Admin creates a gallery</h4><div class="where">actions/gallery.ts → createGallery</div>
+          <p>Faith names a gallery. The action slugifies the title and generates a random password.</p>
+          <div class="snippet"><span class="k">const</span> slug = slugify(title)
+<span class="k">await</span> prisma.gallery.create({ data: {
+  title, slug,
+  password: generatePassword() <span class="c">// 8 hex chars</span> }})</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🧪</div>
+          <h4>2 · She uploads photos</h4><div class="where">api/uploadthing/core.ts → galleryPhoto</div>
+          <p>Middleware confirms she's ADMIN. Files go to UploadThing. On complete, a transaction inserts each photo at max(sortOrder)+1.</p>
+          <div class="snippet"><span class="k">await</span> prisma.$transaction(<span class="k">async</span> (tx) => {
+  <span class="k">const</span> m = <span class="k">await</span> tx.photo.aggregate({
+    _max: { sortOrder: <span class="k">true</span> } })
+  <span class="k">return</span> tx.photo.create({ data: {
+    url: file.ufsUrl, fileKey: file.key,
+    sortOrder: (m._max.sortOrder ?? -1) + 1 }})
+})</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">📐</div>
+          <h4>3 · Dimensions fill in quietly</h4><div class="where">core.ts (fire-and-forget)</div>
+          <p>Without blocking the response, sharp is lazily imported, the image fetched, and width/height written back.</p>
+          <div class="snippet"><span class="k">import</span>(<span class="s">'sharp'</span>).then(({default: sharp}) =>
+  fetch(file.ufsUrl)
+   .then(r => r.arrayBuffer())
+   .then(buf => sharp(Buffer.from(buf)).metadata())
+   .then(meta => prisma.photo.update(...)))</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🔗</div>
+          <h4>4 · Client opens the link</h4><div class="where">gallery/[slug]/page.tsx</div>
+          <p>The page reads the per-gallery cookie. Missing → it renders only the password form.</p>
+          <div class="snippet"><span class="k">const</span> c = cookieStore.get(`gallery-${slug}-access`)
+<span class="k">if</span> (c?.value !== <span class="s">'granted'</span>)
+  <span class="k">return</span> &lt;AlbumPasswordForm slug={slug} /&gt;</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🔐</div>
+          <h4>5 · Password unlocks it</h4><div class="where">actions/gallery.ts → verifyAlbumPassword</div>
+          <p>On a correct password, a 30-day httpOnly cookie is set and the page revalidates — the lightbox renders.</p>
+          <div class="snippet"><span class="k">if</span> (gallery.password === password)
+  cookieStore.set(`gallery-${slug}-access`,
+    <span class="s">'granted'</span>, { httpOnly: <span class="k">true</span>,
+      maxAge: 60*60*24*30 })</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">⬇️</div>
+          <h4>6 · They download favorites</h4><div class="where">api/gallery/[slug]/download/route.ts</div>
+          <p>Selected photos are streamed as a ZIP built on the fly with archiver — no temp files.</p>
+          <div class="snippet"><span class="c">// archiver streams selected photos</span>
+<span class="k">const</span> archive = archiver(<span class="s">'zip'</span>)
+photos.forEach(p => archive.append(stream, ...))
+archive.finalize()</div></div>
       </div>
-      <div class="trace-nav">
-        <button class="btn ghost" id="tPrev" ${idx===0?'disabled style="opacity:.4"':''}>Back</button>
-        <button class="btn" id="tNext">${idx===t.stages.length-1?'Finish':'Next step ›'}</button>
+    </details>
+
+    <!-- ============ TRACE: LOGIN ============ -->
+    <details class="trace">
+      <summary><div class="s-emoji">🔑</div><div class="s-txt">
+        <h3>Admin logs in &amp; edits</h3><p>Credentials → JWT → guarded page</p></div><div class="chev">›</div></summary>
+      <div class="body">
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🚦</div>
+          <h4>1 · Hitting /admin logged out</h4><div class="where">src/proxy.ts (middleware)</div>
+          <p>Edge middleware runs first. No session on an /admin path → immediate redirect to /login.</p>
+          <div class="snippet"><span class="k">if</span> (pathname.startsWith(<span class="s">'/admin'</span>)
+    && !session?.user)
+  <span class="k">return</span> NextResponse.redirect(
+    <span class="k">new</span> URL(<span class="s">'/login'</span>, request.url))</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🛡️</div>
+          <h4>2 · Submitting credentials</h4><div class="where">src/auth.ts → authorize()</div>
+          <p>NextAuth looks up the user by email and bcrypt-compares the password. A mismatch fails login.</p>
+          <div class="snippet"><span class="k">const</span> user = <span class="k">await</span> prisma.user.findUnique({
+  where: { email } })
+<span class="k">const</span> ok = <span class="k">await</span> bcrypt.compare(
+  password, user.password)
+<span class="k">if</span> (!ok) <span class="k">return null</span></div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🎫</div>
+          <h4>3 · A token is minted</h4><div class="where">src/auth.ts → callbacks</div>
+          <p>Session strategy is JWT. The jwt callback writes id + role; the session callback copies them onto session.user.</p>
+          <div class="snippet"><span class="k">async</span> jwt({ token, user }) {
+  <span class="k">if</span> (user) { token.id = user.id;
+    token.role = user.role }
+  <span class="k">return</span> token }</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🎛️</div>
+          <h4>4 · The admin page loads</h4><div class="where">src/lib/dal.ts → verifyAdmin()</div>
+          <p>Inside the page, verifyAdmin() re-checks role === 'ADMIN'. It's React-cached so repeats are free.</p>
+          <div class="snippet"><span class="k">export const</span> verifyAdmin = cache(<span class="k">async</span> () => {
+  <span class="k">const</span> s = <span class="k">await</span> auth()
+  <span class="k">if</span> (s?.user?.role !== <span class="s">'ADMIN'</span>)
+    redirect(<span class="s">'/login'</span>)
+  <span class="k">return</span> s })</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">⚙️</div>
+          <h4>5 · An edit is saved</h4><div class="where">app/actions/*.ts</div>
+          <p>The form invokes a server action that ALSO starts with verifyAdmin(), validates with zod, writes, then revalidates.</p>
+          <div class="snippet"><span class="s">'use server'</span>
+<span class="k">await</span> verifyAdmin()
+<span class="k">const</span> parsed = schema.safeParse(input)
+<span class="k">await</span> prisma.gallery.update(...)
+revalidatePath(`/admin/galleries/${id}`)</div></div>
       </div>
-      <div style="text-align:center;color:var(--stone-2);font-size:12px;margin-top:14px">Step ${idx+1} of ${t.stages.length}</div>
-    `;
-    document.getElementById("tPrev").onclick = ()=>{ if(idx>0){idx--;draw();} };
-    document.getElementById("tNext").onclick = ()=>{
-      if(idx<t.stages.length-1){ idx++; draw(); sheetBody.scrollTop=0; }
-      else { closeSheet(); toast("Journey traced 🗺️"); }
-    };
-    sheetBody.scrollTop = 0;
-  }
-  draw();
-  openSheet();
-}
+    </details>
 
-function toast(msg){
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  clearTimeout(toast._t);
-  toast._t = setTimeout(()=>t.classList.remove("show"), 1900);
-}
+    <!-- ============ TRACE: BOOK ============ -->
+    <details class="trace">
+      <summary><div class="s-emoji">✉️</div><div class="s-txt">
+        <h3>A visitor books a session</h3><p>Form → CAPTCHA → lead in admin</p></div><div class="chev">›</div></summary>
+      <div class="body">
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🌿</div>
+          <h4>1 · Filling out the form</h4><div class="where">page.tsx → booking-form.tsx</div>
+          <p>At the bottom of the homepage, a visitor enters details and solves a Cloudflare Turnstile challenge.</p>
+          <div class="snippet">&lt;BookingForm /&gt; <span class="c">// includes</span>
+&lt;Turnstile siteKey={...} /&gt;
+<span class="c">// yields a token on success</span></div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🚦</div>
+          <h4>2 · The server re-verifies</h4><div class="where">actions/booking.ts + lib/turnstile.ts</div>
+          <p>The action validates fields with zod, then verifies the token server-to-server with Cloudflare.</p>
+          <div class="snippet"><span class="k">const</span> ok = <span class="k">await</span> verifyTurnstile(token)
+<span class="k">if</span> (!ok) <span class="k">return</span> { error: <span class="s">'captcha'</span> }</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🗄️</div>
+          <h4>3 · A lead is recorded</h4><div class="where">prisma → Booking</div>
+          <p>A Booking row is created with status PENDING and the visitor's session type, date and message.</p>
+          <div class="snippet"><span class="k">await</span> prisma.booking.create({ data: {
+  name, email, sessionType,
+  status: <span class="s">'PENDING'</span> } })</div></div>
+        <div class="stage"><div class="dot"></div><div class="st-emoji">🎛️</div>
+          <h4>4 · Faith sees it</h4><div class="where">admin/bookings/page.tsx</div>
+          <p>The request appears in the admin bookings inbox, where she moves it through its status workflow.</p>
+          <div class="snippet"><span class="c">// admin-only, guarded by verifyAdmin()</span>
+prisma.booking.findMany({
+  orderBy: { createdAt: <span class="s">'desc'</span> } })</div></div>
+      </div>
+    </details>
 
-renderHub();
-</script>
+    <footer>Faith Lauren Photography · codebase field guide · works offline</footer>
+  </main>
+</div>
 </body>
 </html>
