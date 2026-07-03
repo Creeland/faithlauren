@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#1c1917" />
+    <title>Deep Modules — The Refactor World</title>
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --bg-2: #f2ede6;
+        --ink: #1c1917;
+        --stone: #57534e;
+        --stone-2: #78716c;
+        --line: #e7e1d8;
+        --accent: #b08968;
+        --accent-2: #9a7355;
+        --accent-soft: #f4ece4;
+        --good: #4d7c5a;
+        --good-soft: #eef5ef;
+        --bad: #a04b4b;
+        --bad-soft: #fbeeee;
+        --card: #fff;
+        --shadow:
+          0 1px 2px rgba(28, 25, 23, 0.06), 0 8px 24px rgba(28, 25, 23, 0.06);
+        --radius: 16px;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .app {
+        max-width: 720px;
+        margin: 0 auto;
+        min-height: 100svh;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: var(--bg-2);
+        padding: 1px 5px;
+        border-radius: 5px;
+        font-size: 0.85em;
+        color: var(--accent-2);
+      }
+
+      .tabradio {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+      }
+      header.bar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: rgba(250, 248, 245, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+        padding: max(10px, env(safe-area-inset-top)) 16px 10px;
+      }
+      .brand {
+        font-size: 13px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+      .brand small {
+        display: block;
+        letter-spacing: 0.12em;
+        font-size: 9.5px;
+        color: var(--stone-2);
+        margin-top: 3px;
+      }
+
+      main {
+        padding: 18px 16px calc(96px + env(safe-area-inset-bottom));
+      }
+      .panel {
+        display: none;
+        animation: fade 0.25s ease;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      #tab-quiz:checked ~ main #p-quiz {
+        display: block;
+      }
+      #tab-changes:checked ~ main #p-changes {
+        display: block;
+      }
+      #tab-theory:checked ~ main #p-theory {
+        display: block;
+      }
+
+      nav.tabbar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        background: rgba(250, 248, 245, 0.95);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--line);
+        display: flex;
+        justify-content: center;
+      }
+      nav.tabbar .inner {
+        display: flex;
+        width: 100%;
+        max-width: 720px;
+        padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+      }
+      nav.tabbar label {
+        flex: 1;
+        text-align: center;
+        padding: 7px 2px 5px;
+        border-radius: 12px;
+        cursor: pointer;
+        color: var(--stone-2);
+      }
+      nav.tabbar label .ico {
+        display: block;
+        font-size: 20px;
+        line-height: 1.2;
+        filter: grayscale(1) opacity(0.55);
+      }
+      nav.tabbar label .txt {
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+      }
+      #tab-quiz:checked ~ nav label[for="tab-quiz"],
+      #tab-changes:checked ~ nav label[for="tab-changes"],
+      #tab-theory:checked ~ nav label[for="tab-theory"] {
+        color: var(--accent-2);
+        background: var(--accent-soft);
+      }
+      #tab-quiz:checked ~ nav label[for="tab-quiz"] .ico,
+      #tab-changes:checked ~ nav label[for="tab-changes"] .ico,
+      #tab-theory:checked ~ nav label[for="tab-theory"] .ico {
+        filter: none;
+      }
+
+      .hero {
+        border-radius: var(--radius);
+        margin-bottom: 18px;
+        background: linear-gradient(
+          150deg,
+          #2a2622,
+          #4a3f36 60%,
+          var(--accent-2)
+        );
+        color: #f5efe8;
+        padding: 24px 20px 22px;
+      }
+      .hero .kicker {
+        font-size: 10.5px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .hero h1 {
+        font-size: 24px;
+        font-weight: 300;
+        margin: 8px 0 6px;
+        line-height: 1.18;
+      }
+      .hero p {
+        font-size: 13.5px;
+        opacity: 0.92;
+        margin: 0;
+      }
+      .hero .stats {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+      .hero .stat {
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 11px;
+        padding: 7px 11px;
+        font-size: 11px;
+      }
+      .hero .stat b {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .section-h {
+        font-size: 12px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--stone-2);
+        margin: 26px 0 12px;
+      }
+      .note {
+        font-size: 12px;
+        color: var(--stone-2);
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 10px 12px;
+        margin: 14px 0;
+      }
+
+      /* change cards */
+      details.mod {
+        margin-bottom: 12px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      details.mod[open] {
+        border-color: #dccdb9;
+      }
+      details.mod > summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+      }
+      details.mod > summary::-webkit-details-marker {
+        display: none;
+      }
+      details.mod > summary:active {
+        background: var(--bg-2);
+      }
+      .s-emoji {
+        font-size: 26px;
+        flex: 0 0 auto;
+      }
+      .s-txt h3 {
+        margin: 0 0 2px;
+        font-size: 15.5px;
+        font-weight: 600;
+      }
+      .s-txt p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--stone-2);
+      }
+      .s-txt .path {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 10px;
+        color: var(--accent-2);
+        margin-top: 4px;
+      }
+      .badge {
+        margin-left: auto;
+        flex: 0 0 auto;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        background: var(--good-soft);
+        color: #2f5d3a;
+        border: 1px solid #cfe0d3;
+        border-radius: 99px;
+        padding: 4px 9px;
+        white-space: nowrap;
+      }
+      .mbody {
+        padding: 2px 16px 18px;
+        border-top: 1px solid var(--line);
+      }
+      .lore {
+        font-size: 14px;
+        margin: 14px 0 4px;
+      }
+      .lore em {
+        color: var(--accent-2);
+        font-style: normal;
+        font-weight: 600;
+      }
+      .block-h {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--stone-2);
+        margin: 20px 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .block-h::before {
+        content: "";
+        width: 14px;
+        height: 1px;
+        background: var(--accent);
+      }
+      .block-h.was::before {
+        background: var(--bad);
+      }
+      .block-h.now::before {
+        background: var(--good);
+      }
+
+      .snippet {
+        border-radius: 12px;
+        padding: 12px 13px;
+        margin-bottom: 4px;
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 11px;
+        line-height: 1.65;
+        overflow-x: auto;
+        white-space: pre;
+        -webkit-overflow-scrolling: touch;
+      }
+      .snippet.before {
+        background: #2a201e;
+        color: #e3d3d0;
+        border-left: 3px solid var(--bad);
+      }
+      .snippet.after {
+        background: #1e241f;
+        color: #d5e2d7;
+        border-left: 3px solid var(--good);
+      }
+      .snippet .k {
+        color: #d8a877;
+      }
+      .snippet .c {
+        color: #8f9c8a;
+        opacity: 0.9;
+      }
+      .snippet .s {
+        color: #c8a2a2;
+      }
+      .cap {
+        font-size: 10.5px;
+        color: var(--stone-2);
+        margin: 4px 2px 12px;
+      }
+      .hides {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .hides li {
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 9px 11px;
+        margin-bottom: 7px;
+        font-size: 12.5px;
+        color: var(--stone);
+      }
+      .hides li b {
+        color: var(--ink);
+      }
+
+      /* quiz */
+      #p-quiz {
+        counter-reset: score;
+      }
+      .qcard {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 15px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow);
+      }
+      .q-label {
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent-2);
+        font-weight: 700;
+      }
+      .q {
+        font-size: 14.5px;
+        font-weight: 500;
+        margin: 6px 0 13px;
+      }
+      .quiz input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+      }
+      .quiz label {
+        display: block;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 13px;
+        margin-bottom: 9px;
+        font-size: 13.5px;
+        cursor: pointer;
+      }
+      .quiz label:active {
+        background: var(--bg-2);
+      }
+      .quiz .fb {
+        display: none;
+        font-size: 12.5px;
+        margin: -3px 0 11px;
+        padding: 10px 12px;
+        border-radius: 9px;
+      }
+      .quiz input:checked + label + .fb {
+        display: block;
+      }
+      .quiz input:checked + label.correct {
+        border-color: var(--good);
+        background: var(--good-soft);
+        color: #2f5d3a;
+        font-weight: 500;
+        counter-increment: score;
+      }
+      .quiz input:checked + label.wrong {
+        border-color: #d99;
+        background: var(--bad-soft);
+        color: #8a3a3a;
+      }
+      .fb.ok {
+        background: var(--good-soft);
+        color: #2f5d3a;
+      }
+      .fb.no {
+        background: var(--bad-soft);
+        color: #8a3a3a;
+      }
+      .scoreboard {
+        background: linear-gradient(
+          150deg,
+          #2a2622,
+          #4a3f36 70%,
+          var(--accent-2)
+        );
+        color: #f5efe8;
+        border-radius: var(--radius);
+        padding: 22px 20px;
+        text-align: center;
+        margin-top: 20px;
+      }
+      .scoreboard .sc-label {
+        font-size: 10px;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .scoreboard .sc-num {
+        font-size: 42px;
+        font-weight: 300;
+        margin: 6px 0 2px;
+      }
+      .scoreboard .sc-num::before {
+        content: counter(score);
+      }
+      .scoreboard .sc-sub {
+        font-size: 11.5px;
+        opacity: 0.85;
+      }
+
+      /* theory */
+      .axiom {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 15px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow);
+      }
+      .axiom h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 600;
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+      .axiom p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--stone);
+      }
+      .axiom .applied {
+        margin-top: 10px;
+        font-size: 12px;
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px 11px;
+      }
+      .depth {
+        display: flex;
+        gap: 10px;
+        margin: 16px 0;
+      }
+      .depth > div {
+        flex: 1;
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        text-align: center;
+      }
+      .depth .shallow-v {
+        background: var(--bad-soft);
+      }
+      .depth .deep-v {
+        background: var(--good-soft);
+      }
+      .depth .iface {
+        height: 26px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: #fff;
+        margin-bottom: 6px;
+      }
+      .depth .impl {
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #fff;
+        opacity: 0.85;
+      }
+      .depth .shallow-v .iface {
+        background: var(--bad);
+      }
+      .depth .shallow-v .impl {
+        background: #c49a9a;
+        height: 22px;
+      }
+      .depth .deep-v .iface {
+        background: var(--good);
+        width: 55%;
+        margin: 0 auto 6px;
+      }
+      .depth .deep-v .impl {
+        background: #8fae97;
+        height: 88px;
+      }
+      .depth .lbl {
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      .depth .sub {
+        font-size: 10px;
+        color: var(--stone-2);
+      }
+      footer.foot {
+        text-align: center;
+        color: var(--stone-2);
+        font-size: 11px;
+        padding: 22px 0 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <input class="tabradio" type="radio" name="tabs" id="tab-quiz" checked />
+      <input class="tabradio" type="radio" name="tabs" id="tab-changes" />
+      <input class="tabradio" type="radio" name="tabs" id="tab-theory" />
+
+      <header class="bar">
+        <div class="brand">
+          Deep Modules<small>the refactor world · commit 20b2872</small>
+        </div>
+      </header>
+
+      <main>
+        <!-- ==================================================== QUIZ -->
+        <section class="panel" id="p-quiz">
+          <div class="hero">
+            <div class="kicker">Step 1 · Prove You Read It</div>
+            <h1>Eight questions on the refactor.</h1>
+            <p>
+              You read the explanation — now lock it in. Tap an answer to check
+              it; your score tallies at the bottom. Then explore the Changes and
+              Theory tabs.
+            </p>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">1 · gallery-access</div>
+            <div class="q">
+              After the refactor, how many files know that gallery access is a
+              cookie at all?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q1" id="q1a" /><label
+                for="q1a"
+                class="wrong"
+                >Three — the page, the download route, and the action</label
+              >
+              <div class="fb no">
+                That was <em>before</em>. Those three now just call grant/has.
+              </div>
+              <input type="radio" name="q1" id="q1b" /><label
+                for="q1b"
+                class="correct"
+                >One — lib/gallery-access.ts</label
+              >
+              <div class="fb ok">
+                ✓ The cookie name, "granted" value, 30-day lifetime and flags
+                are all private to that module. Callers ask two questions: grant
+                or check.
+              </div>
+              <input type="radio" name="q1" id="q1c" /><label
+                for="q1c"
+                class="wrong"
+                >Zero — it moved into the database</label
+              >
+              <div class="fb no">Still a cookie — just a hidden one.</div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">2 · sortable</div>
+            <div class="q">
+              What real inconsistency did persistOrder() eliminate?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q2" id="q2a" /><label
+                for="q2a"
+                class="correct"
+                >Two of the four reorder actions used non-atomic Promise.all; a
+                mid-flight failure could leave a half-reordered list</label
+              >
+              <div class="fb ok">
+                ✓ Photos used $transaction but portfolios and groups used
+                Promise.all. Now all four go through one transactional path.
+              </div>
+              <input type="radio" name="q2" id="q2b" /><label
+                for="q2b"
+                class="wrong"
+                >Reordering was sorted ascending in some actions and descending
+                in others</label
+              >
+              <div class="fb no">
+                Sort direction was consistent — the atomicity wasn't.
+              </div>
+              <input type="radio" name="q2" id="q2c" /><label
+                for="q2c"
+                class="wrong"
+                >Some reorders forgot to call revalidatePath</label
+              >
+              <div class="fb no">
+                Revalidation was fine; it also stays in the actions, since it's
+                a routing concern.
+              </div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">3 · sortable</div>
+            <div class="q">
+              What protection did the reorder payload gain that it never had
+              before?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q3" id="q3a" /><label
+                for="q3a"
+                class="wrong"
+                >Rate limiting per admin session</label
+              >
+              <div class="fb no">No rate limiting was added.</div>
+              <input type="radio" name="q3" id="q3b" /><label
+                for="q3b"
+                class="wrong"
+                >The order array is now encrypted in transit</label
+              >
+              <div class="fb no">
+                TLS already covers transit; the gap was validation.
+              </div>
+              <input type="radio" name="q3" id="q3c" /><label
+                for="q3c"
+                class="correct"
+                >Zod validation — previously the JSON was blindly cast with
+                "as", trusting the client's shape</label
+              >
+              <div class="fb ok">
+                ✓ <code>JSON.parse(... ) as {id, sortOrder}[]</code> trusted
+                whatever arrived. Now a schema rejects malformed payloads before
+                any write.
+              </div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">4 · dal</div>
+            <div class="q">
+              Why does dal.ts now export BOTH verifyAdmin() and requireAdmin()?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q4" id="q4a" /><label
+                for="q4a"
+                class="correct"
+                >Same check, different failure mode: pages want a redirect to
+                /login, API contexts want a thrown error</label
+              >
+              <div class="fb ok">
+                ✓ redirect() is meaningless inside an upload middleware. One
+                module now owns the check; each caller picks the failure
+                behavior that fits its context.
+              </div>
+              <input type="radio" name="q4" id="q4b" /><label
+                for="q4b"
+                class="wrong"
+                >requireAdmin is for SUPER_ADMIN users only</label
+              >
+              <div class="fb no">There's only one role check — ADMIN.</div>
+              <input type="radio" name="q4" id="q4c" /><label
+                for="q4c"
+                class="wrong"
+                >One is cached and one always hits the database</label
+              >
+              <div class="fb no">
+                Both are wrapped in React cache() and neither hits the DB for
+                the role — it rides in the JWT.
+              </div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">5 · storage</div>
+            <div class="q">
+              deleteStoredFiles() replaced 8 hand-rolled blocks. What decisions
+              does it hide?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q5" id="q5a" /><label
+                for="q5a"
+                class="wrong"
+                >Which storage provider to bill the deletion to</label
+              >
+              <div class="fb no">
+                Billing isn't in play — it's about the calling ritual.
+              </div>
+              <input type="radio" name="q5" id="q5b" /><label
+                for="q5b"
+                class="correct"
+                >Filtering out null fileKeys, skipping the API call when empty,
+                and owning the single UTApi client</label
+              >
+              <div class="fb ok">
+                ✓ Callers now pass raw fileKeys straight off DB rows. Five
+                separate <code>new UTApi()</code> instances collapsed into one.
+              </div>
+              <input type="radio" name="q5" id="q5c" /><label
+                for="q5c"
+                class="wrong"
+                >Retrying failed deletions with exponential backoff</label
+              >
+              <div class="fb no">
+                No retry logic was added — same behavior, one owner.
+              </div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">6 · photo-store</div>
+            <div class="q">
+              addGalleryPhoto() / addPortfolioPhoto() pulled which policies OUT
+              of the upload routers?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q6" id="q6a" /><label
+                for="q6a"
+                class="correct"
+                >The claim-next-sortOrder transaction and the fire-and-forget
+                sharp dimension backfill</label
+              >
+              <div class="fb ok">
+                ✓ core.ts shrank ~40% and now only does routing concerns: auth,
+                existence checks, and revalidation. "Where a photo lands and how
+                it's measured" lives in photo-store.
+              </div>
+              <input type="radio" name="q6" id="q6b" /><label
+                for="q6b"
+                class="wrong"
+                >The 64MB file size limit and file count limit</label
+              >
+              <div class="fb no">
+                Upload limits stayed in the routers — they're upload-protocol
+                concerns.
+              </div>
+              <input type="radio" name="q6" id="q6c" /><label
+                for="q6c"
+                class="wrong"
+                >The revalidatePath calls for public pages</label
+              >
+              <div class="fb no">
+                Deliberately left in core.ts — which URLs to refresh is a
+                routing concern, not a storage concern.
+              </div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">7 · slugify</div>
+            <div class="q">
+              Three identical slugify() copies existed. What was the actual
+              risk?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q7" id="q7a" /><label
+                for="q7a"
+                class="wrong"
+                >Triple the CPU cost of generating slugs</label
+              >
+              <div class="fb no">
+                Performance was identical — the danger was divergence.
+              </div>
+              <input type="radio" name="q7" id="q7b" /><label
+                for="q7b"
+                class="correct"
+                >Silent drift: edit one copy and galleries, portfolios and
+                groups quietly disagree on what a valid URL is</label
+              >
+              <div class="fb ok">
+                ✓ A duplicated design decision isn't one decision — it's three
+                that happen to agree today. Uniqueness checks and URLs would
+                break subtly.
+              </div>
+              <input type="radio" name="q7" id="q7c" /><label
+                for="q7c"
+                class="wrong"
+                >It bloated the client bundle three times over</label
+              >
+              <div class="fb no">
+                These are server files; the bundle wasn't the issue.
+              </div>
+            </div>
+          </div>
+
+          <div class="qcard">
+            <div class="q-label">8 · theory</div>
+            <div class="q">
+              In Ousterhout's terms, what makes a module "deep"?
+            </div>
+            <div class="quiz">
+              <input type="radio" name="q8" id="q8a" /><label
+                for="q8a"
+                class="wrong"
+                >Many small classes, each doing exactly one thing</label
+              >
+              <div class="fb no">
+                That's "classitis" — the anti-pattern. Many tiny interfaces
+                multiply the complexity callers carry.
+              </div>
+              <input type="radio" name="q8" id="q8b" /><label
+                for="q8b"
+                class="wrong"
+                >Deep inheritance hierarchies with shared base classes</label
+              >
+              <div class="fb no">Nothing to do with inheritance depth.</div>
+              <input type="radio" name="q8" id="q8c" /><label
+                for="q8c"
+                class="correct"
+                >A small, simple interface hiding a large amount of
+                functionality</label
+              >
+              <div class="fb ok">
+                ✓ Interface = cost, functionality = benefit.
+                <code>grantGalleryAccess(slug)</code> is one argument hiding an
+                entire access-control scheme.
+              </div>
+            </div>
+          </div>
+
+          <div class="scoreboard">
+            <div class="sc-label">Your Score</div>
+            <div class="sc-num"></div>
+            <div class="sc-sub">
+              out of 8 · then explore the Changes tab to see every before &amp;
+              after
+            </div>
+          </div>
+          <footer class="foot">
+            score resets on reload — pure CSS has no memory
+          </footer>
+        </section>
+
+        <!-- ==================================================== CHANGES -->
+        <section class="panel" id="p-changes">
+          <div class="hero">
+            <div class="kicker">Step 2 · The Six Deepenings</div>
+            <h1>Same behavior, fewer places to be wrong.</h1>
+            <p>
+              Each card is one new module: the friction it removes, the
+              before/after, and what it now hides. All verified — 68 tests, tsc,
+              and next build all green.
+            </p>
+            <div class="stats">
+              <div class="stat"><b>6</b>new modules</div>
+              <div class="stat"><b>~24</b>call sites simplified</div>
+              <div class="stat"><b>12</b>new boundary tests</div>
+              <div class="stat"><b>2</b>bugs-in-waiting fixed</div>
+            </div>
+          </div>
+
+          <details class="mod">
+            <summary>
+              <div class="s-emoji">🍪</div>
+              <div class="s-txt">
+                <h3>gallery-access</h3>
+                <p>The access scheme becomes a secret.</p>
+                <div class="path">src/lib/gallery-access.ts</div>
+              </div>
+              <div class="badge">3 sites → 1 owner</div>
+            </summary>
+            <div class="mbody">
+              <p class="lore">
+                The page, the ZIP download route, and the password action each
+                hand-rolled the cookie: same name template, same magic string,
+                same 30-day math. Any change — a longer lifetime, a signed value
+                — meant a three-file scavenger hunt, and missing one meant
+                clients locked out of downloads but not pages (or worse, the
+                reverse).
+              </p>
+              <div class="block-h was">Before — in three different files</div>
+              <div class="snippet before">
+                <span class="c">// gallery/[slug]/page.tsx</span>
+                <span class="k">const</span> c =
+                cookieStore.get(`gallery-${slug}-access`)
+                <span class="k">const</span> hasAccess = c?.value ===
+                <span class="s">"granted"</span>
+
+                <span class="c">// api/gallery/[slug]/download/route.ts</span>
+                <span class="k">const</span> c =
+                cookieStore.get(`gallery-${slug}-access`)
+                <span class="k">if</span> (c?.value !==
+                <span class="s">"granted"</span>)
+                <span class="k">return</span> 401
+
+                <span class="c">// actions/gallery.ts</span>
+                cookieStore.set(`gallery-${slug}-access`,
+                <span class="s">"granted"</span>, { httpOnly:
+                <span class="k">true</span>, maxAge: 60*60*24*30, ... })
+              </div>
+              <div class="block-h now">After — one module, two questions</div>
+              <div class="snippet after">
+                <span class="c"
+                  >// lib/gallery-access.ts owns the whole scheme</span
+                >
+                <span class="k">await</span> grantGalleryAccess(slug)
+                <span class="c">// action</span>
+                <span class="k">await</span> hasGalleryAccess(slug)
+                <span class="c">// page &amp; route</span>
+              </div>
+              <div class="block-h">Now hidden inside</div>
+              <ul class="hides">
+                <li>
+                  <b>The cookie name format</b> — no caller can typo the
+                  template string anymore.
+                </li>
+                <li>
+                  <b>The "granted" sentinel &amp; 30-day lifetime</b> — change
+                  access duration in exactly one line.
+                </li>
+                <li>
+                  <b>httpOnly / secure / sameSite flags</b> — the security
+                  posture is one decision, not three.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="mod">
+            <summary>
+              <div class="s-emoji">🔀</div>
+              <div class="s-txt">
+                <h3>sortable</h3>
+                <p>One way to persist a drag-and-drop.</p>
+                <div class="path">src/lib/sortable.ts</div>
+              </div>
+              <div class="badge">4 copies + 2 fixes</div>
+            </summary>
+            <div class="mbody">
+              <p class="lore">
+                Four reorder actions (photos, portfolio photos, portfolios,
+                groups) each parsed JSON off the form,
+                <em>cast it without validation</em>, and looped updates. Worse:
+                two used <code>$transaction</code>, two used
+                <code>Promise.all</code> — so a failure mid-reorder of groups
+                could commit half the new order. That's not a style nit; it's a
+                data-integrity difference nobody chose on purpose.
+              </p>
+              <div class="block-h was">Before — ×4, two of them non-atomic</div>
+              <div class="snippet before">
+                <span class="k">const</span> order =
+                JSON.parse(formData.get(<span class="s">"order"</span>))
+                <span class="k">as</span> { id: string; sortOrder: number }[]
+                <span class="c">// trust the client!</span>
+
+                <span class="k">await</span> Promise.all(
+                <span class="c">// ⚠ partial failure =</span> order.map((item)
+                =&gt;
+                <span class="c">// half-reordered list</span>
+                prisma.portfolio.update({ ... })))
+              </div>
+              <div class="block-h now">
+                After — validated, atomic, everywhere
+              </div>
+              <div class="snippet after">
+                <span class="k">await</span> persistOrder(prisma.portfolio,
+                formData)
+
+                <span class="c">// inside: zod-validated payload, then</span>
+                <span class="c"
+                  >// prisma.$transaction — all positions or none</span
+                >
+              </div>
+              <div class="block-h">Now hidden inside</div>
+              <ul class="hides">
+                <li>
+                  <b>Payload validation</b> — a zod schema rejects malformed
+                  order arrays before any write.
+                </li>
+                <li>
+                  <b>Atomicity policy</b> — every reorder in the app is
+                  transactional, by construction.
+                </li>
+                <li>
+                  <b>The wire format</b> — that ordering travels as a JSON
+                  string in a form field is now nobody's business but this
+                  module's.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="mod">
+            <summary>
+              <div class="s-emoji">🗑️</div>
+              <div class="s-txt">
+                <h3>storage</h3>
+                <p>Deleting cloud files stops being a ritual.</p>
+                <div class="path">src/lib/storage.ts</div>
+              </div>
+              <div class="badge">8 sites, 5 clients → 1</div>
+            </summary>
+            <div class="mbody">
+              <p class="lore">
+                Five files each constructed their own
+                <code>new UTApi()</code> and repeated the same incantation: map
+                to fileKeys, filter out nulls, cast, check non-empty, then
+                delete. Eight times. Every future caller had to remember all
+                four steps or leak files / crash on nulls.
+              </p>
+              <div class="block-h was">Before — ×8 across five files</div>
+              <div class="snippet before">
+                <span class="k">const</span> utapi =
+                <span class="k">new</span> UTApi()
+                <span class="c">// per file!</span>
+
+                <span class="k">const</span> fileKeys = photos.map((p) =&gt;
+                p.fileKey) .filter(Boolean) <span class="k">as</span> string[]
+                <span class="k">if</span> (fileKeys.length &gt; 0) {
+                <span class="k">await</span> utapi.deleteFiles(fileKeys) }
+              </div>
+              <div class="block-h now">After — pass the raw rows</div>
+              <div class="snippet after">
+                <span class="k">await</span> deleteStoredFiles(photos.map((p)
+                =&gt; p.fileKey))
+                <span class="c"
+                  >// nulls skipped, empty = no-op, one shared client</span
+                >
+              </div>
+              <div class="block-h">Now hidden inside</div>
+              <ul class="hides">
+                <li>
+                  <b>Null handling</b> — the type accepts
+                  <code>(string | null | undefined)[]</code>, so callers pass DB
+                  values as-is.
+                </li>
+                <li>
+                  <b>The empty no-op</b> — "don't call the API with nothing" is
+                  defined out of existence for callers.
+                </li>
+                <li>
+                  <b>The UTApi client</b> — one instance, one place to add
+                  retries or logging later.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="mod">
+            <summary>
+              <div class="s-emoji">📸</div>
+              <div class="s-txt">
+                <h3>photo-store</h3>
+                <p>How a photo lands is one decision.</p>
+                <div class="path">src/lib/photo-store.ts</div>
+              </div>
+              <div class="badge">core.ts −40%</div>
+            </summary>
+            <div class="mbody">
+              <p class="lore">
+                Both upload routers duplicated the trickiest code in the app: a
+                transaction that claims <code>max(sortOrder)+1</code> (so
+                concurrent uploads can't collide) and the unawaited sharp
+                pipeline that backfills image dimensions. Subtle concurrency
+                policy, written twice, drifting independently. The routers now
+                do only router things: auth, existence checks, revalidation.
+              </p>
+              <div class="block-h was">Before — ×2 inside core.ts</div>
+              <div class="snippet before">
+                <span class="k">const</span> photo =
+                <span class="k">await</span> prisma.$transaction(<span class="k"
+                  >async</span
+                >
+                (tx) =&gt; { <span class="k">const</span> max =
+                <span class="k">await</span> tx.photo.aggregate({ _max: {
+                sortOrder: <span class="k">true</span> } })
+                <span class="k">return</span> tx.photo.create({ data: { ...,
+                sortOrder: (max._max.sortOrder ?? -1) + 1 } }) })
+                <span class="c"
+                  >// + 12 more lines of sharp backfill … twice</span
+                >
+              </div>
+              <div class="block-h now">
+                After — the router reads like a sentence
+              </div>
+              <div class="snippet after">
+                <span class="k">const</span> photo =
+                <span class="k">await</span> addGalleryPhoto(galleryId, { url:
+                file.ufsUrl, key: file.key, name: file.name, })
+              </div>
+              <div class="block-h">Now hidden inside</div>
+              <ul class="hides">
+                <li>
+                  <b>The append position policy</b> — transactionally claimed,
+                  safe under concurrent uploads.
+                </li>
+                <li>
+                  <b>The sharp backfill</b> — lazy import, fetch, measure,
+                  update, swallow errors, never block the response.
+                </li>
+                <li>
+                  <b>What stayed OUT on purpose</b> — revalidatePath calls
+                  remain in core.ts: which URLs refresh is a routing concern,
+                  not a storage concern.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="mod">
+            <summary>
+              <div class="s-emoji">🛡️</div>
+              <div class="s-txt">
+                <h3>dal · requireAdmin</h3>
+                <p>One check, two failure modes.</p>
+                <div class="path">src/lib/dal.ts</div>
+              </div>
+              <div class="badge">3 checks → 1 (−2 any)</div>
+            </summary>
+            <div class="mbody">
+              <p class="lore">
+                Every upload middleware re-implemented the admin check inline —
+                with an <code>(session.user as any).role</code> cast that wasn't
+                even needed, since <code>types/next-auth.d.ts</code> already
+                types the role. The existing <code>verifyAdmin()</code> couldn't
+                be reused because it <em>redirects</em>, which is meaningless
+                mid-upload. The insight: it's the same check with a
+                context-appropriate failure mode.
+              </p>
+              <div class="block-h was">Before — ×3 in core.ts</div>
+              <div class="snippet before">
+                <span class="k">const</span> session =
+                <span class="k">await</span> auth()
+                <span class="k">if</span> (!session?.user || (session.user
+                <span class="k">as any</span>).role !==
+                <span class="s">"ADMIN"</span>) {
+                <span class="k">throw new</span> Error(<span class="s"
+                  >"Unauthorized"</span
+                >) }
+              </div>
+              <div class="block-h now">
+                After — siblings in the auth boundary
+              </div>
+              <div class="snippet after">
+                <span class="k">await</span> verifyAdmin()
+                <span class="c">// pages: redirect to /login</span>
+                <span class="k">await</span> requireAdmin()
+                <span class="c">// APIs: throw Unauthorized</span>
+              </div>
+              <div class="block-h">Now hidden inside</div>
+              <ul class="hides">
+                <li>
+                  <b>The role predicate</b> — what "is an admin" means lives
+                  only in dal.ts.
+                </li>
+                <li>
+                  <b>React cache()</b> — repeated checks within one request are
+                  free, in both variants.
+                </li>
+                <li>
+                  <b>Typed sessions</b> — the <code>as any</code> casts are
+                  gone; the type augmentation does its job.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="mod">
+            <summary>
+              <div class="s-emoji">🔗</div>
+              <div class="s-txt">
+                <h3>slugify</h3>
+                <p>One URL grammar for the whole site.</p>
+                <div class="path">src/lib/slugify.ts</div>
+              </div>
+              <div class="badge">3 copies → 1</div>
+            </summary>
+            <div class="mbody">
+              <p class="lore">
+                The smallest change but the clearest lesson: the exact same six
+                lines defined "what a slug is" in three files. Three copies of a
+                design decision aren't one decision — they're three that happen
+                to agree <em>today</em>. Fix a slug bug in gallery.ts and
+                portfolios silently keep the old behavior; URLs and uniqueness
+                checks drift apart.
+              </p>
+              <div class="block-h was">
+                Before — ×3, character for character
+              </div>
+              <div class="snippet before">
+                <span class="c"
+                  >// gallery.ts, portfolio.ts, portfolio-group.ts</span
+                >
+                <span class="k">function</span> slugify(text: string) {
+                <span class="k">return</span> text.toLowerCase()
+                .replace(/[^a-z0-9]+/g, <span class="s">"-"</span>)
+                .replace(/(^-|-$)+/g, <span class="s">""</span>) }
+              </div>
+              <div class="block-h now">After — one definition, now tested</div>
+              <div class="snippet after">
+                <span class="k">import</span> { slugify }
+                <span class="k">from</span>
+                <span class="s">"@/lib/slugify"</span>
+                <span class="c">// slugify.test.ts pins the grammar down</span>
+              </div>
+              <div class="block-h">Now guaranteed</div>
+              <ul class="hides">
+                <li>
+                  <b>Every content type agrees</b> on URL shape, forever, by
+                  construction.
+                </li>
+                <li>
+                  <b>The grammar has tests</b> — unicode dashes, punctuation
+                  runs, and edge cases are pinned.
+                </li>
+              </ul>
+            </div>
+          </details>
+
+          <div class="note">
+            🧪 <b>Verification:</b> 68 tests pass (56 existing + 12 new boundary
+            tests) · <code>tsc</code> clean · <code>next build</code> succeeds ·
+            zero new lint findings (and two old ones removed). The one existing
+            test file touched only gained a <code>$transaction</code> mock —
+            every behavioral assertion passed unmodified.
+          </div>
+          <footer class="foot">
+            commit 20b2872 on claude/repo-overview-241ad8
+          </footer>
+        </section>
+
+        <!-- ==================================================== THEORY -->
+        <section class="panel" id="p-theory">
+          <div class="hero">
+            <div class="kicker">Step 3 · Why It Works</div>
+            <h1>The philosophy under the diff.</h1>
+            <p>
+              Four ideas from Ousterhout's
+              <i>A Philosophy of Software Design</i>, each mapped to the exact
+              place this refactor used it.
+            </p>
+          </div>
+
+          <div class="depth">
+            <div class="shallow-v">
+              <div class="iface">WIDE INTERFACE</div>
+              <div class="impl">thin logic</div>
+              <div class="lbl">Shallow</div>
+              <div class="sub">costs almost as much to learn as it saves</div>
+            </div>
+            <div class="deep-v">
+              <div class="iface">small</div>
+              <div class="impl">lots of functionality hidden below</div>
+              <div class="lbl">Deep</div>
+              <div class="sub">one call buys a whole policy</div>
+            </div>
+          </div>
+
+          <div class="axiom">
+            <h3>📦 Modules should be deep</h3>
+            <p>
+              The interface is the cost every caller pays forever; the
+              implementation is the benefit. Maximize the ratio.
+            </p>
+            <div class="applied">
+              <b>Applied:</b> <code>grantGalleryAccess(slug)</code> — one string
+              in, an entire authentication scheme out. The caller's knowledge
+              burden dropped from five cookie details to one verb.
+            </div>
+          </div>
+
+          <div class="axiom">
+            <h3>🙈 Information hiding</h3>
+            <p>
+              A module should encapsulate <i>design decisions</i> — formats,
+              algorithms, policies — so callers physically cannot depend on
+              them.
+            </p>
+            <div class="applied">
+              <b>Applied:</b> nobody outside <code>sortable.ts</code> knows
+              ordering travels as JSON in a form field; nobody outside
+              <code>storage.ts</code> knows UploadThing hates empty delete
+              calls. Those facts can now change without a repo-wide grep.
+            </div>
+          </div>
+
+          <div class="axiom">
+            <h3>🧯 Define errors out of existence</h3>
+            <p>
+              The best error handling is an interface where the error can't
+              occur. Handle edge cases inside, don't export them.
+            </p>
+            <div class="applied">
+              <b>Applied:</b> <code>deleteStoredFiles</code> accepts nulls and
+              empty lists — the "remember to filter and check length" failure
+              mode no longer exists for callers.
+              <code>persistOrder</code> rejects malformed payloads before any
+              write can half-apply.
+            </div>
+          </div>
+
+          <div class="axiom">
+            <h3>⬇️ Pull complexity downward</h3>
+            <p>
+              It's better for a module to be internally complex than to push
+              complexity onto its many callers.
+            </p>
+            <div class="applied">
+              <b>Applied:</b> <code>photo-store.ts</code> is the most intricate
+              file in lib/ — transactions, races, unawaited pipelines. That's
+              the point: two upload routers got simple because one module agreed
+              to be complicated.
+            </div>
+          </div>
+
+          <div class="axiom">
+            <h3>⚖️ …and knowing when to stop</h3>
+            <p>
+              Depth is a ratio, not a religion. A wrapper that hides nothing is
+              just another interface to learn.
+            </p>
+            <div class="applied">
+              <b>Applied:</b> revalidatePath calls stayed in the routers
+              (routing concern, not storage). The create-actions' inline
+              <code>aggregate</code> for top-level sortOrder stayed put — three
+              readable lines each, different transactional needs; a shared
+              helper would have added interface without hiding a decision. And
+              <code>generatePassword()</code> stayed private to gallery.ts — it
+              has exactly one caller.
+            </div>
+          </div>
+
+          <div class="note">
+            📚 Deeper dive: the repo's own skill at
+            <code>.claude/skills/improve-codebase-architecture</code> encodes
+            this exact methodology — explore for friction, deepen the shallow
+            seams, test at the boundary.
+          </div>
+          <footer class="foot">
+            Faith Lauren Photography · deep modules field guide
+          </footer>
+        </section>
+      </main>
+
+      <nav class="tabbar">
+        <div class="inner">
+          <label for="tab-quiz"
+            ><span class="ico">🏆</span><span class="txt">Quiz</span></label
+          >
+          <label for="tab-changes"
+            ><span class="ico">🧱</span><span class="txt">Changes</span></label
+          >
+          <label for="tab-theory"
+            ><span class="ico">📐</span><span class="txt">Theory</span></label
+          >
+        </div>
+      </nav>
+    </div>
+  </body>
+</html>
