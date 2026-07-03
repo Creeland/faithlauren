@@ -5,16 +5,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
-import { UTApi } from "uploadthing/server";
-
-const utapi = new UTApi();
-
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
+import { slugify } from "@/lib/slugify";
+import { deleteStoredFiles } from "@/lib/storage";
+import { persistOrder } from "@/lib/sortable";
 
 const groupSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -117,9 +110,7 @@ export async function deleteGroup(
     select: { coverImageFileKey: true },
   });
 
-  if (group?.coverImageFileKey) {
-    await utapi.deleteFiles([group.coverImageFileKey]);
-  }
+  await deleteStoredFiles([group?.coverImageFileKey]);
 
   await prisma.portfolioGroup.delete({ where: { id } });
 
@@ -128,19 +119,7 @@ export async function deleteGroup(
 
 export async function reorderGroups(formData: FormData) {
   await verifyAdmin();
-  const order = JSON.parse(formData.get("order") as string) as {
-    id: string;
-    sortOrder: number;
-  }[];
-
-  await Promise.all(
-    order.map((item) =>
-      prisma.portfolioGroup.update({
-        where: { id: item.id },
-        data: { sortOrder: item.sortOrder },
-      }),
-    ),
-  );
+  await persistOrder(prisma.portfolioGroup, formData);
 
   revalidatePath("/admin/portfolio-groups");
 }
@@ -159,7 +138,7 @@ export async function setGroupCoverImage(formData: FormData) {
 
   // Delete old cover image if replacing
   if (group?.coverImageFileKey && group.coverImageFileKey !== fileKey) {
-    await utapi.deleteFiles([group.coverImageFileKey]);
+    await deleteStoredFiles([group.coverImageFileKey]);
   }
 
   await prisma.portfolioGroup.update({

@@ -5,6 +5,7 @@ const { mockPrisma, mockDeleteFiles } = vi.hoisted(() => {
   return {
     mockDeleteFiles,
     mockPrisma: {
+      $transaction: vi.fn((ops: Promise<unknown>[]) => Promise.all(ops)),
       portfolioGroup: {
         findUnique: vi.fn(),
         findMany: vi.fn(),
@@ -23,6 +24,7 @@ const { mockPrisma, mockDeleteFiles } = vi.hoisted(() => {
   };
 });
 
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/dal", () => ({ verifyAdmin: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({

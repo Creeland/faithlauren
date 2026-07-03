@@ -1,28 +1,40 @@
-import "server-only"
-import { cache } from "react"
-import { redirect } from "next/navigation"
-import { auth } from "@/auth"
-import { prisma } from "@/lib/prisma"
+import "server-only";
+import { cache } from "react";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 
 export const verifyAdmin = cache(async () => {
-  const session = await auth()
+  const session = await auth();
 
   if (!session?.user || session.user.role !== "ADMIN") {
-    redirect("/login")
+    redirect("/login");
   }
 
-  return session
-})
+  return session;
+});
+
+// For non-page contexts (API routes, upload middleware) where a redirect
+// makes no sense — rejects with an error instead.
+export const requireAdmin = cache(async () => {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  return session;
+});
 
 export const getCurrentUser = cache(async () => {
-  const session = await auth()
+  const session = await auth();
 
-  if (!session?.user) return null
+  if (!session?.user) return null;
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { id: true, name: true, email: true, role: true },
-  })
+  });
 
-  return user
-})
+  return user;
+});
