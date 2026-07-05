@@ -1,34 +1,36 @@
-import { PrismaClient } from "@prisma/client"
-import { PrismaLibSql } from "@prisma/adapter-libsql"
-import bcrypt from "bcryptjs"
+import { PrismaClient } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import bcrypt from "bcryptjs";
+import { resolveSeedCredentials } from "./seed-credentials";
 
 const adapter = new PrismaLibSql({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN,
-})
-const prisma = new PrismaClient({ adapter })
+});
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const hashedPassword = await bcrypt.hash("admin123", 10)
+  const { email, name, password } = resolveSeedCredentials();
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.upsert({
-    where: { email: "faith@provinsal.com" },
+    where: { email },
     update: {},
     create: {
-      email: "faith@provinsal.com",
-      name: "Faith Lauren",
+      email,
+      name,
       password: hashedPassword,
       role: "ADMIN",
     },
-  })
+  });
 
-  console.log("Seeded admin user:", user.email)
+  console.log("Seeded admin user:", user.email);
 }
 
 main()
   .then(() => prisma.$disconnect())
   .catch((e) => {
-    console.error(e)
-    prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    prisma.$disconnect();
+    process.exit(1);
+  });
