@@ -1,28 +1,33 @@
-import { notFound } from "next/navigation"
-import { cookies } from "next/headers"
-import { prisma } from "@/lib/prisma"
-import type { Gallery, Photo } from "@prisma/client"
-import Link from "next/link"
-import { AlbumPasswordForm } from "./password-form"
-import { GalleryClient } from "./gallery-client"
+import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import type { Gallery, Photo } from "@prisma/client";
+import Link from "next/link";
+import {
+  galleryAccessCookieName,
+  verifyGalleryAccessToken,
+} from "@/lib/gallery-access";
+import { AlbumPasswordForm } from "./password-form";
+import { GalleryClient } from "./gallery-client";
 
 export default async function GalleryPage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params
+  const { slug } = await params;
 
-  const gallery: (Gallery & { photos: Photo[] }) | null = await prisma.gallery.findUnique({
-    where: { slug },
-    include: { photos: { orderBy: { sortOrder: "asc" } } },
-  })
+  const gallery: (Gallery & { photos: Photo[] }) | null =
+    await prisma.gallery.findUnique({
+      where: { slug },
+      include: { photos: { orderBy: { sortOrder: "asc" } } },
+    });
 
-  if (!gallery) notFound()
+  if (!gallery) notFound();
 
-  const cookieStore = await cookies()
-  const accessCookie = cookieStore.get(`gallery-${slug}-access`)
-  const hasAccess = accessCookie?.value === "granted"
+  const cookieStore = await cookies();
+  const accessCookie = cookieStore.get(galleryAccessCookieName(slug));
+  const hasAccess = verifyGalleryAccessToken(accessCookie?.value, gallery);
 
   if (!hasAccess) {
     return (
@@ -45,7 +50,7 @@ export default async function GalleryPage({
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -76,5 +81,5 @@ export default async function GalleryPage({
         }))}
       />
     </div>
-  )
+  );
 }
