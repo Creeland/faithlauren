@@ -29,15 +29,19 @@ export function galleryAccessToken(gallery: GalleryIdentity) {
     .digest("hex");
 }
 
+// Constant-time comparison of secrets of possibly different lengths:
+// hashing both sides first gives timingSafeEqual equal-length inputs
+// without an early-exit length check.
+export function timingSafeEqualStrings(a: string, b: string) {
+  const digestA = crypto.createHash("sha256").update(a).digest();
+  const digestB = crypto.createHash("sha256").update(b).digest();
+  return crypto.timingSafeEqual(digestA, digestB);
+}
+
 export function verifyGalleryAccessToken(
   token: string | undefined,
   gallery: GalleryIdentity,
 ) {
   if (!token) return false;
-  const expected = Buffer.from(galleryAccessToken(gallery));
-  const provided = Buffer.from(token);
-  return (
-    provided.length === expected.length &&
-    crypto.timingSafeEqual(provided, expected)
-  );
+  return timingSafeEqualStrings(token, galleryAccessToken(gallery));
 }

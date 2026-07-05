@@ -3,20 +3,22 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
 import {
   galleryAccessCookieName,
   galleryAccessToken,
+  timingSafeEqualStrings,
 } from "@/lib/gallery-access";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
 function generatePassword() {
-  return crypto.randomBytes(4).toString("hex");
+  return crypto.randomBytes(8).toString("hex");
 }
 
 function slugify(text: string) {
@@ -134,16 +136,54 @@ export type AlbumPasswordState =
     }
   | undefined;
 
+// Per gallery+IP: generous for a legit client mistyping, hostile to scripts.
+const ATTEMPTS_PER_IP = 5;
+// Per gallery across all IPs: backstop against distributed guessing. High
+// enough that an attacker triggering it only delays real clients by a minute.
+const ATTEMPTS_PER_GALLERY = 20;
+const ATTEMPT_WINDOW_MS = 60_000;
+
 export async function verifyAlbumPassword(
   _prevState: AlbumPasswordState,
   formData: FormData,
 ): Promise<AlbumPasswordState> {
-  const slug = formData.get("slug") as string;
-  const password = formData.get("password") as string;
+  const slug = formData.get("slug");
+  const password = formData.get("password");
+
+  if (
+    typeof slug !== "string" ||
+    typeof password !== "string" ||
+    !slug ||
+    !password
+  ) {
+    return { error: "Please enter the gallery password." };
+  }
+
+  const headersList = await headers();
+  const ip =
+    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    headersList.get("x-real-ip") ||
+    "unknown";
+
+  const perIp = checkRateLimit(
+    `gallery-password:${slug}:${ip}`,
+    ATTEMPTS_PER_IP,
+    ATTEMPT_WINDOW_MS,
+  );
+  const perGallery = checkRateLimit(
+    `gallery-password:${slug}`,
+    ATTEMPTS_PER_GALLERY,
+    ATTEMPT_WINDOW_MS,
+  );
+  if (!perIp.ok || !perGallery.ok) {
+    return {
+      error: "Too many password attempts. Please wait a minute and try again.",
+    };
+  }
 
   const gallery = await prisma.gallery.findUnique({ where: { slug } });
 
-  if (!gallery || gallery.password !== password) {
+  if (!gallery || !timingSafeEqualStrings(password, gallery.password)) {
     return {
       error:
         "That password didn\u2019t work. Check the link your photographer sent you and try again.",
