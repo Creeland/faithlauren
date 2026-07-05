@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
+import { PortfolioView } from "../portfolio-view";
 import type { Metadata } from "next";
 
 type Props = {
@@ -15,11 +16,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true, description: true },
   });
 
-  if (!group) return {};
+  if (group) {
+    return {
+      title: `${group.title} — Faith Lauren Photography`,
+      description: group.description ?? undefined,
+    };
+  }
+
+  // Slug may be a direct link to a portfolio (see fallback in the page below)
+  const portfolio = await prisma.portfolio.findUnique({
+    where: { slug: groupSlug },
+    select: { title: true },
+  });
+
+  if (!portfolio) return {};
 
   return {
-    title: `${group.title} — Faith Lauren Photography`,
-    description: group.description ?? undefined,
+    title: `${portfolio.title} — Faith Lauren Photography`,
   };
 }
 
@@ -41,7 +54,34 @@ export default async function GroupPage({ params }: Props) {
     },
   });
 
-  if (!group) notFound();
+  if (!group) {
+    // Portfolio slugs are globally unique, so /portfolio/[slug] doubles as
+    // the direct URL for ungrouped portfolios (hidden from navigation but
+    // reachable via shared links). Grouped portfolios redirect to their
+    // canonical nested URL.
+    const portfolio = await prisma.portfolio.findUnique({
+      where: { slug: groupSlug },
+      include: {
+        group: { select: { slug: true } },
+        photos: { orderBy: { sortOrder: "asc" } },
+      },
+    });
+
+    if (!portfolio) notFound();
+
+    if (portfolio.group) {
+      redirect(`/portfolio/${portfolio.group.slug}/${portfolio.slug}`);
+    }
+
+    return (
+      <PortfolioView
+        title={portfolio.title}
+        photos={portfolio.photos}
+        backHref="/"
+        backLabel="Back to site"
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

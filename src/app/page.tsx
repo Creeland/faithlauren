@@ -1,7 +1,7 @@
 import { MobileMenu } from "./mobile-menu";
 import { Reveal } from "./reveal";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { getFrontPageGroups } from "@/lib/portfolio-groups";
 import Link from "next/link";
 import Image from "next/image";
 import { BookingForm } from "./booking-form";
@@ -9,19 +9,7 @@ import { BookingForm } from "./booking-form";
 export default async function Home() {
   const session = await auth();
 
-  const groups = await prisma.portfolioGroup.findMany({
-    where: {
-      portfolios: { some: {} },
-      coverImageUrl: { not: null },
-    },
-    orderBy: { sortOrder: "asc" },
-    select: {
-      title: true,
-      slug: true,
-      coverImageUrl: true,
-      aspectRatio: true,
-    },
-  });
+  const groups = await getFrontPageGroups();
 
   const work = groups.map((g) => ({
     src: g.coverImageUrl!,
