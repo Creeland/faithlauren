@@ -1,33 +1,35 @@
-import { notFound } from "next/navigation"
-import { headers } from "next/headers"
-import { prisma } from "@/lib/prisma"
-import type { Gallery, Photo } from "@prisma/client"
-import { verifyAdmin } from "@/lib/dal"
-import { regeneratePassword } from "@/app/actions/gallery"
-import { EditGalleryForm } from "./edit-form"
-import { DeleteGalleryButton } from "./delete-gallery-button"
-import { PhotoUploader } from "./photo-uploader"
-import { DeleteAllPhotosButton } from "./delete-all-photos-button"
-import { CopyableUrl } from "./copyable-url"
-import { PhotoGrid } from "./photo-grid"
+import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import type { Gallery, Photo } from "@prisma/client";
+import { verifyAdmin } from "@/lib/dal";
+import { decryptGalleryPassword } from "@/lib/gallery-access";
+import { regeneratePassword } from "@/app/actions/gallery";
+import { EditGalleryForm } from "./edit-form";
+import { DeleteGalleryButton } from "./delete-gallery-button";
+import { PhotoUploader } from "./photo-uploader";
+import { DeleteAllPhotosButton } from "./delete-all-photos-button";
+import { CopyableUrl } from "./copyable-url";
+import { PhotoGrid } from "./photo-grid";
 
 export default async function EditGalleryPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  await verifyAdmin()
-  const { id } = await params
-  const headersList = await headers()
-  const host = headersList.get("host") || "localhost:3000"
-  const protocol = headersList.get("x-forwarded-proto") || "http"
+  await verifyAdmin();
+  const { id } = await params;
+  const headersList = await headers();
+  const host = headersList.get("host") || "localhost:3000";
+  const protocol = headersList.get("x-forwarded-proto") || "http";
 
-  const gallery: (Gallery & { photos: Photo[] }) | null = await prisma.gallery.findUnique({
-    where: { id },
-    include: { photos: { orderBy: { sortOrder: "asc" } } },
-  })
+  const gallery: (Gallery & { photos: Photo[] }) | null =
+    await prisma.gallery.findUnique({
+      where: { id },
+      include: { photos: { orderBy: { sortOrder: "asc" } } },
+    });
 
-  if (!gallery) notFound()
+  if (!gallery) notFound();
 
   return (
     <div>
@@ -40,11 +42,18 @@ export default async function EditGalleryPage({
       <div className="border border-stone-200 p-4 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-sm text-stone-500 mb-1">Client Link & Password</p>
+            <p className="text-sm text-stone-500 mb-1">
+              Client Link & Password
+            </p>
             <div className="text-sm flex flex-wrap items-center gap-x-1.5 gap-y-1">
-              <CopyableUrl url={`${protocol}://${host}/gallery/${gallery.slug}`} />
+              <CopyableUrl
+                url={`${protocol}://${host}/gallery/${gallery.slug}`}
+              />
               <span className="text-stone-400">&middot;</span>
-              <span>Password:{" "}<CopyableUrl url={gallery.password} /></span>
+              <span>
+                Password:{" "}
+                <CopyableUrl url={decryptGalleryPassword(gallery.password)} />
+              </span>
             </div>
           </div>
           <form action={regeneratePassword} className="shrink-0">
@@ -82,5 +91,5 @@ export default async function EditGalleryPage({
         )}
       </div>
     </div>
-  )
+  );
 }

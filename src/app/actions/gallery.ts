@@ -8,8 +8,11 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
 import {
+  decryptGalleryPassword,
+  encryptGalleryPassword,
   galleryAccessCookieName,
   galleryAccessToken,
+  isEncryptedGalleryPassword,
   timingSafeEqualStrings,
 } from "@/lib/gallery-access";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -67,7 +70,7 @@ export async function createGallery(
       title: parsed.data.title,
       slug,
       description: parsed.data.description || null,
-      password: generatePassword(),
+      password: encryptGalleryPassword(generatePassword()),
     },
   });
 
@@ -124,7 +127,7 @@ export async function regeneratePassword(formData: FormData) {
   const id = formData.get("id") as string;
   await prisma.gallery.update({
     where: { id },
-    data: { password: generatePassword() },
+    data: { password: encryptGalleryPassword(generatePassword()) },
   });
   revalidatePath(`/admin/galleries/${id}`);
 }
@@ -183,11 +186,24 @@ export async function verifyAlbumPassword(
 
   const gallery = await prisma.gallery.findUnique({ where: { slug } });
 
-  if (!gallery || !timingSafeEqualStrings(password, gallery.password)) {
+  if (
+    !gallery ||
+    !timingSafeEqualStrings(password, decryptGalleryPassword(gallery.password))
+  ) {
     return {
       error:
         "That password didn\u2019t work. Check the link your photographer sent you and try again.",
     };
+  }
+
+  // Opportunistically move legacy plaintext rows to encrypted storage.
+  // The access token is derived from the plaintext, so this doesn't
+  // revoke existing cookies.
+  if (!isEncryptedGalleryPassword(gallery.password)) {
+    await prisma.gallery.update({
+      where: { id: gallery.id },
+      data: { password: encryptGalleryPassword(password) },
+    });
   }
 
   const cookieStore = await cookies();

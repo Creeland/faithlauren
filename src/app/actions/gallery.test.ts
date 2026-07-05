@@ -8,6 +8,7 @@ const { mockPrisma, mockCookieSet, requestHeaders } = vi.hoisted(() => {
     mockPrisma: {
       gallery: {
         findUnique: vi.fn(),
+        update: vi.fn(),
       },
     },
   };
@@ -33,12 +34,16 @@ vi.mock("@/lib/prisma", () => ({ prisma: mockPrisma }));
 
 import { verifyAlbumPassword } from "./gallery";
 import { clearRateLimits } from "@/lib/rate-limit";
+import {
+  decryptGalleryPassword,
+  encryptGalleryPassword,
+} from "@/lib/gallery-access";
 
-const gallery = {
-  id: "gal_123",
-  slug: "smith-wedding",
-  password: "a1b2c3d4e5f6a7b8",
-};
+const PASSWORD = "a1b2c3d4e5f6a7b8";
+
+// Populated in beforeEach once the test secret is set: the stored
+// password column holds the encrypted form, as written by createGallery.
+let gallery: { id: string; slug: string; password: string };
 
 function attempt(password: string, slug = gallery.slug) {
   const fd = new FormData();
@@ -53,12 +58,17 @@ beforeEach(() => {
   requestHeaders.clear();
   requestHeaders.set("x-forwarded-for", "203.0.113.7");
   process.env.GALLERY_ACCESS_SECRET = "test-secret";
+  gallery = {
+    id: "gal_123",
+    slug: "smith-wedding",
+    password: encryptGalleryPassword(PASSWORD),
+  };
   mockPrisma.gallery.findUnique.mockResolvedValue(gallery);
 });
 
 describe("verifyAlbumPassword", () => {
   it("sets the access cookie for the correct password", async () => {
-    const result = await attempt(gallery.password);
+    const result = await attempt(PASSWORD);
 
     expect(result).toBeUndefined();
     expect(mockCookieSet).toHaveBeenCalledWith(
@@ -100,7 +110,7 @@ describe("verifyAlbumPassword", () => {
     }
     mockPrisma.gallery.findUnique.mockClear();
 
-    const result = await attempt(gallery.password);
+    const result = await attempt(PASSWORD);
 
     expect(result?.error).toMatch(/Too many password attempts/);
     expect(mockPrisma.gallery.findUnique).not.toHaveBeenCalled();
@@ -114,7 +124,7 @@ describe("verifyAlbumPassword", () => {
     }
 
     requestHeaders.set("x-forwarded-for", "198.51.100.200");
-    const result = await attempt(gallery.password);
+    const result = await attempt(PASSWORD);
 
     expect(result?.error).toMatch(/Too many password attempts/);
   });
@@ -127,5 +137,39 @@ describe("verifyAlbumPassword", () => {
     const result = await attempt("wrong-password", "jones-wedding");
 
     expect(result?.error).toMatch(/didn’t work/);
+  });
+
+  it("does not rewrite an already-encrypted row on success", async () => {
+    const result = await attempt(PASSWORD);
+
+    expect(result).toBeUndefined();
+    expect(mockPrisma.gallery.update).not.toHaveBeenCalled();
+  });
+
+  it("re-encrypts a legacy plaintext row on successful verify", async () => {
+    mockPrisma.gallery.findUnique.mockResolvedValue({
+      ...gallery,
+      password: PASSWORD,
+    });
+
+    const result = await attempt(PASSWORD);
+
+    expect(result).toBeUndefined();
+    expect(mockCookieSet).toHaveBeenCalled();
+    expect(mockPrisma.gallery.update).toHaveBeenCalledOnce();
+    const { data } = mockPrisma.gallery.update.mock.calls[0][0];
+    expect(data.password).toMatch(/^enc:v1:/);
+    expect(decryptGalleryPassword(data.password)).toBe(PASSWORD);
+  });
+
+  it("does not upgrade the row on a wrong password", async () => {
+    mockPrisma.gallery.findUnique.mockResolvedValue({
+      ...gallery,
+      password: PASSWORD,
+    });
+
+    await attempt("wrong-password");
+
+    expect(mockPrisma.gallery.update).not.toHaveBeenCalled();
   });
 });

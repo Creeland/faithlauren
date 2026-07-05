@@ -1,16 +1,18 @@
-import { prisma } from "@/lib/prisma"
-import { verifyAdmin } from "@/lib/dal"
-import type { Gallery } from "@prisma/client"
-import Link from "next/link"
-import { MaskedPassword } from "./masked-password"
+import { prisma } from "@/lib/prisma";
+import { verifyAdmin } from "@/lib/dal";
+import { decryptGalleryPassword } from "@/lib/gallery-access";
+import type { Gallery } from "@prisma/client";
+import Link from "next/link";
+import { MaskedPassword } from "./masked-password";
 
 export default async function GalleriesPage() {
-  await verifyAdmin()
+  await verifyAdmin();
 
-  const galleries: (Gallery & { _count: { photos: number } })[] = await prisma.gallery.findMany({
-    include: { _count: { select: { photos: true } } },
-    orderBy: { createdAt: "desc" },
-  })
+  const galleries: (Gallery & { _count: { photos: number } })[] =
+    await prisma.gallery.findMany({
+      include: { _count: { select: { photos: true } } },
+      orderBy: { createdAt: "desc" },
+    });
 
   return (
     <div>
@@ -39,8 +41,10 @@ export default async function GalleriesPage() {
                   <p className="font-medium text-sm">{gallery.title}</p>
                   <p className="text-xs text-stone-500 mt-1">
                     {gallery._count.photos} photo
-                    {gallery._count.photos !== 1 ? "s" : ""} &middot;{" "}
-                    Password: <MaskedPassword password={gallery.password} />
+                    {gallery._count.photos !== 1 ? "s" : ""} &middot; Password:{" "}
+                    <MaskedPassword
+                      password={decryptGalleryPassword(gallery.password)}
+                    />
                   </p>
                 </div>
                 <p className="text-xs text-stone-400 shrink-0">
@@ -52,5 +56,5 @@ export default async function GalleriesPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

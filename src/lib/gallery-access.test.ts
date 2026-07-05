@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
+  decryptGalleryPassword,
+  encryptGalleryPassword,
   galleryAccessCookieName,
   galleryAccessToken,
+  isEncryptedGalleryPassword,
   verifyGalleryAccessToken,
 } from "./gallery-access";
 
@@ -72,5 +75,63 @@ describe("gallery access tokens", () => {
     expect(() => galleryAccessToken(gallery)).toThrow(
       /GALLERY_ACCESS_SECRET or AUTH_SECRET/,
     );
+  });
+
+  it("issues the same token for a legacy plaintext row and its encrypted form", () => {
+    const encrypted = {
+      ...gallery,
+      password: encryptGalleryPassword(gallery.password),
+    };
+    expect(galleryAccessToken(encrypted)).toBe(galleryAccessToken(gallery));
+    expect(
+      verifyGalleryAccessToken(galleryAccessToken(gallery), encrypted),
+    ).toBe(true);
+  });
+});
+
+describe("gallery password encryption at rest", () => {
+  beforeEach(() => {
+    process.env.GALLERY_ACCESS_SECRET = "test-secret";
+  });
+
+  it("round-trips a password through encrypt/decrypt", () => {
+    const stored = encryptGalleryPassword("a1b2c3d4e5f6a7b8");
+    expect(stored).toMatch(/^enc:v1:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+$/);
+    expect(decryptGalleryPassword(stored)).toBe("a1b2c3d4e5f6a7b8");
+  });
+
+  it("produces a fresh ciphertext per call (random IV)", () => {
+    const a = encryptGalleryPassword("a1b2c3d4");
+    const b = encryptGalleryPassword("a1b2c3d4");
+    expect(a).not.toBe(b);
+    expect(decryptGalleryPassword(a)).toBe(decryptGalleryPassword(b));
+  });
+
+  it("passes legacy plaintext values through unchanged", () => {
+    expect(isEncryptedGalleryPassword("a1b2c3d4")).toBe(false);
+    expect(decryptGalleryPassword("a1b2c3d4")).toBe("a1b2c3d4");
+  });
+
+  it("detects encrypted values", () => {
+    expect(isEncryptedGalleryPassword(encryptGalleryPassword("x"))).toBe(true);
+  });
+
+  it("throws on a tampered ciphertext", () => {
+    const stored = encryptGalleryPassword("a1b2c3d4");
+    const tampered = stored.slice(0, -1) + (stored.endsWith("0") ? "1" : "0");
+    expect(() => decryptGalleryPassword(tampered)).toThrow();
+  });
+
+  it("throws on a malformed encrypted value", () => {
+    expect(() => decryptGalleryPassword("enc:v1:zz")).toThrow(/Malformed/);
+    expect(() => decryptGalleryPassword("enc:v1:abcd:ef01")).toThrow(
+      /Malformed/,
+    );
+  });
+
+  it("cannot decrypt with a different secret", () => {
+    const stored = encryptGalleryPassword("a1b2c3d4");
+    process.env.GALLERY_ACCESS_SECRET = "another-secret";
+    expect(() => decryptGalleryPassword(stored)).toThrow();
   });
 });
