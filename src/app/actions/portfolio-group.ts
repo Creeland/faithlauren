@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
+import { parseReorderPayload } from "@/lib/reorder";
 import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
@@ -128,10 +129,7 @@ export async function deleteGroup(
 
 export async function reorderGroups(formData: FormData) {
   await verifyAdmin();
-  const order = JSON.parse(formData.get("order") as string) as {
-    id: string;
-    sortOrder: number;
-  }[];
+  const order = parseReorderPayload(formData.get("order"));
 
   await Promise.all(
     order.map((item) =>
