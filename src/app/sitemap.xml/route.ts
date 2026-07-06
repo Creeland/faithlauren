@@ -5,9 +5,12 @@ import { siteUrl } from "@/lib/site";
 // dynamic metadata sitemaps build fine but 404 on Vercel (metadata-route
 // pipeline regression, see
 // https://community.vercel.com/t/next-js-sitemap-xml-returns-404-on-vercel-production-with-dynamic-data/38411).
-// Dynamic so new portfolios appear without wiring sitemap revalidation into
-// each portfolio mutation; crawlers request this rarely.
-export const dynamic = "force-dynamic";
+// ISR rather than force-dynamic for the same reason: Vercel misroutes
+// dynamic function invocations on dotted paths (verified: next start serves
+// this route, Vercel 404s it), while prerendered dotted paths like
+// robots.txt serve fine. Hourly revalidation keeps new portfolios appearing
+// without wiring sitemap revalidation into each portfolio mutation.
+export const revalidate = 3600;
 
 export async function GET(): Promise<Response> {
   const { groups, portfolios } = await getSitemapEntries();
