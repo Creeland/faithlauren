@@ -104,7 +104,7 @@ export default async function Home() {
           <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-xl animate-fade-up">
               <p className="text-sm tracking-[0.3em] uppercase text-white/90 mb-4 sm:mb-5 animate-fade-up animate-delay-1">
-                Wichita Falls, Texas &mdash; Serving All of North Texas
+                Wichita Falls, Texas &middot; Serving All of North Texas
               </p>
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.08] mb-6 sm:mb-8 text-white animate-fade-up animate-delay-2">
                 Portraits, weddings, and the moments that matter.
@@ -195,10 +195,9 @@ export default async function Home() {
                 <p className="text-stone-600 text-lg leading-relaxed mb-12 max-w-md">
                   I&apos;m a photographer based in Wichita Falls, Texas, driven
                   by natural light and authentic moments. My work spans
-                  portraits, weddings, editorial, and fine art &mdash; here at
-                  home and anywhere in North Texas a session takes me. The best
-                  photographs happen when people feel comfortable being
-                  themselves.
+                  portraits, weddings, editorial, and fine art, here at home and
+                  across North Texas. The best photographs happen when people
+                  feel comfortable being themselves.
                 </p>
                 <a
                   href="#contact"
@@ -223,12 +222,11 @@ export default async function Home() {
                   Let&apos;s create something together.
                 </h2>
                 <p className="text-stone-500 leading-relaxed max-w-sm mb-6">
-                  Portraits, weddings, or creative collaborations &mdash;
-                  I&apos;d love to hear what you have in mind.
+                  Whether it&apos;s portraits, a wedding, or a creative
+                  collaboration, I&apos;d love to hear what you have in mind.
                 </p>
                 <p className="text-sm text-stone-400 mb-12">
-                  Based in Wichita Falls &mdash; traveling throughout North
-                  Texas.
+                  Based in Wichita Falls and traveling throughout North Texas.
                 </p>
                 <div className="border-t border-stone-200 pt-6 flex gap-8 text-sm text-stone-400">
                   {socialProfiles.map((profile) =>
