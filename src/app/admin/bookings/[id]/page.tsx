@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
-import type { Booking } from "@prisma/client"
 import { verifyAdmin } from "@/lib/dal"
+import { getBooking } from "@/modules/booking"
 import { updateBookingStatus, deleteBooking } from "@/app/actions/booking"
 import Link from "next/link"
 
@@ -13,7 +12,7 @@ export default async function BookingDetailPage({
   await verifyAdmin()
   const { id } = await params
 
-  const booking: Booking | null = await prisma.booking.findUnique({ where: { id } })
+  const booking = await getBooking(id)
   if (!booking) notFound()
 
   return (

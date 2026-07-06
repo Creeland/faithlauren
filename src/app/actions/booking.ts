@@ -1,28 +1,27 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { verifyAdmin } from "@/lib/dal";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { adminAction } from "@/modules/shared/admin-action";
+import * as bookingModule from "@/modules/booking";
 
-// Admin actions
-export async function updateBookingStatus(formData: FormData) {
-  await verifyAdmin();
-  const id = formData.get("id") as string;
-  const status = formData.get("status") as string;
-  await prisma.booking.update({ where: { id }, data: { status } });
-  revalidatePath("/admin/bookings");
-  revalidatePath(`/admin/bookings/${id}`);
-}
+// Admin actions — thin shells over the module. adminAction verifies the caller
+// and parses the form; the module does the mutation and its revalidation.
+export const updateBookingStatus = adminAction(
+  z.object({ id: z.string(), status: z.string() }),
+  ({ id, status }) => bookingModule.updateBookingStatus(id, status),
+);
 
-export async function deleteBooking(formData: FormData) {
-  await verifyAdmin();
-  const id = formData.get("id") as string;
-  await prisma.booking.delete({ where: { id } });
-  redirect("/admin/bookings");
-}
+export const deleteBooking = adminAction(
+  z.object({ id: z.string() }),
+  async ({ id }) => {
+    await bookingModule.deleteBooking(id);
+    // redirect throws NEXT_REDIRECT; keep it after the module call so the
+    // deletion has committed before we navigate back to the list.
+    redirect("/admin/bookings");
+  },
+);
 
 // Public booking form
 const bookingSchema = z.object({
@@ -51,7 +50,7 @@ export async function createBooking(
     return { success: true };
   }
 
-  // Turnstile CAPTCHA verification
+  // Turnstile CAPTCHA verification stays at the public boundary.
   const turnstileToken = formData.get("cf-turnstile-response") as string;
   if (!turnstileToken) {
     return { error: "Please complete the verification check." };
@@ -74,16 +73,7 @@ export async function createBooking(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  await prisma.booking.create({
-    data: {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone || null,
-      sessionType: parsed.data.sessionType,
-      date: parsed.data.date || null,
-      message: parsed.data.message || null,
-    },
-  });
+  await bookingModule.createBooking(parsed.data);
 
   return { success: true };
 }
