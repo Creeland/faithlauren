@@ -176,6 +176,47 @@ export async function getPortfolioBySlug(
 }
 
 /**
+ * The public URLs the sitemap advertises: groups that contain at least one
+ * portfolio, and the portfolios inside them. Empty groups are thin pages not
+ * worth indexing, and ungrouped portfolios are shared-link only (hidden from
+ * navigation), so neither is listed.
+ */
+export interface SitemapEntries {
+  groups: { slug: string; updatedAt: Date }[];
+  portfolios: { slug: string; groupSlug: string; updatedAt: Date }[];
+}
+
+/** The group and portfolio pages the sitemap lists, in public sort order. */
+export async function getSitemapEntries(): Promise<SitemapEntries> {
+  const groups = await prisma.portfolioGroup.findMany({
+    where: { portfolios: { some: {} } },
+    orderBy: bySortOrder,
+    select: {
+      slug: true,
+      updatedAt: true,
+      portfolios: {
+        orderBy: bySortOrder,
+        select: { slug: true, updatedAt: true },
+      },
+    },
+  });
+
+  return {
+    groups: groups.map((group) => ({
+      slug: group.slug,
+      updatedAt: group.updatedAt,
+    })),
+    portfolios: groups.flatMap((group) =>
+      group.portfolios.map((portfolio) => ({
+        slug: portfolio.slug,
+        groupSlug: group.slug,
+        updatedAt: portfolio.updatedAt,
+      })),
+    ),
+  };
+}
+
+/**
  * The title/description a group page needs for its metadata, or `null` if no
  * such group exists. Kept separate from {@link getPortfolioGroup} so metadata
  * generation doesn't load the group's portfolios.

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPortfolioBySlug, getPortfolioMeta } from "@/modules/portfolio";
 import { PortfolioView } from "../../portfolio-view";
+import { portfolioDescription } from "@/lib/site";
 import type { Metadata } from "next";
 
 type Props = {
@@ -8,13 +9,15 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { portfolioSlug } = await params;
+  const { groupSlug, portfolioSlug } = await params;
   const portfolio = await getPortfolioMeta(portfolioSlug);
 
   if (!portfolio) return {};
 
   return {
-    title: `${portfolio.title} — Faith Lauren Photography`,
+    title: portfolio.title,
+    description: portfolioDescription(portfolio.title),
+    alternates: { canonical: `/portfolio/${groupSlug}/${portfolioSlug}` },
   };
 }
 

@@ -592,6 +592,27 @@ describe("portfolio.getPortfolioBySlug", () => {
   });
 });
 
+describe("portfolio.getSitemapEntries", () => {
+  it("lists groups with portfolios and their nested portfolios, excluding empty groups and ungrouped portfolios", async () => {
+    const weddings = await portfolio.createGroup({ title: "Weddings" });
+    await portfolio.createGroup({ title: "Empty" });
+    const spring = await portfolio.createPortfolio({ title: "Spring" });
+    await portfolio.assignPortfolioToGroup(spring.id, weddings.id);
+    // Ungrouped portfolios are shared-link only (hidden from navigation), so
+    // the sitemap must not advertise them.
+    await portfolio.createPortfolio({ title: "Loose" });
+
+    const entries = await portfolio.getSitemapEntries();
+
+    expect(entries.groups).toEqual([
+      { slug: "weddings", updatedAt: expect.any(Date) },
+    ]);
+    expect(entries.portfolios).toEqual([
+      { slug: "spring", groupSlug: "weddings", updatedAt: expect.any(Date) },
+    ]);
+  });
+});
+
 describe("portfolio.getGroupMeta / getPortfolioMeta", () => {
   it("returns the group title and description, or null", async () => {
     await portfolio.createGroup({ title: "Weddings", description: "Big days" });

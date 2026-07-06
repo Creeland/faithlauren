@@ -3,6 +3,14 @@ import Link from "next/link";
 import { getPublicGallery, hasAccess } from "@/modules/gallery";
 import { AlbumPasswordForm } from "./password-form";
 import { GalleryClient } from "./gallery-client";
+import type { Metadata } from "next";
+
+// Private client deliveries — keep them out of search results. Crawlers must
+// be able to fetch the page to see this, so /gallery is not robots-disallowed.
+export const metadata: Metadata = {
+  title: "Client Gallery",
+  robots: { index: false, follow: false },
+};
 
 export default async function GalleryPage({
   params,

@@ -32,6 +32,7 @@ export type {
   PortfolioGroupView,
   PortfolioPhotoView,
   PortfolioDetailView,
+  SitemapEntries,
 } from "./reads";
 export {
   getFrontPageGroups,
@@ -39,6 +40,7 @@ export {
   getPortfolioBySlug,
   getGroupMeta,
   getPortfolioMeta,
+  getSitemapEntries,
 } from "./reads";
 
 export type {

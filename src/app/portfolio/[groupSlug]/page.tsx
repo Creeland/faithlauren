@@ -7,6 +7,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { PortfolioView } from "../portfolio-view";
+import { portfolioDescription } from "@/lib/site";
 import type { Metadata } from "next";
 
 type Props = {
@@ -19,8 +20,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (group) {
     return {
-      title: `${group.title} — Faith Lauren Photography`,
-      description: group.description ?? undefined,
+      title: group.title,
+      description: group.description ?? portfolioDescription(group.title),
+      alternates: { canonical: `/portfolio/${groupSlug}` },
     };
   }
 
@@ -30,7 +32,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!portfolio) return {};
 
   return {
-    title: `${portfolio.title} — Faith Lauren Photography`,
+    title: portfolio.title,
+    description: portfolioDescription(portfolio.title),
+    // Grouped portfolios redirect to their nested URL; point crawlers there.
+    alternates: {
+      canonical: portfolio.group
+        ? `/portfolio/${portfolio.group.slug}/${portfolio.slug}`
+        : `/portfolio/${portfolio.slug}`,
+    },
   };
 }
 

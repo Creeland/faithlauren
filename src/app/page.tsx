@@ -5,6 +5,11 @@ import { getFrontPageGroups } from "@/modules/portfolio";
 import Link from "next/link";
 import Image from "next/image";
 import { BookingForm } from "./booking-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function Home() {
   const session = await auth();
