@@ -1,5 +1,9 @@
 import { notFound, redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import {
+  getGroupMeta,
+  getPortfolioBySlug,
+  getPortfolioGroup,
+} from "@/modules/portfolio";
 import Image from "next/image";
 import Link from "next/link";
 import { PortfolioView } from "../portfolio-view";
@@ -11,10 +15,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { groupSlug } = await params;
-  const group = await prisma.portfolioGroup.findUnique({
-    where: { slug: groupSlug },
-    select: { title: true, description: true },
-  });
+  const group = await getGroupMeta(groupSlug);
 
   if (group) {
     return {
@@ -24,10 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   // Slug may be a direct link to a portfolio (see fallback in the page below)
-  const portfolio = await prisma.portfolio.findUnique({
-    where: { slug: groupSlug },
-    select: { title: true },
-  });
+  const portfolio = await getPortfolioBySlug(groupSlug);
 
   if (!portfolio) return {};
 
@@ -39,33 +37,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function GroupPage({ params }: Props) {
   const { groupSlug } = await params;
 
-  const group = await prisma.portfolioGroup.findUnique({
-    where: { slug: groupSlug },
-    include: {
-      portfolios: {
-        orderBy: { sortOrder: "asc" },
-        include: {
-          photos: {
-            orderBy: { sortOrder: "asc" },
-            take: 1,
-          },
-        },
-      },
-    },
-  });
+  const group = await getPortfolioGroup(groupSlug);
 
   if (!group) {
     // Portfolio slugs are globally unique, so /portfolio/[slug] doubles as
     // the direct URL for ungrouped portfolios (hidden from navigation but
     // reachable via shared links). Grouped portfolios redirect to their
     // canonical nested URL.
-    const portfolio = await prisma.portfolio.findUnique({
-      where: { slug: groupSlug },
-      include: {
-        group: { select: { slug: true } },
-        photos: { orderBy: { sortOrder: "asc" } },
-      },
-    });
+    const portfolio = await getPortfolioBySlug(groupSlug);
 
     if (!portfolio) notFound();
 
@@ -111,7 +90,7 @@ export default async function GroupPage({ params }: Props) {
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 sm:gap-6">
             {group.portfolios.map((portfolio) => {
-              const cover = portfolio.photos[0];
+              const coverUrl = portfolio.coverPhotoUrl;
               return (
                 <Link
                   key={portfolio.id}
@@ -121,9 +100,9 @@ export default async function GroupPage({ params }: Props) {
                   <div
                     className={`relative ${portfolio.aspectRatio} overflow-hidden bg-stone-100`}
                   >
-                    {cover ? (
+                    {coverUrl ? (
                       <Image
-                        src={cover.url}
+                        src={coverUrl}
                         alt={`${portfolio.title} photography by Faith Lauren`}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

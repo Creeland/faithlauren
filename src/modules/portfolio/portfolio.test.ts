@@ -427,3 +427,188 @@ describe("portfolio.removePortfolioFromGroup", () => {
     expect(revalidatePathMock).toHaveBeenCalledWith("/portfolio/weddings");
   });
 });
+
+// The public read side: the three portfolio pages read exclusively through
+// these queries, which return module-owned view types (no Prisma types) and
+// apply the sortOrder ordering invariants.
+describe("portfolio.getFrontPageGroups", () => {
+  it("returns only groups with a cover and at least one portfolio, in sort order", async () => {
+    // Two eligible groups (cover + a portfolio), created in one order then
+    // reordered, plus two ineligible ones (no cover / no portfolio).
+    const weddings = await portfolio.createGroup({ title: "Weddings" });
+    const family = await portfolio.createGroup({ title: "Family" });
+    const noCover = await portfolio.createGroup({ title: "No Cover" });
+    const noPortfolio = await portfolio.createGroup({ title: "No Portfolio" });
+
+    for (const g of [weddings, family, noCover]) {
+      const p = await portfolio.createPortfolio({ title: `p-${g.id}` });
+      await portfolio.assignPortfolioToGroup(p.id, g.id);
+    }
+    await portfolio.setGroupCover(weddings.id, {
+      url: "https://utfs.io/f/weddings",
+      fileKey: "cover-weddings",
+      aspectRatio: "aspect-square",
+    });
+    await portfolio.setGroupCover(family.id, {
+      url: "https://utfs.io/f/family",
+      fileKey: "cover-family",
+    });
+    // noPortfolio has a cover but no portfolio; noCover has a portfolio but no
+    // cover — both excluded.
+    await portfolio.setGroupCover(noPortfolio.id, {
+      url: "https://utfs.io/f/orphan",
+      fileKey: "cover-orphan",
+    });
+
+    // Put Family ahead of Weddings to prove the ordering comes from sortOrder.
+    await portfolio.reorderGroups([
+      { id: family.id, sortOrder: 0 },
+      { id: weddings.id, sortOrder: 1 },
+    ]);
+
+    const groups = await portfolio.getFrontPageGroups();
+
+    expect(groups.map((g) => g.slug)).toEqual(["family", "weddings"]);
+    // coverImageUrl is a non-null string in the view type.
+    expect(groups[0]).toEqual({
+      title: "Family",
+      slug: "family",
+      coverImageUrl: "https://utfs.io/f/family",
+      aspectRatio: "aspect-3/4",
+    });
+    expect(groups[1].coverImageUrl).toBe("https://utfs.io/f/weddings");
+    expect(groups[1].aspectRatio).toBe("aspect-square");
+  });
+});
+
+describe("portfolio.getPortfolioGroup", () => {
+  it("returns the group's portfolios in sort order with each cover (first photo)", async () => {
+    const group = await portfolio.createGroup({
+      title: "Weddings",
+      description: "Big days",
+    });
+    const spring = await portfolio.createPortfolio({ title: "Spring" });
+    const autumn = await portfolio.createPortfolio({ title: "Autumn" });
+    await portfolio.assignPortfolioToGroup(spring.id, group.id);
+    await portfolio.assignPortfolioToGroup(autumn.id, group.id);
+
+    // Spring has two photos; its cover is the sortOrder-0 one. Autumn has none.
+    await prisma.portfolioPhoto.create({
+      data: {
+        url: "https://utfs.io/f/spring-1",
+        filename: "second.jpg",
+        portfolioId: spring.id,
+        sortOrder: 1,
+      },
+    });
+    await prisma.portfolioPhoto.create({
+      data: {
+        url: "https://utfs.io/f/spring-0",
+        filename: "first.jpg",
+        portfolioId: spring.id,
+        sortOrder: 0,
+      },
+    });
+
+    // Autumn before Spring, to prove portfolio ordering follows sortOrder.
+    await portfolio.reorderPortfolios([
+      { id: autumn.id, sortOrder: 0 },
+      { id: spring.id, sortOrder: 1 },
+    ]);
+
+    const view = await portfolio.getPortfolioGroup("weddings");
+
+    expect(view).not.toBeNull();
+    expect(view!.title).toBe("Weddings");
+    expect(view!.description).toBe("Big days");
+    expect(view!.portfolios.map((p) => p.slug)).toEqual(["autumn", "spring"]);
+    expect(view!.portfolios[0].coverPhotoUrl).toBeNull();
+    expect(view!.portfolios[1].coverPhotoUrl).toBe(
+      "https://utfs.io/f/spring-0",
+    );
+  });
+
+  it("returns null for an unknown slug", async () => {
+    expect(await portfolio.getPortfolioGroup("nope")).toBeNull();
+  });
+});
+
+describe("portfolio.getPortfolioBySlug", () => {
+  it("returns the portfolio's photos in sort order and its group", async () => {
+    const group = await portfolio.createGroup({ title: "Weddings" });
+    const p = await portfolio.createPortfolio({ title: "Spring" });
+    await portfolio.assignPortfolioToGroup(p.id, group.id);
+
+    await prisma.portfolioPhoto.create({
+      data: {
+        url: "https://utfs.io/f/b",
+        filename: "b.jpg",
+        portfolioId: p.id,
+        width: 800,
+        height: 600,
+        sortOrder: 1,
+      },
+    });
+    await prisma.portfolioPhoto.create({
+      data: {
+        url: "https://utfs.io/f/a",
+        filename: "a.jpg",
+        portfolioId: p.id,
+        sortOrder: 0,
+      },
+    });
+
+    const view = await portfolio.getPortfolioBySlug("spring");
+
+    expect(view).not.toBeNull();
+    expect(view!.title).toBe("Spring");
+    expect(view!.group).toEqual({ slug: "weddings", title: "Weddings" });
+    expect(view!.photos.map((ph) => ph.url)).toEqual([
+      "https://utfs.io/f/a",
+      "https://utfs.io/f/b",
+    ]);
+    // The view exposes only the display fields.
+    expect(view!.photos[1]).toEqual({
+      id: expect.any(String),
+      url: "https://utfs.io/f/b",
+      filename: "b.jpg",
+      width: 800,
+      height: 600,
+    });
+  });
+
+  it("returns a null group for an ungrouped portfolio", async () => {
+    await portfolio.createPortfolio({ title: "Loose" });
+
+    const view = await portfolio.getPortfolioBySlug("loose");
+
+    expect(view).not.toBeNull();
+    expect(view!.group).toBeNull();
+    expect(view!.photos).toEqual([]);
+  });
+
+  it("returns null for an unknown slug", async () => {
+    expect(await portfolio.getPortfolioBySlug("nope")).toBeNull();
+  });
+});
+
+describe("portfolio.getGroupMeta / getPortfolioMeta", () => {
+  it("returns the group title and description, or null", async () => {
+    await portfolio.createGroup({ title: "Weddings", description: "Big days" });
+
+    expect(await portfolio.getGroupMeta("weddings")).toEqual({
+      title: "Weddings",
+      description: "Big days",
+    });
+    expect(await portfolio.getGroupMeta("nope")).toBeNull();
+  });
+
+  it("returns the portfolio title, or null", async () => {
+    await portfolio.createPortfolio({ title: "Spring" });
+
+    expect(await portfolio.getPortfolioMeta("spring")).toEqual({
+      title: "Spring",
+    });
+    expect(await portfolio.getPortfolioMeta("nope")).toBeNull();
+  });
+});

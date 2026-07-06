@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getPortfolioBySlug, getPortfolioMeta } from "@/modules/portfolio";
 import { PortfolioView } from "../../portfolio-view";
 import type { Metadata } from "next";
 
@@ -9,10 +9,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { portfolioSlug } = await params;
-  const portfolio = await prisma.portfolio.findUnique({
-    where: { slug: portfolioSlug },
-    select: { title: true },
-  });
+  const portfolio = await getPortfolioMeta(portfolioSlug);
 
   if (!portfolio) return {};
 
@@ -24,13 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PortfolioPage({ params }: Props) {
   const { groupSlug, portfolioSlug } = await params;
 
-  const portfolio = await prisma.portfolio.findUnique({
-    where: { slug: portfolioSlug },
-    include: {
-      group: { select: { slug: true, title: true } },
-      photos: { orderBy: { sortOrder: "asc" } },
-    },
-  });
+  const portfolio = await getPortfolioBySlug(portfolioSlug);
 
   if (!portfolio) notFound();
 

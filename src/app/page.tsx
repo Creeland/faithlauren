@@ -1,7 +1,7 @@
 import { MobileMenu } from "./mobile-menu";
 import { Reveal } from "./reveal";
 import { auth } from "@/auth";
-import { getFrontPageGroups } from "@/lib/portfolio-groups";
+import { getFrontPageGroups } from "@/modules/portfolio";
 import Link from "next/link";
 import Image from "next/image";
 import { BookingForm } from "./booking-form";
@@ -12,7 +12,7 @@ export default async function Home() {
   const groups = await getFrontPageGroups();
 
   const work = groups.map((g) => ({
-    src: g.coverImageUrl!,
+    src: g.coverImageUrl,
     title: g.title,
     aspect: g.aspectRatio,
     slug: g.slug,
