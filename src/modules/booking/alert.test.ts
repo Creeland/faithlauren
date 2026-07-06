@@ -26,7 +26,9 @@ function configure() {
 }
 
 /** A complete, valid inquiry; override individual fields per test. */
-function inquiry(overrides: Partial<BookingAlertInput> = {}): BookingAlertInput {
+function inquiry(
+  overrides: Partial<BookingAlertInput> = {},
+): BookingAlertInput {
   return {
     name: "Ada Lovelace",
     sessionType: "Portrait",
@@ -118,7 +120,7 @@ describe("sendBookingAlert — request payload", () => {
 });
 
 describe("sendBookingAlert — message body", () => {
-  it("includes name, session, date, phone, and email when all are present", async () => {
+  it("includes name, session, date, and phone; email is withheld (issue #32)", async () => {
     const body = await sentBody(
       inquiry({
         name: "Grace Hopper",
@@ -134,14 +136,81 @@ describe("sendBookingAlert — message body", () => {
     expect(body).toContain("Wedding");
     expect(body).toContain("2026-09-01");
     expect(body).toContain("+15551112222");
-    expect(body).toContain("grace@example.com");
     expect(body).toContain("Can't wait!");
+    // TEMPORARY (issue #32): an email address is URL-shaped to TextBelt's
+    // unverified-account filter and would bounce the whole send.
+    expect(body).not.toContain("Email:");
+    expect(body).not.toContain("grace@example.com");
   });
 
   it("never contains a URL", async () => {
     const body = await sentBody(inquiry());
     expect(body).not.toMatch(/https?:\/\//i);
     expect(body.toLowerCase()).not.toContain("textbelt.com");
+  });
+});
+
+// TEMPORARY (issue #32): remove this block when the scrubber is reverted.
+describe("sendBookingAlert — URL scrubbing (issue #32 workaround)", () => {
+  it("scrubs http(s) links from the free-text message", async () => {
+    const body = await sentBody(
+      inquiry({
+        message: "Our venue is https://thebarn.example.com/rates thanks!",
+      }),
+    );
+
+    expect(body).not.toMatch(/https?:\/\//i);
+    expect(body).not.toContain("example.com");
+    expect(body).toContain("Our venue is [link] thanks!");
+  });
+
+  it("scrubs www. links from the free-text message", async () => {
+    const body = await sentBody(
+      inquiry({ message: "see www.pinterest.com board" }),
+    );
+
+    expect(body).not.toContain("www.");
+    expect(body).toContain("see [link] board");
+  });
+
+  it("scrubs bare domains from the free-text message", async () => {
+    const body = await sentBody(
+      inquiry({ message: "my site is janedoe.photography btw" }),
+    );
+
+    expect(body).not.toContain("janedoe.photography");
+    expect(body).toContain("my site is [link] btw");
+  });
+
+  it("scrubs email addresses typed into the free-text message", async () => {
+    const body = await sentBody(
+      inquiry({ message: "or reach my partner at sam.doe+events@gmail.com" }),
+    );
+
+    expect(body).not.toContain("gmail.com");
+    expect(body).toContain("or reach my partner at [link]");
+  });
+
+  it("leaves ordinary prose and punctuation untouched", async () => {
+    const message =
+      "Hi! We met at Sarah's wedding on 6.15. Budget is $1,500.00 - excited to chat.";
+    const body = await sentBody(inquiry({ message }));
+
+    expect(body).toContain(message);
+    expect(body).not.toContain("[link]");
+  });
+
+  it("scrubs before truncating, so a sliced URL fragment cannot survive the cut", async () => {
+    // Unscrubbed, truncation at 120 chars would slice mid-URL and leave a
+    // "https://thebarn.example..." fragment in the body.
+    const message =
+      "A".repeat(110) +
+      " https://thebarn.example.com/a/very/long/path/to/rates";
+    const body = await sentBody(inquiry({ message }));
+
+    expect(body).not.toMatch(/https?/i);
+    expect(body).not.toContain("example");
+    expect(body).toContain("A".repeat(110) + " [link]");
   });
 });
 
@@ -180,14 +249,13 @@ describe("sendBookingAlert — optional fields", () => {
 
     expect(body).not.toContain("Date:");
     expect(body).not.toContain("Phone:");
-    // Required lines remain.
+    // Required lines remain (the email line is withheld — issue #32).
     expect(body).toContain("Ada Lovelace");
     expect(body).toContain("Session: Portrait");
-    expect(body).toContain("Email: ada@example.com");
     // No dangling labels, separators, or blank lines.
     expect(body).not.toContain('""');
     expect(body).not.toMatch(/\n\n/);
-    expect(body.endsWith("Email: ada@example.com")).toBe(true);
+    expect(body.endsWith("Session: Portrait")).toBe(true);
   });
 
   it("treats empty-string optionals the same as absent", async () => {

@@ -20,6 +20,11 @@ import "server-only";
  * email, plus the free-text message truncated to keep the whole SMS within two
  * segments — so the owner can triage urgency and reply directly without opening
  * the admin screen. See {@link formatAlertMessage} for the exact shape.
+ *
+ * TEMPORARY (issue #32): until the TextBelt key is verified, the account cannot
+ * send anything URL-shaped, and their filter treats the inquirer's email address
+ * as a URL — so the email line is withheld and URL-shaped tokens are scrubbed
+ * from the free-text message. Revert per issue #32 once verification lands.
  */
 
 const TEXTBELT_SEND_URL = "https://textbelt.com/text";
@@ -46,13 +51,35 @@ const BODY_MAX = 300;
  */
 const ELLIPSIS = "...";
 
+/**
+ * TEMPORARY (issue #32): anything TextBelt's unverified-account filter treats
+ * as a URL — explicit http(s) links, www. forms, email addresses, and bare
+ * domains like "example.com" — one of which bounces the entire send. This
+ * deliberately over-matches (it would catch "next.js"): a false positive costs
+ * a placeholder in the text, a false negative costs the whole alert.
+ */
+const URL_SHAPED =
+  /https?:\/\/\S+|\bwww\.\S+|[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\b[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}(?:\/\S*)?/gi;
+
+/** What a scrubbed URL-shaped token is replaced with. */
+const SCRUB_PLACEHOLDER = "[link]";
+
+/** TEMPORARY (issue #32): neutralize tokens the TextBelt filter would reject. */
+function scrubUrlShaped(text: string): string {
+  return text.replace(URL_SHAPED, SCRUB_PLACEHOLDER);
+}
+
 /** The full inquiry an alert renders, as validated by the create-booking action. */
 export interface BookingAlertInput {
   /** The inquirer's name, as submitted on the public contact form. */
   name: string;
   /** The session type chosen on the form (a short, fixed-list value). */
   sessionType: string;
-  /** The reply-to email address. Always present (required by the form). */
+  /**
+   * The reply-to email address. Always present (required by the form), but
+   * TEMPORARILY not rendered in the body — see issue #32. Kept in the input so
+   * the action's call site is untouched and the revert is confined to this file.
+   */
   email: string;
   /** Requested date, if given. Omitted from the body when absent. */
   date?: string | null;
@@ -73,12 +100,17 @@ function truncate(text: string, max: number): string {
 /**
  * Render the SMS body from an inquiry.
  *
- * Required lines (name, session, email) always appear; optional lines (date,
- * phone, message) are pushed only when present, so an absent field leaves no
- * dangling label, separator, or blank line. The message is truncated to
+ * Required lines (name, session) always appear; optional lines (date, phone,
+ * message) are pushed only when present, so an absent field leaves no dangling
+ * label, separator, or blank line. The message is truncated to
  * {@link MESSAGE_MAX} and quoted; the whole body is then capped at
  * {@link BODY_MAX} as a final guard against an unexpectedly long field. No URL
- * is ever added — the owner replies to the phone/email, not a link.
+ * is ever added — the owner replies to the phone, not a link.
+ *
+ * TEMPORARY (issue #32): the email line is withheld and the free-text message
+ * is scrubbed of URL-shaped tokens *before* truncation (so a sliced URL can't
+ * survive the cut) — TextBelt's unverified-account filter rejects any body
+ * containing something URL-shaped, and an email address qualifies.
  */
 function formatAlertMessage(input: BookingAlertInput): string {
   const lines = [
@@ -93,11 +125,9 @@ function formatAlertMessage(input: BookingAlertInput): string {
     lines.push(`Phone: ${input.phone}`);
   }
 
-  lines.push(`Email: ${input.email}`);
-
   const message = input.message?.trim();
   if (message) {
-    lines.push(`"${truncate(message, MESSAGE_MAX)}"`);
+    lines.push(`"${truncate(scrubUrlShaped(message), MESSAGE_MAX)}"`);
   }
 
   const body = lines.join("\n");
@@ -147,7 +177,10 @@ export async function sendBookingAlert(
       return;
     }
 
-    const data = (await response.json()) as { success?: boolean; error?: string };
+    const data = (await response.json()) as {
+      success?: boolean;
+      error?: string;
+    };
     if (!data.success) {
       console.error(
         `[booking-alert] TextBelt rejected the send: ${data.error ?? "unknown error"}.`,
