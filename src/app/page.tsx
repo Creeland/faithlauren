@@ -2,6 +2,7 @@ import { MobileMenu } from "./mobile-menu";
 import { Reveal } from "./reveal";
 import { auth } from "@/auth";
 import { getFrontPageGroups } from "@/modules/portfolio";
+import { localBusinessJsonLd, socialProfiles } from "@/lib/site";
 import Link from "next/link";
 import Image from "next/image";
 import { BookingForm } from "./booking-form";
@@ -25,6 +26,16 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Escaping "<" keeps the payload inert if any field ever carries markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(localBusinessJsonLd()).replace(
+            /</g,
+            "\\u003c",
+          ),
+        }}
+      />
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
@@ -93,7 +104,7 @@ export default async function Home() {
           <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-xl animate-fade-up">
               <p className="text-sm tracking-[0.3em] uppercase text-white/90 mb-4 sm:mb-5 animate-fade-up animate-delay-1">
-                North Texas &mdash; Available Everywhere
+                Wichita Falls, Texas &mdash; Serving All of North Texas
               </p>
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-light tracking-tight leading-[1.08] mb-6 sm:mb-8 text-white animate-fade-up animate-delay-2">
                 Portraits, weddings, and the moments that matter.
@@ -182,9 +193,11 @@ export default async function Home() {
                   Faith Lauren
                 </h2>
                 <p className="text-stone-600 text-lg leading-relaxed mb-12 max-w-md">
-                  I&apos;m driven by natural light and authentic moments. My
-                  work spans portraits, weddings, editorial, and fine art. The
-                  best photographs happen when people feel comfortable being
+                  I&apos;m a photographer based in Wichita Falls, Texas, driven
+                  by natural light and authentic moments. My work spans
+                  portraits, weddings, editorial, and fine art &mdash; here at
+                  home and anywhere in North Texas a session takes me. The best
+                  photographs happen when people feel comfortable being
                   themselves.
                 </p>
                 <a
@@ -209,14 +222,30 @@ export default async function Home() {
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight leading-[1.15] mb-7">
                   Let&apos;s create something together.
                 </h2>
-                <p className="text-stone-500 leading-relaxed max-w-sm mb-12">
+                <p className="text-stone-500 leading-relaxed max-w-sm mb-6">
                   Portraits, weddings, or creative collaborations &mdash;
                   I&apos;d love to hear what you have in mind.
                 </p>
+                <p className="text-sm text-stone-400 mb-12">
+                  Based in Wichita Falls &mdash; traveling throughout North
+                  Texas.
+                </p>
                 <div className="border-t border-stone-200 pt-6 flex gap-8 text-sm text-stone-400">
-                  <span>Instagram</span>
-                  <span>Pinterest</span>
-                  <span>TikTok</span>
+                  {socialProfiles.map((profile) =>
+                    profile.url ? (
+                      <a
+                        key={profile.label}
+                        href={profile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-accent transition-colors"
+                      >
+                        {profile.label}
+                      </a>
+                    ) : (
+                      <span key={profile.label}>{profile.label}</span>
+                    ),
+                  )}
                 </div>
               </div>
             </Reveal>
@@ -232,7 +261,7 @@ export default async function Home() {
       <footer className="border-t border-stone-200 py-10 sm:py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-sm text-stone-400">
-            &copy; 2026 Faith Lauren Photography
+            &copy; 2026 Faith Lauren Photography &middot; Wichita Falls, Texas
           </p>
           <nav
             aria-label="Footer navigation"
