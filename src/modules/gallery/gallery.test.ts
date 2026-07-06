@@ -553,4 +553,40 @@ describe("gallery.buildGalleryDownload", () => {
     const entries = readZipEntries(await readStream(download!.stream));
     expect([...entries.keys()]).toEqual(["good.jpg"]);
   });
+
+  it("skips a photo whose fetch rejects (network failure) without failing the archive", async () => {
+    const { id } = await gallery.createGallery({ title: "Reset Host" });
+    await seedPhoto(id, "good.jpg", 0);
+    await seedPhoto(id, "reset.jpg", 1);
+
+    // A network-level failure (DNS/reset/TLS/timeout) makes fetch reject rather
+    // than resolve with a non-OK response. One flaky photo must not turn the
+    // whole download into a 500 with zero bytes.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url.endsWith("reset.jpg")) {
+          throw new TypeError("fetch failed: ECONNRESET");
+        }
+        return {
+          ok: true,
+          arrayBuffer: async () => {
+            const bytes = bodyFor(url);
+            return bytes.buffer.slice(
+              bytes.byteOffset,
+              bytes.byteOffset + bytes.byteLength,
+            );
+          },
+        };
+      }),
+    );
+
+    const download = await gallery.buildGalleryDownload("reset-host");
+    expect(download).not.toBeNull();
+    const entries = readZipEntries(await readStream(download!.stream));
+    expect([...entries.keys()]).toEqual(["good.jpg"]);
+    expect(entries.get("good.jpg")!.toString()).toBe(
+      "BODY:https://utfs.io/f/good.jpg",
+    );
+  });
 });

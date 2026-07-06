@@ -65,11 +65,22 @@ function sanitizeFilename(title: string): string {
 }
 
 /**
+ * How long a single photo fetch may run before it is aborted. Because every
+ * photo is fetched and buffered before the stream is returned, one hung
+ * connection would otherwise stall the whole download indefinitely.
+ */
+const PHOTO_FETCH_TIMEOUT_MS = 30_000;
+
+/**
  * Build a ZIP of the given photos and expose it as a web `ReadableStream`. Each
- * photo's URL is fetched server-side and appended; a photo whose URL is off the
- * upload-host allowlist or whose fetch fails is skipped rather than aborting the
- * archive (as the route did before). All fetches complete before the stream is
- * returned, mirroring the original route.
+ * photo's URL is fetched server-side and appended; a photo is skipped — rather
+ * than aborting the whole archive — when its URL is off the upload-host
+ * allowlist, its response is non-OK, or the fetch fails outright (a network
+ * error such as DNS/connection-reset/TLS, or the per-photo timeout). A
+ * network-level failure makes `fetch()` (or the body read) reject, so those are
+ * caught here; skip-and-continue matches the non-OK behavior. Note this means a
+ * returned ZIP can be silently missing photos — the client is not told. All
+ * fetches complete before the stream is returned, mirroring the original route.
  */
 async function buildArchiveStream(
   photos: PublicPhoto[],
@@ -82,10 +93,19 @@ async function buildArchiveStream(
     // photo.url is admin-controlled; only fetch known upload/image hosts
     // (matching next.config.ts remotePatterns) to avoid server-side SSRF.
     if (!isAllowedPhotoUrl(photo.url)) continue;
-    const response = await fetch(photo.url);
-    if (!response.ok) continue;
-    const buffer = Buffer.from(await response.arrayBuffer());
-    archive.append(buffer, { name: photo.filename });
+    try {
+      const response = await fetch(photo.url, {
+        signal: AbortSignal.timeout(PHOTO_FETCH_TIMEOUT_MS),
+      });
+      if (!response.ok) continue;
+      const buffer = Buffer.from(await response.arrayBuffer());
+      archive.append(buffer, { name: photo.filename });
+    } catch {
+      // A rejected fetch (DNS/reset/TLS/timeout) or a mid-body read failure is
+      // treated the same as a non-OK response: skip this photo so one flaky
+      // host can't turn the entire download into a 500 with zero bytes.
+      continue;
+    }
   }
 
   archive.finalize();
