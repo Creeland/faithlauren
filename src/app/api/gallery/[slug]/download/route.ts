@@ -4,6 +4,7 @@ import {
   galleryAccessCookieName,
   verifyGalleryAccessToken,
 } from "@/lib/gallery-access";
+import { isAllowedPhotoUrl } from "@/lib/photo-url";
 import archiver from "archiver";
 import { PassThrough } from "stream";
 
@@ -57,6 +58,9 @@ export async function GET(
   archive.pipe(passthrough);
 
   for (const photo of photosToZip) {
+    // photo.url is admin-controlled; only fetch known upload/image hosts
+    // (matching next.config.ts remotePatterns) to avoid server-side SSRF.
+    if (!isAllowedPhotoUrl(photo.url)) continue;
     const response = await fetch(photo.url);
     if (!response.ok) continue;
     const buffer = Buffer.from(await response.arrayBuffer());
