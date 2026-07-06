@@ -4,7 +4,6 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
-import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
 import {
@@ -16,20 +15,9 @@ import {
   timingSafeEqualStrings,
 } from "@/lib/gallery-access";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { UTApi } from "uploadthing/server";
-
-const utapi = new UTApi();
-
-function generatePassword() {
-  return crypto.randomBytes(8).toString("hex");
-}
-
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
+import { adminAction } from "@/modules/shared/admin-action";
+import { DuplicateSlugError } from "@/modules/shared/errors";
+import * as galleryModule from "@/modules/gallery";
 
 const gallerySchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -58,21 +46,14 @@ export async function createGallery(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  const slug = slugify(parsed.data.title);
-
-  const existing = await prisma.gallery.findUnique({ where: { slug } });
-  if (existing) {
-    return { error: "A gallery with this name already exists" };
+  try {
+    await galleryModule.createGallery(parsed.data);
+  } catch (error) {
+    if (error instanceof DuplicateSlugError) {
+      return { error: "A gallery with this name already exists" };
+    }
+    throw error;
   }
-
-  await prisma.gallery.create({
-    data: {
-      title: parsed.data.title,
-      slug,
-      description: parsed.data.description || null,
-      password: encryptGalleryPassword(generatePassword()),
-    },
-  });
 
   redirect("/admin/galleries");
 }
@@ -93,44 +74,22 @@ export async function updateGallery(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  await prisma.gallery.update({
-    where: { id },
-    data: {
-      title: parsed.data.title,
-      description: parsed.data.description || null,
-    },
-  });
-
-  revalidatePath(`/admin/galleries/${id}`);
+  await galleryModule.updateGallery(id, parsed.data);
   return undefined;
 }
 
-export async function deleteGallery(formData: FormData) {
-  await verifyAdmin();
-  const id = formData.get("id") as string;
+export const deleteGallery = adminAction(
+  z.object({ id: z.string() }),
+  async ({ id }) => {
+    await galleryModule.deleteGallery(id);
+    redirect("/admin/galleries");
+  },
+);
 
-  const photos = await prisma.photo.findMany({
-    where: { galleryId: id },
-    select: { fileKey: true },
-  });
-  const fileKeys = photos.map((p) => p.fileKey).filter(Boolean) as string[];
-  if (fileKeys.length > 0) {
-    await utapi.deleteFiles(fileKeys);
-  }
-
-  await prisma.gallery.delete({ where: { id } });
-  redirect("/admin/galleries");
-}
-
-export async function regeneratePassword(formData: FormData) {
-  await verifyAdmin();
-  const id = formData.get("id") as string;
-  await prisma.gallery.update({
-    where: { id },
-    data: { password: encryptGalleryPassword(generatePassword()) },
-  });
-  revalidatePath(`/admin/galleries/${id}`);
-}
+export const regeneratePassword = adminAction(
+  z.object({ id: z.string() }),
+  ({ id }) => galleryModule.regeneratePassword(id),
+);
 
 // Public action for album password verification
 export type AlbumPasswordState =

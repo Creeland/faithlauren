@@ -18,3 +18,17 @@ export class DomainError extends Error {
     this.name = new.target.name;
   }
 }
+
+/**
+ * A record's derived slug collides with an existing one. Slugs are generated
+ * from a user-supplied title, so this is an expected, user-facing failure: the
+ * action layer catches it and maps it to the relevant form-error message (e.g.
+ * "A gallery with this name already exists"). The generic, table-agnostic
+ * message stays here so both gallery and portfolio slug collisions can reuse it;
+ * the human phrasing lives at the boundary where the entity is known.
+ */
+export class DuplicateSlugError extends DomainError {
+  constructor(public readonly slug: string) {
+    super(`A record with the slug "${slug}" already exists`);
+  }
+}
