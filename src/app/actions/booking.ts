@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { adminAction } from "@/modules/shared/admin-action";
 import * as bookingModule from "@/modules/booking";
@@ -74,6 +75,12 @@ export async function createBooking(
   }
 
   await bookingModule.createBooking(parsed.data);
+
+  // Notify the owner by SMS after the response is sent, so the client's form
+  // response is never blocked, slowed, or failed by the alert. This runs only
+  // on the success path — validation, honeypot, and Turnstile failures return
+  // above and never reach here. sendBookingAlert never throws.
+  after(() => bookingModule.sendBookingAlert({ name: parsed.data.name }));
 
   return { success: true };
 }
