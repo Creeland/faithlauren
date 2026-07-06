@@ -34,6 +34,18 @@ export class DuplicateSlugError extends DomainError {
 }
 
 /**
+ * A portfolio group cannot be deleted because it still contains portfolios.
+ * Deleting a non-empty group would orphan its portfolios, so the module refuses
+ * and the action layer maps this to the "remove all portfolios first" form
+ * message. The offending group id rides along for logging.
+ */
+export class GroupNotEmptyError extends DomainError {
+  constructor(public readonly groupId: string) {
+    super(`Portfolio group "${groupId}" still contains portfolios`);
+  }
+}
+
+/**
  * A submitted album password did not match the gallery's stored password, or
  * the gallery does not exist — the two are deliberately indistinguishable to
  * the caller. The action layer catches this and maps it to the single friendly
