@@ -32,4 +32,8 @@ The subset of a Gallery's photo ids a client picks for download. A ZIP download 
 
 ## Booking
 
-A prospective client's inquiry submitted through the public contact form: name, email, session type, optional phone/date/message. Starts in status `PENDING`; the photographer moves it through her workflow (e.g. approved/declined) from the admin inquiries screen. Thin CRUD by design — the booking module has no domain invariants beyond validation.
+A prospective client's inquiry submitted through the public contact form: name, email, session type, optional phone/date/message. Starts in status `PENDING`; the photographer moves it through her workflow (e.g. approved/declined) from the admin inquiries screen. Thin CRUD by design — the booking module has no domain invariants beyond validation. Creating a Booking fires a Booking Alert.
+
+## Booking Alert
+
+The SMS sent to the photographer — and only the photographer; customers never receive messages — each time a Booking is created, including inquiries she will later decline. Carries the full inquiry (name, session type, date, phone, email) with the free-text message truncated; the admin inquiries screen remains the source of truth. Delivery is best-effort with no retries: a failed or skipped alert never blocks, fails, or delays the Booking itself, and failures surface only in server logs. Sending is disabled wherever the alert configuration is absent (dev, QA).
