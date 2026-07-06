@@ -38,7 +38,6 @@ export type BookingState =
   | {
       error?: string;
       errors?: Record<string, string[]>;
-      success?: boolean;
     }
   | undefined;
 
@@ -46,9 +45,10 @@ export async function createBooking(
   _prevState: BookingState,
   formData: FormData,
 ): Promise<BookingState> {
-  // Honeypot — if filled, a bot submitted this. Return fake success.
+  // Honeypot — if filled, a bot submitted this. Redirect exactly like a real
+  // success so the bot can't tell it was caught.
   if (formData.get("_hp_name")) {
-    return { success: true };
+    redirect("/thank-you");
   }
 
   // Turnstile CAPTCHA verification stays at the public boundary.
@@ -82,5 +82,7 @@ export async function createBooking(
   // above and never reach here. sendBookingAlert never throws.
   after(() => bookingModule.sendBookingAlert(parsed.data));
 
-  return { success: true };
+  // The /thank-you page is the Google Ads conversion signal; schedule the
+  // alert before this, since redirect throws NEXT_REDIRECT.
+  redirect("/thank-you");
 }
