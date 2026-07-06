@@ -1,9 +1,4 @@
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import {
-  galleryAccessCookieName,
-  verifyGalleryAccessToken,
-} from "@/lib/gallery-access";
+import { getPublicGallery, hasAccess } from "@/modules/gallery";
 import { isAllowedPhotoUrl } from "@/lib/photo-url";
 import archiver from "archiver";
 import { PassThrough } from "stream";
@@ -14,18 +9,13 @@ export async function GET(
 ) {
   const { slug } = await params;
 
-  const gallery = await prisma.gallery.findUnique({
-    where: { slug },
-    include: { photos: { orderBy: { sortOrder: "asc" } } },
-  });
+  const gallery = await getPublicGallery(slug);
 
   if (!gallery) {
     return new Response("Not found", { status: 404 });
   }
 
-  const cookieStore = await cookies();
-  const accessCookie = cookieStore.get(galleryAccessCookieName(slug));
-  if (!verifyGalleryAccessToken(accessCookie?.value, gallery)) {
+  if (!(await hasAccess(slug))) {
     return new Response("Unauthorized", { status: 401 });
   }
 

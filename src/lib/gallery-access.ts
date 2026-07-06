@@ -18,10 +18,6 @@ function accessSecret() {
   return secret;
 }
 
-export function galleryAccessCookieName(slug: string) {
-  return `gallery-${slug}-access`;
-}
-
 // Gallery passwords are stored encrypted (not hashed) because the admin
 // UI must display the shareable password back to the photographer. The
 // key is derived from the same secret that signs access tokens; the HKDF

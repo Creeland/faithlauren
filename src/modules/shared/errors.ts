@@ -32,3 +32,15 @@ export class DuplicateSlugError extends DomainError {
     super(`A record with the slug "${slug}" already exists`);
   }
 }
+
+/**
+ * A submitted album password did not match the gallery's stored password, or
+ * the gallery does not exist — the two are deliberately indistinguishable to
+ * the caller. The action layer catches this and maps it to the single friendly
+ * "that password didn't work" message shown to clients.
+ */
+export class InvalidAlbumPasswordError extends DomainError {
+  constructor(public readonly slug: string) {
+    super(`Invalid password for gallery "${slug}"`);
+  }
+}

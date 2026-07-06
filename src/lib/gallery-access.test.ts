@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   decryptGalleryPassword,
   encryptGalleryPassword,
-  galleryAccessCookieName,
   galleryAccessToken,
   isEncryptedGalleryPassword,
   verifyGalleryAccessToken,
@@ -17,12 +16,6 @@ const gallery = {
 describe("gallery access tokens", () => {
   beforeEach(() => {
     process.env.GALLERY_ACCESS_SECRET = "test-secret";
-  });
-
-  it("builds the cookie name from the slug", () => {
-    expect(galleryAccessCookieName("smith-wedding")).toBe(
-      "gallery-smith-wedding-access",
-    );
   });
 
   it("accepts the token it issued for the same gallery", () => {

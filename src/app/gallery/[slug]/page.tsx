@@ -1,12 +1,6 @@
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import type { Gallery, Photo } from "@prisma/client";
 import Link from "next/link";
-import {
-  galleryAccessCookieName,
-  verifyGalleryAccessToken,
-} from "@/lib/gallery-access";
+import { getPublicGallery, hasAccess } from "@/modules/gallery";
 import { AlbumPasswordForm } from "./password-form";
 import { GalleryClient } from "./gallery-client";
 
@@ -17,19 +11,11 @@ export default async function GalleryPage({
 }) {
   const { slug } = await params;
 
-  const gallery: (Gallery & { photos: Photo[] }) | null =
-    await prisma.gallery.findUnique({
-      where: { slug },
-      include: { photos: { orderBy: { sortOrder: "asc" } } },
-    });
+  const gallery = await getPublicGallery(slug);
 
   if (!gallery) notFound();
 
-  const cookieStore = await cookies();
-  const accessCookie = cookieStore.get(galleryAccessCookieName(slug));
-  const hasAccess = verifyGalleryAccessToken(accessCookie?.value, gallery);
-
-  if (!hasAccess) {
+  if (!(await hasAccess(slug))) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6 bg-background">
         <div className="w-full max-w-sm text-center">
@@ -71,14 +57,7 @@ export default async function GalleryPage({
         slug={slug}
         title={gallery.title}
         description={gallery.description}
-        photos={gallery.photos.map((p) => ({
-          id: p.id,
-          url: p.url,
-          filename: p.filename,
-          caption: p.caption,
-          width: p.width,
-          height: p.height,
-        }))}
+        photos={gallery.photos}
       />
     </div>
   );

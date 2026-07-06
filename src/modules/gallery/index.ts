@@ -1,9 +1,10 @@
 import "server-only";
 
 /**
- * The gallery module: the admin gallery lifecycle behind one interface. This
- * index is the module's only import point — nothing outside the module should
- * reach into `./operations` or `./slug`.
+ * The gallery module: the admin gallery lifecycle and the public client-access
+ * contract behind one interface. This index is the module's only import point —
+ * nothing outside the module should reach into `./operations`, `./access`, or
+ * `./slug`.
  */
 export type { GalleryInput } from "./operations";
 export {
@@ -12,3 +13,11 @@ export {
   deleteGallery,
   regeneratePassword,
 } from "./operations";
+
+export type { PublicGalleryView, PublicPhoto, AccessGrant } from "./access";
+export {
+  getPublicGallery,
+  hasAccess,
+  verifyPassword,
+  grantAccess,
+} from "./access";

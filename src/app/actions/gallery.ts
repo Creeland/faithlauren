@@ -1,22 +1,15 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 import { verifyAdmin } from "@/lib/dal";
-import {
-  decryptGalleryPassword,
-  encryptGalleryPassword,
-  galleryAccessCookieName,
-  galleryAccessToken,
-  isEncryptedGalleryPassword,
-  timingSafeEqualStrings,
-} from "@/lib/gallery-access";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { adminAction } from "@/modules/shared/admin-action";
-import { DuplicateSlugError } from "@/modules/shared/errors";
+import {
+  DuplicateSlugError,
+  InvalidAlbumPasswordError,
+} from "@/modules/shared/errors";
 import * as galleryModule from "@/modules/gallery";
 
 const gallerySchema = z.object({
@@ -143,37 +136,22 @@ export async function verifyAlbumPassword(
     };
   }
 
-  const gallery = await prisma.gallery.findUnique({ where: { slug } });
-
-  if (
-    !gallery ||
-    !timingSafeEqualStrings(password, decryptGalleryPassword(gallery.password))
-  ) {
-    return {
-      error:
-        "That password didn\u2019t work. Check the link your photographer sent you and try again.",
-    };
+  // Verify + grant through the gallery module, which owns the whole
+  // album-access contract (password check, cookie name/value/TTL,
+  // revalidation). A wrong password or unknown slug both surface as
+  // InvalidAlbumPasswordError; map it to the one friendly client message.
+  try {
+    const grant = await galleryModule.verifyPassword(slug, password);
+    await galleryModule.grantAccess(grant);
+  } catch (error) {
+    if (error instanceof InvalidAlbumPasswordError) {
+      return {
+        error:
+          "That password didn\u2019t work. Check the link your photographer sent you and try again.",
+      };
+    }
+    throw error;
   }
 
-  // Opportunistically move legacy plaintext rows to encrypted storage.
-  // The access token is derived from the plaintext, so this doesn't
-  // revoke existing cookies.
-  if (!isEncryptedGalleryPassword(gallery.password)) {
-    await prisma.gallery.update({
-      where: { id: gallery.id },
-      data: { password: encryptGalleryPassword(password) },
-    });
-  }
-
-  const cookieStore = await cookies();
-  cookieStore.set(galleryAccessCookieName(slug), galleryAccessToken(gallery), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-    path: `/`,
-  });
-
-  revalidatePath(`/gallery/${slug}`);
   return undefined;
 }
