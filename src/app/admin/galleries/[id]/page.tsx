@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import type { Gallery, Photo } from "@prisma/client";
 import { verifyAdmin } from "@/lib/dal";
-import { decryptGalleryPassword } from "@/lib/gallery-access";
+import { getGallery } from "@/modules/gallery";
 import { regeneratePassword } from "@/app/actions/gallery";
 import { EditGalleryForm } from "./edit-form";
 import { DeleteGalleryButton } from "./delete-gallery-button";
@@ -23,11 +21,7 @@ export default async function EditGalleryPage({
   const host = headersList.get("host") || "localhost:3000";
   const protocol = headersList.get("x-forwarded-proto") || "http";
 
-  const gallery: (Gallery & { photos: Photo[] }) | null =
-    await prisma.gallery.findUnique({
-      where: { id },
-      include: { photos: { orderBy: { sortOrder: "asc" } } },
-    });
+  const gallery = await getGallery(id);
 
   if (!gallery) notFound();
 
@@ -52,7 +46,7 @@ export default async function EditGalleryPage({
               <span className="text-stone-400">&middot;</span>
               <span>
                 Password:{" "}
-                <CopyableUrl url={decryptGalleryPassword(gallery.password)} />
+                <CopyableUrl url={gallery.password} />
               </span>
             </div>
           </div>

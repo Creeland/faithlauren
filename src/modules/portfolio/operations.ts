@@ -124,3 +124,28 @@ export async function reorderPortfolios(order: ReorderItem[]): Promise<void> {
     revalidatePath(`/portfolio/${slug}`);
   }
 }
+
+/**
+ * Set a portfolio's cover photo, optionally recording the aspect ratio the
+ * admin chose alongside it (an empty ratio leaves the stored one untouched, as
+ * the old action did). Revalidates the admin detail page and the homepage —
+ * exactly the paths the old action refreshed. This is a cover concern rather
+ * than part of the create/update/delete lifecycle, so it revalidates narrowly
+ * rather than through {@link revalidatePortfolio}.
+ */
+export async function setCoverPhoto(
+  portfolioId: string,
+  photoId: string,
+  aspectRatio?: string | null,
+): Promise<void> {
+  await prisma.portfolio.update({
+    where: { id: portfolioId },
+    data: {
+      coverPhotoId: photoId,
+      ...(aspectRatio && { aspectRatio }),
+    },
+  });
+
+  revalidatePath(`/admin/portfolios/${portfolioId}`);
+  revalidatePath("/");
+}

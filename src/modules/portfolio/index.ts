@@ -4,8 +4,8 @@ import "server-only";
  * The portfolio module: the admin portfolio and portfolio-group lifecycle
  * behind one interface, plus the public read side of the three portfolio pages.
  * This index is the module's only import point — nothing outside the module
- * should reach into `./operations`, `./groups`, `./reads`, `./slug`, or
- * `./revalidate`.
+ * should reach into `./operations`, `./groups`, `./reads`, `./admin`, `./slug`,
+ * or `./revalidate`.
  */
 export type { PortfolioInput } from "./operations";
 export {
@@ -13,6 +13,7 @@ export {
   updatePortfolio,
   deletePortfolio,
   reorderPortfolios,
+  setCoverPhoto,
 } from "./operations";
 export type { GroupInput, GroupCoverInput } from "./groups";
 export {
@@ -39,3 +40,22 @@ export {
   getGroupMeta,
   getPortfolioMeta,
 } from "./reads";
+
+export type {
+  AdminPortfolioSummary,
+  AdminPortfolioPhoto,
+  AdminPortfolioDetail,
+  AdminGroupSummary,
+  GroupPortfolioItem,
+  AdminGroupDetail,
+} from "./admin";
+export {
+  listPortfolios,
+  getPortfolio,
+  listGroups,
+  getGroupForEdit,
+  listUngroupedPortfolios,
+  countPortfolios,
+  portfolioExists,
+  groupExists,
+} from "./admin";

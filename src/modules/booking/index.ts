@@ -14,4 +14,4 @@ export {
 } from "./operations";
 
 export type { BookingSummary, BookingDetail } from "./reads";
-export { listBookings, getBooking } from "./reads";
+export { listBookings, getBooking, countPendingBookings } from "./reads";

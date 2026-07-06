@@ -1,19 +1,12 @@
-import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
+import { listPortfolios } from "@/modules/portfolio";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function PortfoliosPage() {
   await verifyAdmin();
 
-  const portfolios = await prisma.portfolio.findMany({
-    include: {
-      _count: { select: { photos: true } },
-      photos: true,
-      group: { select: { id: true, title: true } },
-    },
-    orderBy: { sortOrder: "asc" },
-  });
+  const portfolios = await listPortfolios();
 
   return (
     <div>
@@ -32,10 +25,6 @@ export default async function PortfoliosPage() {
       ) : (
         <div className="border border-stone-200 divide-y divide-stone-200">
           {portfolios.map((portfolio) => {
-            const coverPhoto = portfolio.coverPhotoId
-              ? portfolio.photos.find((p) => p.id === portfolio.coverPhotoId)
-              : null;
-
             return (
               <Link
                 key={portfolio.id}
@@ -43,9 +32,9 @@ export default async function PortfoliosPage() {
                 className="flex items-center gap-4 p-4 hover:bg-accent-subtle transition-colors"
               >
                 <div className="w-12 h-12 shrink-0 bg-stone-100 overflow-hidden relative">
-                  {coverPhoto ? (
+                  {portfolio.coverPhotoUrl ? (
                     <Image
-                      src={coverPhoto.url}
+                      src={portfolio.coverPhotoUrl}
                       alt=""
                       fill
                       sizes="48px"
@@ -60,8 +49,8 @@ export default async function PortfoliosPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm">{portfolio.title}</p>
                   <p className="text-xs text-stone-500 mt-1">
-                    {portfolio._count.photos} photo
-                    {portfolio._count.photos !== 1 ? "s" : ""} &middot;{" "}
+                    {portfolio.photoCount} photo
+                    {portfolio.photoCount !== 1 ? "s" : ""} &middot;{" "}
                     {portfolio.group ? (
                       <span className="text-accent">
                         {portfolio.group.title}

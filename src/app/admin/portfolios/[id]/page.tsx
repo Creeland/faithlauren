@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
+import { getPortfolio } from "@/modules/portfolio"
 import { EditPortfolioForm } from "./edit-form"
 import { DeletePortfolioButton } from "./delete-portfolio-button"
 import { PortfolioPhotoUploader } from "./photo-uploader"
@@ -15,10 +15,7 @@ export default async function EditPortfolioPage({
   await verifyAdmin()
   const { id } = await params
 
-  const portfolio = await prisma.portfolio.findUnique({
-    where: { id },
-    include: { photos: { orderBy: { sortOrder: "asc" } } },
-  })
+  const portfolio = await getPortfolio(id)
 
   if (!portfolio) notFound()
 

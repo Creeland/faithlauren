@@ -1,8 +1,9 @@
 import { createUploadthing, type FileRouter } from "uploadthing/server";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { recordUpload } from "@/modules/photos";
+import { galleryExists } from "@/modules/gallery";
+import { portfolioExists, groupExists } from "@/modules/portfolio";
 
 const f = createUploadthing();
 
@@ -20,10 +21,9 @@ export const uploadRouter = {
         throw new Error("Unauthorized");
       }
 
-      const gallery = await prisma.gallery.findUnique({
-        where: { id: input.galleryId },
-      });
-      if (!gallery) throw new Error("Gallery not found");
+      if (!(await galleryExists(input.galleryId))) {
+        throw new Error("Gallery not found");
+      }
 
       return { galleryId: input.galleryId };
     })
@@ -47,10 +47,9 @@ export const uploadRouter = {
         throw new Error("Unauthorized");
       }
 
-      const portfolio = await prisma.portfolio.findUnique({
-        where: { id: input.portfolioId },
-      });
-      if (!portfolio) throw new Error("Portfolio not found");
+      if (!(await portfolioExists(input.portfolioId))) {
+        throw new Error("Portfolio not found");
+      }
 
       return { portfolioId: input.portfolioId };
     })
@@ -74,10 +73,9 @@ export const uploadRouter = {
         throw new Error("Unauthorized");
       }
 
-      const group = await prisma.portfolioGroup.findUnique({
-        where: { id: input.groupId },
-      });
-      if (!group) throw new Error("Group not found");
+      if (!(await groupExists(input.groupId))) {
+        throw new Error("Group not found");
+      }
 
       return { groupId: input.groupId };
     })

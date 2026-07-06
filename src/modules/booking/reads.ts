@@ -56,6 +56,11 @@ export async function listBookings(
   });
 }
 
+/** How many inquiries are still pending (dashboard count). */
+export function countPendingBookings(): Promise<number> {
+  return prisma.booking.count({ where: { status: "PENDING" } });
+}
+
 /** A single inquiry by id, or `null` if no such inquiry exists. */
 export async function getBooking(id: string): Promise<BookingDetail | null> {
   return prisma.booking.findUnique({

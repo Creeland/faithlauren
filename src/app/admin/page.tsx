@@ -1,15 +1,17 @@
-import { prisma } from "@/lib/prisma"
 import { verifyAdmin } from "@/lib/dal"
+import { countGalleries, countGalleryPhotos } from "@/modules/gallery"
+import { countPortfolios } from "@/modules/portfolio"
+import { countPendingBookings } from "@/modules/booking"
 import Link from "next/link"
 
 export default async function AdminDashboard() {
   await verifyAdmin()
 
   const [galleryCount, photoCount, portfolioCount, pendingBookings] = await Promise.all([
-    prisma.gallery.count(),
-    prisma.photo.count(),
-    prisma.portfolio.count(),
-    prisma.booking.count({ where: { status: "PENDING" } }),
+    countGalleries(),
+    countGalleryPhotos(),
+    countPortfolios(),
+    countPendingBookings(),
   ])
 
   const cards = [

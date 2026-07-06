@@ -1,9 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
 import { parseReorderPayload } from "@/lib/reorder";
 import { adminAction } from "@/modules/shared/admin-action";
@@ -79,22 +77,14 @@ export const reorderPortfolios = adminAction(
   ({ order }) => portfolioModule.reorderPortfolios(parseReorderPayload(order)),
 );
 
-// Cover-photo selection is a distinct concern from the portfolio CRUD lifecycle
-// migrated to the module; it stays here as a small direct action.
-export async function setCoverPhoto(formData: FormData) {
-  await verifyAdmin();
-  const portfolioId = formData.get("portfolioId") as string;
-  const photoId = formData.get("photoId") as string;
-  const aspectRatio = formData.get("aspectRatio") as string | null;
-
-  await prisma.portfolio.update({
-    where: { id: portfolioId },
-    data: {
-      coverPhotoId: photoId,
-      ...(aspectRatio && { aspectRatio }),
-    },
-  });
-
-  revalidatePath(`/admin/portfolios/${portfolioId}`);
-  revalidatePath("/");
-}
+// Cover-photo selection is a distinct concern from the portfolio CRUD lifecycle,
+// but it too now goes through the module; the action is a thin adminAction shell.
+export const setCoverPhoto = adminAction(
+  z.object({
+    portfolioId: z.string(),
+    photoId: z.string(),
+    aspectRatio: z.string().optional(),
+  }),
+  ({ portfolioId, photoId, aspectRatio }) =>
+    portfolioModule.setCoverPhoto(portfolioId, photoId, aspectRatio),
+);

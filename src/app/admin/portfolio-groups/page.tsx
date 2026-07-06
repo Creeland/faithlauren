@@ -1,16 +1,12 @@
-import { prisma } from "@/lib/prisma";
 import { verifyAdmin } from "@/lib/dal";
+import { listGroups } from "@/modules/portfolio";
 import Link from "next/link";
-import Image from "next/image";
 import { GroupList } from "./group-list";
 
 export default async function PortfolioGroupsPage() {
   await verifyAdmin();
 
-  const groups = await prisma.portfolioGroup.findMany({
-    include: { _count: { select: { portfolios: true } } },
-    orderBy: { sortOrder: "asc" },
-  });
+  const groups = await listGroups();
 
   return (
     <div>
@@ -32,7 +28,7 @@ export default async function PortfolioGroupsPage() {
             id: g.id,
             title: g.title,
             coverImageUrl: g.coverImageUrl,
-            portfolioCount: g._count.portfolios,
+            portfolioCount: g.portfolioCount,
             sortOrder: g.sortOrder,
           }))}
         />
