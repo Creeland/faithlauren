@@ -44,3 +44,25 @@ export class InvalidAlbumPasswordError extends DomainError {
     super(`Invalid password for gallery "${slug}"`);
   }
 }
+
+/**
+ * A download request named a photo id that does not belong to the gallery. The
+ * client only ever submits ids from the gallery it is viewing, so this signals a
+ * tampered or stale request; the download adapter maps it to a 400.
+ */
+export class InvalidPhotoSelectionError extends DomainError {
+  constructor(public readonly photoId: string) {
+    super(`Photo "${photoId}" is not part of this gallery`);
+  }
+}
+
+/**
+ * A download resolved to zero photos — an empty gallery, or a selection that
+ * filtered everything out. Distinct from a missing gallery: the download adapter
+ * maps it to a 404 with the "no photos to download" message.
+ */
+export class EmptyDownloadError extends DomainError {
+  constructor(public readonly slug: string) {
+    super(`Gallery "${slug}" has no photos to download`);
+  }
+}

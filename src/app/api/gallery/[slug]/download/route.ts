@@ -1,7 +1,8 @@
-import { getPublicGallery, hasAccess } from "@/modules/gallery";
-import { isAllowedPhotoUrl } from "@/lib/photo-url";
-import archiver from "archiver";
-import { PassThrough } from "stream";
+import { buildGalleryDownload, hasAccess } from "@/modules/gallery";
+import {
+  EmptyDownloadError,
+  InvalidPhotoSelectionError,
+} from "@/modules/shared/errors";
 
 export async function GET(
   request: Request,
@@ -9,76 +10,38 @@ export async function GET(
 ) {
   const { slug } = await params;
 
-  const gallery = await getPublicGallery(slug);
-
-  if (!gallery) {
-    return new Response("Not found", { status: 404 });
-  }
-
+  // Access check: a gallery that is missing or not unlocked is rejected here.
   if (!(await hasAccess(slug))) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // Filter to selected photos if photoIds provided
-  const { searchParams } = new URL(request.url);
-  const photoIdsParam = searchParams.get("photoIds");
-  let photosToZip = gallery.photos;
+  // A `photoIds` query param selects a subset; its absence means the full
+  // gallery. An empty string is treated as absent (full gallery), matching the
+  // client, while a present-but-emptying value flows through as a selection.
+  const photoIdsParam = new URL(request.url).searchParams.get("photoIds");
+  const selection = photoIdsParam
+    ? photoIdsParam.split(",").filter(Boolean)
+    : undefined;
 
-  if (photoIdsParam) {
-    const requestedIds = new Set(photoIdsParam.split(",").filter(Boolean));
-    const galleryPhotoIds = new Set(gallery.photos.map((p) => p.id));
-
-    // Validate all requested IDs belong to this gallery
-    for (const id of requestedIds) {
-      if (!galleryPhotoIds.has(id)) {
-        return new Response("Invalid photo ID", { status: 400 });
-      }
+  try {
+    const download = await buildGalleryDownload(slug, selection);
+    if (!download) {
+      return new Response("Not found", { status: 404 });
     }
 
-    photosToZip = gallery.photos.filter((p) => requestedIds.has(p.id));
+    return new Response(download.stream, {
+      headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${download.filename}"`,
+      },
+    });
+  } catch (err) {
+    if (err instanceof InvalidPhotoSelectionError) {
+      return new Response("Invalid photo ID", { status: 400 });
+    }
+    if (err instanceof EmptyDownloadError) {
+      return new Response("No photos to download", { status: 404 });
+    }
+    throw err;
   }
-
-  if (photosToZip.length === 0) {
-    return new Response("No photos to download", { status: 404 });
-  }
-
-  const passthrough = new PassThrough();
-  const archive = archiver("zip", { zlib: { level: 5 } });
-
-  archive.pipe(passthrough);
-
-  for (const photo of photosToZip) {
-    // photo.url is admin-controlled; only fetch known upload/image hosts
-    // (matching next.config.ts remotePatterns) to avoid server-side SSRF.
-    if (!isAllowedPhotoUrl(photo.url)) continue;
-    const response = await fetch(photo.url);
-    if (!response.ok) continue;
-    const buffer = Buffer.from(await response.arrayBuffer());
-    archive.append(buffer, { name: photo.filename });
-  }
-
-  archive.finalize();
-
-  const stream = new ReadableStream({
-    start(controller) {
-      passthrough.on("data", (chunk: Buffer) => {
-        controller.enqueue(new Uint8Array(chunk));
-      });
-      passthrough.on("end", () => {
-        controller.close();
-      });
-      passthrough.on("error", (err) => {
-        controller.error(err);
-      });
-    },
-  });
-
-  const safeFilename = gallery.title.replace(/[^a-zA-Z0-9 _-]/g, "").trim();
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="${safeFilename}.zip"`,
-    },
-  });
 }

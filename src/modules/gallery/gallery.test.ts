@@ -6,7 +6,9 @@ import {
   beforeAll,
   afterAll,
   beforeEach,
+  afterEach,
 } from "vitest";
+import zlib from "zlib";
 import type { PrismaClient } from "@prisma/client";
 
 // Real PrismaClient over a throwaway SQLite database — no Prisma mocks. Only
@@ -44,6 +46,8 @@ import * as gallery from "@/modules/gallery";
 import {
   DuplicateSlugError,
   InvalidAlbumPasswordError,
+  InvalidPhotoSelectionError,
+  EmptyDownloadError,
 } from "@/modules/shared/errors";
 import {
   decryptGalleryPassword,
@@ -328,5 +332,225 @@ describe("gallery.verifyPassword / grantAccess / hasAccess", () => {
 
   it("hasAccess is false for an unknown slug", async () => {
     expect(await gallery.hasAccess("no-such-gallery")).toBe(false);
+  });
+});
+
+// --- ZIP download -------------------------------------------------------------
+
+// The server-side fetch of each photo's URL is the one true external in the
+// download path. It's stubbed to return a deterministic body per URL so the
+// archive's contents can be asserted byte-for-byte after unzipping.
+function bodyFor(url: string): Uint8Array {
+  return new TextEncoder().encode(`BODY:${url}`);
+}
+
+/** Drain a web ReadableStream into a single Buffer. */
+async function readStream(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) chunks.push(value);
+  }
+  return Buffer.concat(chunks);
+}
+
+/**
+ * Minimal ZIP reader: parse the central directory and return each entry's name
+ * mapped to its decompressed bytes. No unzip library is available in this
+ * sandbox, so the format is parsed directly (deflate entries via zlib).
+ */
+function readZipEntries(buf: Buffer): Map<string, Buffer> {
+  const entries = new Map<string, Buffer>();
+
+  // Locate the End Of Central Directory record (scanning back from the tail).
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= 0; i--) {
+    if (buf.readUInt32LE(i) === 0x06054b50) {
+      eocd = i;
+      break;
+    }
+  }
+  if (eocd < 0) throw new Error("ZIP: no end-of-central-directory record");
+
+  const total = buf.readUInt16LE(eocd + 10);
+  let ptr = buf.readUInt32LE(eocd + 16);
+
+  for (let n = 0; n < total; n++) {
+    if (buf.readUInt32LE(ptr) !== 0x02014b50) {
+      throw new Error("ZIP: bad central-directory signature");
+    }
+    const method = buf.readUInt16LE(ptr + 10);
+    const compSize = buf.readUInt32LE(ptr + 20);
+    const nameLen = buf.readUInt16LE(ptr + 28);
+    const extraLen = buf.readUInt16LE(ptr + 30);
+    const commentLen = buf.readUInt16LE(ptr + 32);
+    const localOffset = buf.readUInt32LE(ptr + 42);
+    const name = buf.toString("utf8", ptr + 46, ptr + 46 + nameLen);
+
+    // Data offset is derived from the local header's own name/extra lengths.
+    const localNameLen = buf.readUInt16LE(localOffset + 26);
+    const localExtraLen = buf.readUInt16LE(localOffset + 28);
+    const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+    const raw = buf.subarray(dataStart, dataStart + compSize);
+    entries.set(
+      name,
+      method === 0 ? Buffer.from(raw) : zlib.inflateRawSync(raw),
+    );
+
+    ptr += 46 + nameLen + extraLen + commentLen;
+  }
+
+  return entries;
+}
+
+async function seedPhoto(
+  galleryId: string,
+  filename: string,
+  sortOrder: number,
+  overrides: Partial<{ url: string }> = {},
+) {
+  return prisma.photo.create({
+    data: {
+      url: overrides.url ?? `https://utfs.io/f/${filename}`,
+      filename,
+      galleryId,
+      fileKey: `key-${filename}`,
+      sortOrder,
+    },
+  });
+}
+
+describe("gallery.buildGalleryDownload", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => ({
+        ok: true,
+        arrayBuffer: async () => {
+          const bytes = bodyFor(url);
+          return bytes.buffer.slice(
+            bytes.byteOffset,
+            bytes.byteOffset + bytes.byteLength,
+          );
+        },
+      })),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("archives the whole gallery, in order, with each photo's bytes", async () => {
+    const { id } = await gallery.createGallery({ title: "Full Set" });
+    await seedPhoto(id, "a.jpg", 0);
+    await seedPhoto(id, "b.jpg", 1);
+    await seedPhoto(id, "c.jpg", 2);
+
+    const download = await gallery.buildGalleryDownload("full-set");
+    expect(download).not.toBeNull();
+    expect(download!.filename).toBe("Full Set.zip");
+
+    const entries = readZipEntries(await readStream(download!.stream));
+    expect([...entries.keys()].sort()).toEqual(["a.jpg", "b.jpg", "c.jpg"]);
+    expect(entries.get("a.jpg")!.toString()).toBe(
+      "BODY:https://utfs.io/f/a.jpg",
+    );
+    expect(entries.get("b.jpg")!.toString()).toBe(
+      "BODY:https://utfs.io/f/b.jpg",
+    );
+  });
+
+  it("archives exactly the selected subset of photos", async () => {
+    const { id } = await gallery.createGallery({ title: "Pick Two" });
+    const a = await seedPhoto(id, "a.jpg", 0);
+    await seedPhoto(id, "b.jpg", 1);
+    const c = await seedPhoto(id, "c.jpg", 2);
+
+    const download = await gallery.buildGalleryDownload("pick-two", [
+      a.id,
+      c.id,
+    ]);
+
+    const entries = readZipEntries(await readStream(download!.stream));
+    expect([...entries.keys()].sort()).toEqual(["a.jpg", "c.jpg"]);
+    expect(entries.has("b.jpg")).toBe(false);
+  });
+
+  it("sanitizes the gallery title into the download filename", async () => {
+    const { id } = await gallery.createGallery({
+      title: "Smith & Jones: 2026!",
+    });
+    await seedPhoto(id, "a.jpg", 0);
+
+    const download = await gallery.buildGalleryDownload("smith-jones-2026");
+    expect(download!.filename).toBe("Smith  Jones 2026.zip");
+  });
+
+  it("throws InvalidPhotoSelectionError for an id outside the gallery", async () => {
+    const { id } = await gallery.createGallery({ title: "Guarded Set" });
+    await seedPhoto(id, "a.jpg", 0);
+
+    await expect(
+      gallery.buildGalleryDownload("guarded-set", ["not-a-real-id"]),
+    ).rejects.toBeInstanceOf(InvalidPhotoSelectionError);
+  });
+
+  it("throws EmptyDownloadError for a gallery with no photos", async () => {
+    await gallery.createGallery({ title: "Nothing Here" });
+
+    await expect(
+      gallery.buildGalleryDownload("nothing-here"),
+    ).rejects.toBeInstanceOf(EmptyDownloadError);
+  });
+
+  it("throws EmptyDownloadError for a selection that matches nothing", async () => {
+    const { id } = await gallery.createGallery({ title: "Empty Pick" });
+    await seedPhoto(id, "a.jpg", 0);
+
+    // An explicit empty selection is a selection, not a full-gallery request.
+    await expect(
+      gallery.buildGalleryDownload("empty-pick", []),
+    ).rejects.toBeInstanceOf(EmptyDownloadError);
+  });
+
+  it("returns null for an unknown slug", async () => {
+    expect(await gallery.buildGalleryDownload("no-such-gallery")).toBeNull();
+  });
+
+  it("skips photos whose URL is off the upload-host allowlist", async () => {
+    const { id } = await gallery.createGallery({ title: "Mixed Hosts" });
+    await seedPhoto(id, "ok.jpg", 0);
+    await seedPhoto(id, "evil.jpg", 1, { url: "http://169.254.169.254/x.jpg" });
+
+    const download = await gallery.buildGalleryDownload("mixed-hosts");
+    const entries = readZipEntries(await readStream(download!.stream));
+    expect([...entries.keys()]).toEqual(["ok.jpg"]);
+  });
+
+  it("skips photos whose fetch does not succeed", async () => {
+    const { id } = await gallery.createGallery({ title: "Flaky Fetch" });
+    await seedPhoto(id, "good.jpg", 0);
+    await seedPhoto(id, "gone.jpg", 1);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => ({
+        ok: !url.endsWith("gone.jpg"),
+        arrayBuffer: async () => {
+          const bytes = bodyFor(url);
+          return bytes.buffer.slice(
+            bytes.byteOffset,
+            bytes.byteOffset + bytes.byteLength,
+          );
+        },
+      })),
+    );
+
+    const download = await gallery.buildGalleryDownload("flaky-fetch");
+    const entries = readZipEntries(await readStream(download!.stream));
+    expect([...entries.keys()]).toEqual(["good.jpg"]);
   });
 });

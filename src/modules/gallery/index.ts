@@ -21,3 +21,6 @@ export {
   verifyPassword,
   grantAccess,
 } from "./access";
+
+export type { GalleryDownload } from "./download";
+export { buildGalleryDownload } from "./download";
