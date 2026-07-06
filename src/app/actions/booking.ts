@@ -80,7 +80,7 @@ export async function createBooking(
   // response is never blocked, slowed, or failed by the alert. This runs only
   // on the success path — validation, honeypot, and Turnstile failures return
   // above and never reach here. sendBookingAlert never throws.
-  after(() => bookingModule.sendBookingAlert({ name: parsed.data.name }));
+  after(() => bookingModule.sendBookingAlert(parsed.data));
 
   return { success: true };
 }

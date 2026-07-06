@@ -14,16 +14,97 @@ import "server-only";
  *   - skips silently (one log line) when SMS is not configured, and
  *   - swallows every failure (network rejection or non-OK response) with a log,
  *
- * i.e. it always resolves and never rejects. The rich message body arrives in a
- * follow-up slice; this slice sends only the inquirer's name.
+ * i.e. it always resolves and never rejects.
+ *
+ * The body is the full inquiry — name, session type, requested date, phone, and
+ * email, plus the free-text message truncated to keep the whole SMS within two
+ * segments — so the owner can triage urgency and reply directly without opening
+ * the admin screen. See {@link formatAlertMessage} for the exact shape.
  */
 
 const TEXTBELT_SEND_URL = "https://textbelt.com/text";
 
-/** The data an alert needs. Minimal for now — grows with the message body. */
+/**
+ * The free-text message is trimmed to this many characters (an ellipsis is then
+ * appended) so a long inquiry can't blow the two-segment budget on its own.
+ */
+const MESSAGE_MAX = 120;
+
+/**
+ * A hard ceiling on the whole body. A concatenated GSM-7 SMS carries 153
+ * characters per segment, so two segments hold 306; we stay under that. Only
+ * `message` (last in the body) can realistically push the total this far — the
+ * other fields are short and bounded — so a tail trim here only ever shortens
+ * the already-truncated message, never the phone/email the owner needs to reply.
+ */
+const BODY_MAX = 300;
+
+/**
+ * Plain ASCII ellipsis. A single "…" (U+2026) is outside the GSM-7 alphabet and
+ * would force the whole message into UCS-2 (67 chars/segment), halving the
+ * budget — so we spell it out.
+ */
+const ELLIPSIS = "...";
+
+/** The full inquiry an alert renders, as validated by the create-booking action. */
 export interface BookingAlertInput {
   /** The inquirer's name, as submitted on the public contact form. */
   name: string;
+  /** The session type chosen on the form (a short, fixed-list value). */
+  sessionType: string;
+  /** The reply-to email address. Always present (required by the form). */
+  email: string;
+  /** Requested date, if given. Omitted from the body when absent. */
+  date?: string | null;
+  /** Contact phone, if given. Omitted from the body when absent. */
+  phone?: string | null;
+  /** Free-text message, if given. Truncated, then omitted when absent/blank. */
+  message?: string | null;
+}
+
+/** Trim `text` to `max` chars, appending an ellipsis only when it was longer. */
+function truncate(text: string, max: number): string {
+  if (text.length <= max) {
+    return text;
+  }
+  return text.slice(0, max).trimEnd() + ELLIPSIS;
+}
+
+/**
+ * Render the SMS body from an inquiry.
+ *
+ * Required lines (name, session, email) always appear; optional lines (date,
+ * phone, message) are pushed only when present, so an absent field leaves no
+ * dangling label, separator, or blank line. The message is truncated to
+ * {@link MESSAGE_MAX} and quoted; the whole body is then capped at
+ * {@link BODY_MAX} as a final guard against an unexpectedly long field. No URL
+ * is ever added — the owner replies to the phone/email, not a link.
+ */
+function formatAlertMessage(input: BookingAlertInput): string {
+  const lines = [
+    `New booking inquiry: ${input.name}`,
+    `Session: ${input.sessionType}`,
+  ];
+
+  if (input.date) {
+    lines.push(`Date: ${input.date}`);
+  }
+  if (input.phone) {
+    lines.push(`Phone: ${input.phone}`);
+  }
+
+  lines.push(`Email: ${input.email}`);
+
+  const message = input.message?.trim();
+  if (message) {
+    lines.push(`"${truncate(message, MESSAGE_MAX)}"`);
+  }
+
+  const body = lines.join("\n");
+  if (body.length <= BODY_MAX) {
+    return body;
+  }
+  return body.slice(0, BODY_MAX - ELLIPSIS.length).trimEnd() + ELLIPSIS;
 }
 
 /**
@@ -50,7 +131,7 @@ export async function sendBookingAlert(
     return;
   }
 
-  const message = `New booking inquiry: ${input.name}`;
+  const message = formatAlertMessage(input);
 
   try {
     const response = await fetch(TEXTBELT_SEND_URL, {
