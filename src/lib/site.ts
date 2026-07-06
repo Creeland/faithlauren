@@ -30,7 +30,7 @@ export type SocialProfile = { label: string; url: string | null };
  * confirms them.
  */
 export const socialProfiles: SocialProfile[] = [
-  { label: "Instagram", url: null },
+  { label: "Instagram", url: "https://www.instagram.com/mangoelephants" },
   { label: "Pinterest", url: null },
   { label: "TikTok", url: null },
 ];
