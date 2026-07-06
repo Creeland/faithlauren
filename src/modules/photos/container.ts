@@ -8,6 +8,9 @@ import type { ReorderItem } from "@/lib/reorder";
  * copy-paste history; the photos module hides that split behind this single
  * discriminated type and an internal delegate lookup, so callers never name a
  * table. A future merge of the two tables changes only the delegate.
+ *
+ * ADR-0001: the two tables are kept deliberately — read
+ * docs/adr/0001-domain-modules.md before "fixing" the duplication.
  */
 export type Container = { gallery: string } | { portfolio: string };
 
