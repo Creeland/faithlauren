@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useCallback, useRef, type MouseEvent } from "react"
-import Image from "next/image"
+import { useState, useCallback, useRef, type MouseEvent } from "react";
+import Image from "next/image";
 import {
   DndContext,
   closestCenter,
@@ -12,37 +12,42 @@ import {
   DragOverlay,
   type DragStartEvent,
   type DragEndEvent,
-} from "@dnd-kit/core"
+} from "@dnd-kit/core";
 import {
   SortableContext,
   rectSortingStrategy,
   useSortable,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-import { toast } from "sonner"
-import { deletePhoto, reorderPhotos } from "@/app/actions/photo"
-import { useAdminPhotoSelection } from "./use-admin-photo-selection"
-import { computeReorder } from "./reorder-photos"
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { toast } from "sonner";
+import { deletePhoto, reorderPhotos } from "@/app/actions/photo";
+import { useAdminPhotoSelection } from "./use-admin-photo-selection";
+import { computeReorder } from "./reorder-photos";
 
 type Photo = {
-  id: string
-  url: string
-  filename: string
-  caption: string | null
-  sortOrder: number
-  galleryId: string
-}
+  id: string;
+  url: string;
+  filename: string;
+  caption: string | null;
+  sortOrder: number;
+  galleryId: string;
+};
 
 function SortablePhoto({
   photo,
+  galleryId,
   isSelected,
   isDraggedInGroup,
   onSelect,
 }: {
-  photo: Photo
-  isSelected: boolean
-  isDraggedInGroup: boolean
-  onSelect: (id: string, event: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean }) => void
+  photo: Photo;
+  galleryId: string;
+  isSelected: boolean;
+  isDraggedInGroup: boolean;
+  onSelect: (
+    id: string,
+    event: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean },
+  ) => void;
 }) {
   const {
     attributes,
@@ -51,36 +56,40 @@ function SortablePhoto({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: photo.id })
+  } = useSortable({ id: photo.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }
+  };
 
-  const dndPointerDown = listeners?.onPointerDown
+  const dndPointerDown = listeners?.onPointerDown;
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey) {
       // Modifier click: handle selection, don't start drag
-      e.preventDefault()
-      e.stopPropagation()
-      onSelect(photo.id, { metaKey: e.metaKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey })
-      return
+      e.preventDefault();
+      e.stopPropagation();
+      onSelect(photo.id, {
+        metaKey: e.metaKey,
+        ctrlKey: e.ctrlKey,
+        shiftKey: e.shiftKey,
+      });
+      return;
     }
     // No modifier: let dnd-kit handle the pointer event for dragging
-    dndPointerDown?.(e as unknown as PointerEvent)
-  }
+    dndPointerDown?.(e as unknown as PointerEvent);
+  };
 
   const handleClick = (e: MouseEvent) => {
     // Plain click (no modifiers, no drag) — select just this photo
     if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
-      onSelect(photo.id, { metaKey: false, ctrlKey: false, shiftKey: false })
+      onSelect(photo.id, { metaKey: false, ctrlKey: false, shiftKey: false });
     }
-  }
+  };
 
   // Hide photos that are part of a multi-drag group (but not the active/dragging one — dnd-kit handles that)
-  const hidden = isDraggedInGroup && !isDragging
+  const hidden = isDraggedInGroup && !isDragging;
 
   return (
     <div
@@ -108,8 +117,17 @@ function SortablePhoto({
       </div>
       {isSelected && (
         <div className="absolute top-1 left-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-            <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-3 h-3"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+              clipRule="evenodd"
+            />
           </svg>
         </div>
       )}
@@ -118,6 +136,7 @@ function SortablePhoto({
         className="absolute top-1 right-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
       >
         <input type="hidden" name="id" value={photo.id} />
+        <input type="hidden" name="galleryId" value={galleryId} />
         <button
           type="submit"
           className="bg-red-600 text-white text-xs px-2 py-1 rounded"
@@ -127,7 +146,7 @@ function SortablePhoto({
       </form>
       <p className="text-xs text-stone-500 mt-1 truncate">{photo.filename}</p>
     </div>
-  )
+  );
 }
 
 function DragOverlayContent({ photo, count }: { photo: Photo; count: number }) {
@@ -156,30 +175,30 @@ function DragOverlayContent({ photo, count }: { photo: Photo; count: number }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function PhotoGrid({
   photos: initialPhotos,
   galleryId,
 }: {
-  photos: Photo[]
-  galleryId: string
+  photos: Photo[];
+  galleryId: string;
 }) {
-  const [photos, setPhotos] = useState(initialPhotos)
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [draggedIds, setDraggedIds] = useState<Set<string>>(new Set())
-  const previousPhotosRef = useRef<Photo[]>(initialPhotos)
-  const savingRef = useRef(false)
+  const [photos, setPhotos] = useState(initialPhotos);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [draggedIds, setDraggedIds] = useState<Set<string>>(new Set());
+  const previousPhotosRef = useRef<Photo[]>(initialPhotos);
+  const savingRef = useRef(false);
 
-  const selection = useAdminPhotoSelection(photos.map((p) => p.id))
+  const selection = useAdminPhotoSelection(photos.map((p) => p.id));
 
   // Keep photos in sync when server re-renders (e.g., after upload or delete)
-  const [prevInitial, setPrevInitial] = useState(initialPhotos)
+  const [prevInitial, setPrevInitial] = useState(initialPhotos);
   if (initialPhotos !== prevInitial) {
-    setPrevInitial(initialPhotos)
+    setPrevInitial(initialPhotos);
     if (!savingRef.current) {
-      setPhotos(initialPhotos)
+      setPhotos(initialPhotos);
     }
   }
 
@@ -189,98 +208,96 @@ export function PhotoGrid({
     }),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 200, tolerance: 5 },
-    })
-  )
+    }),
+  );
 
   const saveOrder = useCallback(
     async (reorderedPhotos: Photo[]) => {
-      savingRef.current = true
+      savingRef.current = true;
       const order = reorderedPhotos.map((p, i) => ({
         id: p.id,
         sortOrder: i,
-      }))
+      }));
 
-      const formData = new FormData()
-      formData.set("order", JSON.stringify(order))
-      formData.set("galleryId", galleryId)
+      const formData = new FormData();
+      formData.set("order", JSON.stringify(order));
+      formData.set("galleryId", galleryId);
 
       try {
-        await reorderPhotos(formData)
+        await reorderPhotos(formData);
       } catch {
-        toast.error("Failed to save photo order. Reverting.")
-        setPhotos(previousPhotosRef.current)
+        toast.error("Failed to save photo order. Reverting.");
+        setPhotos(previousPhotosRef.current);
       } finally {
-        savingRef.current = false
+        savingRef.current = false;
       }
     },
-    [galleryId]
-  )
+    [galleryId],
+  );
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
-      const id = event.active.id as string
-      setActiveId(id)
+      const id = event.active.id as string;
+      setActiveId(id);
       setPhotos((current) => {
-        previousPhotosRef.current = current
-        return current
-      })
+        previousPhotosRef.current = current;
+        return current;
+      });
 
       // If dragging a selected photo, drag the whole group
       // If dragging an unselected photo, clear selection and drag only that one
       if (selection.selectedIds.has(id)) {
-        setDraggedIds(new Set(selection.selectedIds))
+        setDraggedIds(new Set(selection.selectedIds));
       } else {
-        selection.clearSelection()
-        setDraggedIds(new Set([id]))
+        selection.clearSelection();
+        setDraggedIds(new Set([id]));
       }
     },
-    [selection]
-  )
+    [selection],
+  );
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const { active, over } = event
-      const currentDraggedIds = draggedIds
+      const { active, over } = event;
+      const currentDraggedIds = draggedIds;
 
-      setActiveId(null)
-      setDraggedIds(new Set())
+      setActiveId(null);
+      setDraggedIds(new Set());
 
       if (!over || active.id === over.id) {
         // If single photo dropped in place, no reorder needed
-        if (currentDraggedIds.size <= 1) return
+        if (currentDraggedIds.size <= 1) return;
       }
 
-      if (!over) return
+      if (!over) return;
 
       setPhotos((current) => {
         const reordered = computeReorder(
           current,
           currentDraggedIds,
           active.id as string,
-          over.id as string
-        )
+          over.id as string,
+        );
 
         // Check if anything actually changed
-        const changed = reordered.some((p, i) => p.id !== current[i].id)
-        if (!changed) return current
+        const changed = reordered.some((p, i) => p.id !== current[i].id);
+        if (!changed) return current;
 
-        saveOrder(reordered)
-        return reordered
-      })
+        saveOrder(reordered);
+        return reordered;
+      });
     },
-    [saveOrder, draggedIds]
-  )
+    [saveOrder, draggedIds],
+  );
 
   const handleDragCancel = useCallback(() => {
-    setActiveId(null)
-    setDraggedIds(new Set())
-  }, [])
+    setActiveId(null);
+    setDraggedIds(new Set());
+  }, []);
 
-  const activePhoto = activeId
-    ? photos.find((p) => p.id === activeId)
-    : null
+  const activePhoto = activeId ? photos.find((p) => p.id === activeId) : null;
 
-  const dragCount = draggedIds.size
+  const dragCount = draggedIds.size;
 
   return (
     <DndContext
@@ -290,14 +307,20 @@ export function PhotoGrid({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <SortableContext items={photos.map((p) => p.id)} strategy={rectSortingStrategy}>
+      <SortableContext
+        items={photos.map((p) => p.id)}
+        strategy={rectSortingStrategy}
+      >
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {photos.map((photo) => (
             <SortablePhoto
               key={photo.id}
               photo={photo}
+              galleryId={galleryId}
               isSelected={selection.selectedIds.has(photo.id)}
-              isDraggedInGroup={draggedIds.has(photo.id) && photo.id !== activeId}
+              isDraggedInGroup={
+                draggedIds.has(photo.id) && photo.id !== activeId
+              }
               onSelect={selection.handleClick}
             />
           ))}
@@ -309,5 +332,5 @@ export function PhotoGrid({
         ) : null}
       </DragOverlay>
     </DndContext>
-  )
+  );
 }

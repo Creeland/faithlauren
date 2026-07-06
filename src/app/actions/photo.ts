@@ -1,63 +1,28 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 import { verifyAdmin } from "@/lib/dal";
 import { parseReorderPayload } from "@/lib/reorder";
-import { UTApi } from "uploadthing/server";
+import { adminAction } from "@/modules/shared/admin-action";
+import * as photos from "@/modules/photos";
 
-const utapi = new UTApi();
+export const deletePhoto = adminAction(
+  z.object({ id: z.string(), galleryId: z.string() }),
+  ({ id, galleryId }) => photos.deletePhoto({ gallery: galleryId }, id),
+);
 
-export async function deletePhoto(formData: FormData) {
-  await verifyAdmin();
-  const id = formData.get("id") as string;
-  const photo = await prisma.photo.findUnique({ where: { id } });
+export const deleteAllPhotos = adminAction(
+  z.object({ galleryId: z.string() }),
+  ({ galleryId }) => photos.deleteAllPhotos({ gallery: galleryId }),
+);
 
-  if (photo) {
-    if (photo.fileKey) {
-      await utapi.deleteFiles(photo.fileKey);
-    }
-    await prisma.photo.delete({ where: { id } });
-    revalidatePath(`/admin/galleries/${photo.galleryId}`);
-  }
-}
-
-export async function deleteAllPhotos(formData: FormData) {
-  await verifyAdmin();
-  const galleryId = formData.get("galleryId") as string;
-
-  const photos = await prisma.photo.findMany({
-    where: { galleryId },
-    select: { fileKey: true },
-  });
-
-  const fileKeys = photos.map((p) => p.fileKey).filter(Boolean) as string[];
-  if (fileKeys.length > 0) {
-    await utapi.deleteFiles(fileKeys);
-  }
-
-  await prisma.photo.deleteMany({ where: { galleryId } });
-  revalidatePath(`/admin/galleries/${galleryId}`);
-}
+export const reorderPhotos = adminAction(
+  z.object({ galleryId: z.string(), order: z.string() }),
+  ({ galleryId, order }) =>
+    photos.reorderPhotos({ gallery: galleryId }, parseReorderPayload(order)),
+);
 
 export async function getPhotoCount(galleryId: string): Promise<number> {
   await verifyAdmin();
-  return prisma.photo.count({ where: { galleryId } });
-}
-
-export async function reorderPhotos(formData: FormData) {
-  await verifyAdmin();
-  const order = parseReorderPayload(formData.get("order"));
-
-  await prisma.$transaction(
-    order.map((item) =>
-      prisma.photo.update({
-        where: { id: item.id },
-        data: { sortOrder: item.sortOrder },
-      }),
-    ),
-  );
-
-  const galleryId = formData.get("galleryId") as string;
-  revalidatePath(`/admin/galleries/${galleryId}`);
+  return photos.countPhotos({ gallery: galleryId });
 }
