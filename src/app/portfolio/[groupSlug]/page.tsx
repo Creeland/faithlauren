@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   getGroupMeta,
   getPortfolioBySlug,
@@ -58,7 +58,10 @@ export default async function GroupPage({ params }: Props) {
     if (!portfolio) notFound();
 
     if (portfolio.group) {
-      redirect(`/portfolio/${portfolio.group.slug}/${portfolio.slug}`);
+      // 308, not 307: the flat /portfolio/[slug] URL is the portfolio's old
+      // address (pre-groups), and a temporary redirect makes Google keep it
+      // as the canonical and mark the nested URL a duplicate.
+      permanentRedirect(`/portfolio/${portfolio.group.slug}/${portfolio.slug}`);
     }
 
     return (
