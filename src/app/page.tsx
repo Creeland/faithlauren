@@ -1,6 +1,6 @@
 import { MobileMenu } from "./mobile-menu";
 import { Reveal } from "./reveal";
-import { auth } from "@/auth";
+import { AdminLink } from "./admin-link";
 import { getFrontPageGroups } from "@/modules/portfolio";
 import { localBusinessJsonLd, socialProfiles } from "@/lib/site";
 import Link from "next/link";
@@ -13,8 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const session = await auth();
-
   const groups = await getFrontPageGroups();
 
   const work = groups.map((g) => ({
@@ -66,14 +64,7 @@ export default async function Home() {
               >
                 About
               </a>
-              {session?.user && (
-                <Link
-                  href="/admin"
-                  className="hover:text-accent transition-colors py-2"
-                >
-                  Admin
-                </Link>
-              )}
+              <AdminLink className="hover:text-accent transition-colors py-2" />
             </nav>
             <a
               href="#contact"

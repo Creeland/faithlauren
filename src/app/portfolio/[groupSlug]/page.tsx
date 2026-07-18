@@ -3,6 +3,7 @@ import {
   getGroupMeta,
   getPortfolioBySlug,
   getPortfolioGroup,
+  getSitemapEntries,
 } from "@/modules/portfolio";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,17 @@ import type { Metadata } from "next";
 type Props = {
   params: Promise<{ groupSlug: string }>;
 };
+
+// Prerender every non-empty group page at build time. Without this the route
+// renders on demand at every request (no-store, ~seconds of TTFB), which makes
+// crawlers deprioritize the pages. Content changes stay fresh via the
+// revalidatePath wiring in the portfolio module. Unlisted slugs — the flat
+// legacy portfolio URLs handled by the fallback below — still render on demand
+// and their responses (308 redirect or ungrouped portfolio) are cached.
+export async function generateStaticParams() {
+  const { groups } = await getSitemapEntries();
+  return groups.map((group) => ({ groupSlug: group.slug }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { groupSlug } = await params;

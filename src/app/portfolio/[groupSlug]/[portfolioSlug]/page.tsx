@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation";
-import { getPortfolioBySlug, getPortfolioMeta } from "@/modules/portfolio";
+import {
+  getPortfolioBySlug,
+  getPortfolioMeta,
+  getSitemapEntries,
+} from "@/modules/portfolio";
 import { PortfolioView } from "../../portfolio-view";
 import { portfolioDescription } from "@/lib/site";
 import type { Metadata } from "next";
@@ -7,6 +11,19 @@ import type { Metadata } from "next";
 type Props = {
   params: Promise<{ groupSlug: string; portfolioSlug: string }>;
 };
+
+// Prerender every grouped portfolio at build time. Without this the route
+// renders on demand at every request (no-store, ~seconds of TTFB), which makes
+// crawlers deprioritize the pages. Content changes stay fresh via the
+// revalidatePath wiring in the portfolio/photos modules. Slugs not listed here
+// (portfolios created after the build) still render on demand and are cached.
+export async function generateStaticParams() {
+  const { portfolios } = await getSitemapEntries();
+  return portfolios.map((portfolio) => ({
+    groupSlug: portfolio.groupSlug,
+    portfolioSlug: portfolio.slug,
+  }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { groupSlug, portfolioSlug } = await params;
