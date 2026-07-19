@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: portfolio.title,
-    description: portfolioDescription(portfolio.title),
+    description: portfolio.description ?? portfolioDescription(portfolio.title),
     // Grouped portfolios redirect to their nested URL; point crawlers there.
     alternates: {
       canonical: portfolio.group
@@ -79,6 +79,7 @@ export default async function GroupPage({ params }: Props) {
     return (
       <PortfolioView
         title={portfolio.title}
+        description={portfolio.description}
         photos={portfolio.photos}
         backHref="/"
         backLabel="Back to site"

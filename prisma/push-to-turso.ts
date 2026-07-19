@@ -1,4 +1,4 @@
-import "dotenv/config";
+// Run with: node --env-file=.env --import=tsx prisma/push-to-turso.ts
 import { createClient } from "@libsql/client";
 
 const client = createClient({
@@ -126,6 +126,8 @@ const statements = [
   // Add width/height to Photo for natural aspect ratios in gallery
   `ALTER TABLE "Photo" ADD COLUMN "width" INTEGER`,
   `ALTER TABLE "Photo" ADD COLUMN "height" INTEGER`,
+  // Add description to Portfolio for on-page SEO text
+  `ALTER TABLE "Portfolio" ADD COLUMN "description" TEXT`,
 ];
 
 async function main() {

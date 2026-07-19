@@ -55,9 +55,12 @@ export function EditGroupForm({ group }: { group: Group }) {
           id="description"
           name="description"
           defaultValue={group.description ?? ""}
-          rows={3}
+          rows={4}
           className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
         />
+        <p className="text-xs text-stone-400 mt-1">
+          Shown on the public group page and used as its search description.
+        </p>
       </div>
 
       <button

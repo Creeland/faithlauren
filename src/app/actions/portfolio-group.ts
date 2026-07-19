@@ -13,7 +13,12 @@ import * as portfolioModule from "@/modules/portfolio";
 
 const groupSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  // An emptied textarea clears the stored description (null), rather than
+  // being dropped and leaving stale text behind.
+  description: z
+    .string()
+    .nullable()
+    .transform((value) => value?.trim() || null),
 });
 
 export type GroupState =
@@ -31,7 +36,7 @@ export async function createGroup(
 
   const parsed = groupSchema.safeParse({
     title: formData.get("title"),
-    description: formData.get("description") || undefined,
+    description: formData.get("description") as string | null,
   });
 
   if (!parsed.success) {
@@ -59,7 +64,7 @@ export async function updateGroup(
   const id = formData.get("id") as string;
   const parsed = groupSchema.safeParse({
     title: formData.get("title"),
-    description: formData.get("description") || undefined,
+    description: formData.get("description") as string | null,
   });
 
   if (!parsed.success) {

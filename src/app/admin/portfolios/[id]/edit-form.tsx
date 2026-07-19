@@ -1,34 +1,35 @@
-"use client"
+"use client";
 
-import { useActionState } from "react"
-import { updatePortfolio, type PortfolioState } from "@/app/actions/portfolio"
+import { useActionState } from "react";
+import { updatePortfolio, type PortfolioState } from "@/app/actions/portfolio";
 
 type Portfolio = {
-  id: string
-  title: string
-}
+  id: string;
+  title: string;
+  description: string | null;
+};
 
 export function EditPortfolioForm({ portfolio }: { portfolio: Portfolio }) {
   const [state, action, pending] = useActionState<PortfolioState, FormData>(
     updatePortfolio,
-    undefined
-  )
+    undefined,
+  );
 
   return (
     <form action={action} className="space-y-4 max-w-lg">
       <input type="hidden" name="id" value={portfolio.id} />
 
       {state?.error && (
-        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+        <div
+          role="alert"
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm"
+        >
           {state.error}
         </div>
       )}
 
       <div>
-        <label
-          htmlFor="title"
-          className="block text-sm text-stone-600 mb-1.5"
-        >
+        <label htmlFor="title" className="block text-sm text-stone-600 mb-1.5">
           Title
         </label>
         <input
@@ -40,6 +41,25 @@ export function EditPortfolioForm({ portfolio }: { portfolio: Portfolio }) {
         />
       </div>
 
+      <div>
+        <label
+          htmlFor="description"
+          className="block text-sm text-stone-600 mb-1.5"
+        >
+          Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          defaultValue={portfolio.description ?? ""}
+          rows={4}
+          className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+        />
+        <p className="text-xs text-stone-400 mt-1">
+          Shown on the public portfolio page and used as its search description.
+        </p>
+      </div>
+
       <button
         type="submit"
         disabled={pending}
@@ -48,5 +68,5 @@ export function EditPortfolioForm({ portfolio }: { portfolio: Portfolio }) {
         {pending ? "Saving..." : "Save Changes"}
       </button>
     </form>
-  )
+  );
 }

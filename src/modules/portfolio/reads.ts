@@ -57,6 +57,7 @@ export interface PortfolioPhotoView {
 export interface PortfolioDetailView {
   title: string;
   slug: string;
+  description: string | null;
   group: { slug: string; title: string } | null;
   photos: PortfolioPhotoView[];
 }
@@ -151,6 +152,7 @@ export async function getPortfolioBySlug(
     select: {
       title: true,
       slug: true,
+      description: true,
       group: { select: { slug: true, title: true } },
       photos: {
         orderBy: bySortOrder,
@@ -170,6 +172,7 @@ export async function getPortfolioBySlug(
   return {
     title: portfolio.title,
     slug: portfolio.slug,
+    description: portfolio.description,
     group: portfolio.group,
     photos: portfolio.photos,
   };
@@ -231,14 +234,14 @@ export async function getGroupMeta(
 }
 
 /**
- * The title a portfolio page needs for its metadata, or `null` if no such
- * portfolio exists.
+ * The title/description a portfolio page needs for its metadata, or `null` if
+ * no such portfolio exists.
  */
 export async function getPortfolioMeta(
   slug: string,
-): Promise<{ title: string } | null> {
+): Promise<{ title: string; description: string | null } | null> {
   return prisma.portfolio.findUnique({
     where: { slug },
-    select: { title: true },
+    select: { title: true, description: true },
   });
 }

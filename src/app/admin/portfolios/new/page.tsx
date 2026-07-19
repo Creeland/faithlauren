@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useActionState } from "react"
-import { createPortfolio, type PortfolioState } from "@/app/actions/portfolio"
+import { useActionState } from "react";
+import { createPortfolio, type PortfolioState } from "@/app/actions/portfolio";
 
 export default function NewPortfolioPage() {
   const [state, action, pending] = useActionState<PortfolioState, FormData>(
     createPortfolio,
-    undefined
-  )
+    undefined,
+  );
 
   return (
     <div className="max-w-lg">
@@ -15,7 +15,10 @@ export default function NewPortfolioPage() {
 
       <form action={action} className="space-y-4">
         {state?.error && (
-          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+          <div
+            role="alert"
+            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm"
+          >
             {state.error}
           </div>
         )}
@@ -38,6 +41,25 @@ export default function NewPortfolioPage() {
           )}
         </div>
 
+        <div>
+          <label
+            htmlFor="description"
+            className="block text-sm text-stone-600 mb-1.5"
+          >
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows={4}
+            className="w-full border border-stone-300 bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-background focus:border-accent"
+          />
+          <p className="text-xs text-stone-400 mt-1">
+            Shown on the public portfolio page and used as its search
+            description.
+          </p>
+        </div>
+
         <button
           type="submit"
           disabled={pending}
@@ -47,5 +69,5 @@ export default function NewPortfolioPage() {
         </button>
       </form>
     </div>
-  )
+  );
 }

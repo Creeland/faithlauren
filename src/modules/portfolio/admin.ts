@@ -39,6 +39,7 @@ export interface AdminPortfolioPhoto {
 export interface AdminPortfolioDetail {
   id: string;
   title: string;
+  description: string | null;
   coverPhotoId: string | null;
   aspectRatio: string;
   photos: AdminPortfolioPhoto[];
@@ -117,6 +118,7 @@ export async function getPortfolio(
   return {
     id: portfolio.id,
     title: portfolio.title,
+    description: portfolio.description,
     coverPhotoId: portfolio.coverPhotoId,
     aspectRatio: portfolio.aspectRatio,
     photos: portfolio.photos.map((photo) => ({

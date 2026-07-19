@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: portfolio.title,
-    description: portfolioDescription(portfolio.title),
+    description: portfolio.description ?? portfolioDescription(portfolio.title),
     alternates: { canonical: `/portfolio/${groupSlug}/${portfolioSlug}` },
   };
 }
@@ -51,6 +51,7 @@ export default async function PortfolioPage({ params }: Props) {
   return (
     <PortfolioView
       title={portfolio.title}
+      description={portfolio.description}
       photos={portfolio.photos}
       backHref={`/portfolio/${groupSlug}`}
       backLabel={`Back to ${portfolio.group.title}`}

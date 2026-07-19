@@ -3,6 +3,7 @@ import Link from "next/link";
 
 type PortfolioViewProps = {
   title: string;
+  description?: string | null;
   photos: {
     id: string;
     url: string;
@@ -16,6 +17,7 @@ type PortfolioViewProps = {
 
 export function PortfolioView({
   title,
+  description,
   photos,
   backHref,
   backLabel,
@@ -35,6 +37,11 @@ export function PortfolioView({
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-10">
+        {description && (
+          <p className="text-stone-600 leading-relaxed mb-10 max-w-2xl">
+            {description}
+          </p>
+        )}
         {photos.length === 0 ? (
           <p className="text-stone-500 text-sm">
             No photos in this portfolio yet.

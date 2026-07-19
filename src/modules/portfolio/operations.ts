@@ -18,6 +18,8 @@ import { loadPortfolioPaths, revalidatePortfolio } from "./revalidate";
 
 export interface PortfolioInput {
   title: string;
+  /** Public SEO text; `null` clears it, absent leaves the stored value alone. */
+  description?: string | null;
 }
 
 /**
@@ -42,6 +44,7 @@ export async function createPortfolio(
     data: {
       title: input.title,
       slug,
+      description: input.description,
       sortOrder: (maxSort._max.sortOrder ?? -1) + 1,
     },
     select: { id: true },
@@ -52,10 +55,10 @@ export async function createPortfolio(
 }
 
 /**
- * Update a portfolio's title. The slug is intentionally left unchanged (as the
- * old action did), so the client-facing URL is stable across renames.
- * Revalidates the admin detail page and the public pages that surface the
- * portfolio's title.
+ * Update a portfolio's title and description. The slug is intentionally left
+ * unchanged (as the old action did), so the client-facing URL is stable across
+ * renames. Revalidates the admin detail page and the public pages that surface
+ * the portfolio's title.
  */
 export async function updatePortfolio(
   id: string,
@@ -63,7 +66,7 @@ export async function updatePortfolio(
 ): Promise<void> {
   await prisma.portfolio.update({
     where: { id },
-    data: { title: input.title },
+    data: { title: input.title, description: input.description },
   });
 
   const paths = await loadPortfolioPaths(id);

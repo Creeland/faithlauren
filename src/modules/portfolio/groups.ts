@@ -29,7 +29,8 @@ const utapi = new UTApi();
 
 export interface GroupInput {
   title: string;
-  description?: string;
+  /** Public SEO text; `null` clears it, absent leaves the stored value alone. */
+  description?: string | null;
 }
 
 export interface GroupCoverInput {

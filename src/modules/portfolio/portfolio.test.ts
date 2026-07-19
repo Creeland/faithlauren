@@ -111,6 +111,16 @@ describe("portfolio.createPortfolio", () => {
 
     expect(await prisma.portfolio.count()).toBe(1);
   });
+
+  it("stores a description when given one", async () => {
+    const { id } = await portfolio.createPortfolio({
+      title: "Seniors",
+      description: "Senior portraits in Wichita Falls.",
+    });
+    expect(
+      (await prisma.portfolio.findUnique({ where: { id } }))?.description,
+    ).toBe("Senior portraits in Wichita Falls.");
+  });
 });
 
 describe("portfolio.updatePortfolio", () => {
@@ -123,6 +133,33 @@ describe("portfolio.updatePortfolio", () => {
     expect(updated?.title).toBe("Renamed Title");
     expect(updated?.slug).toBe("original-title");
     expect(revalidatePathMock).toHaveBeenCalledWith(`/admin/portfolios/${id}`);
+  });
+
+  it("sets, clears, and leaves the description per the input", async () => {
+    const { id } = await portfolio.createPortfolio({ title: "Couples" });
+
+    await portfolio.updatePortfolio(id, {
+      title: "Couples",
+      description: "Couples photography in Wichita Falls.",
+    });
+    expect(
+      (await prisma.portfolio.findUnique({ where: { id } }))?.description,
+    ).toBe("Couples photography in Wichita Falls.");
+
+    // Absent description leaves the stored value alone…
+    await portfolio.updatePortfolio(id, { title: "Couples" });
+    expect(
+      (await prisma.portfolio.findUnique({ where: { id } }))?.description,
+    ).toBe("Couples photography in Wichita Falls.");
+
+    // …and an explicit null clears it.
+    await portfolio.updatePortfolio(id, {
+      title: "Couples",
+      description: null,
+    });
+    expect(
+      (await prisma.portfolio.findUnique({ where: { id } }))?.description,
+    ).toBeNull();
   });
 
   it("revalidates the group's public pages when the portfolio is grouped", async () => {
@@ -624,11 +661,15 @@ describe("portfolio.getGroupMeta / getPortfolioMeta", () => {
     expect(await portfolio.getGroupMeta("nope")).toBeNull();
   });
 
-  it("returns the portfolio title, or null", async () => {
-    await portfolio.createPortfolio({ title: "Spring" });
+  it("returns the portfolio title and description, or null", async () => {
+    await portfolio.createPortfolio({
+      title: "Spring",
+      description: "Spring sessions",
+    });
 
     expect(await portfolio.getPortfolioMeta("spring")).toEqual({
       title: "Spring",
+      description: "Spring sessions",
     });
     expect(await portfolio.getPortfolioMeta("nope")).toBeNull();
   });
