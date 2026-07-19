@@ -30,6 +30,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: defaultTitle,
     description: siteDescription,
+    images: [
+      {
+        url: "/og-horse.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Horse galloping at sunset near Wichita Falls, Texas, photographed by Faith Lauren",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

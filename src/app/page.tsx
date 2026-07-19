@@ -83,7 +83,7 @@ export default async function Home() {
           <div className="absolute inset-0">
             <Image
               src="/coco.jpeg"
-              alt="Portrait session by Faith Lauren"
+              alt="Horse galloping at sunset near Wichita Falls, Texas, photographed by Faith Lauren"
               fill
               sizes="100vw"
               className="object-cover"
@@ -186,9 +186,9 @@ export default async function Home() {
                 <p className="text-stone-600 text-lg leading-relaxed mb-12 max-w-md">
                   I&apos;m a photographer based in Wichita Falls, Texas, driven
                   by natural light and authentic moments. My work spans
-                  portraits, weddings, editorial, and fine art, here at home and
-                  across North Texas. The best photographs happen when people
-                  feel comfortable being themselves.
+                  portraits, weddings, editorial, and fine art, here in Wichita
+                  Falls and across North Texas. The best photographs happen when
+                  people feel comfortable being themselves.
                 </p>
                 <a
                   href="#contact"

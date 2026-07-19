@@ -50,7 +50,9 @@ export function localBusinessJsonLd(
     name: siteName,
     url: siteUrl,
     description: siteDescription,
-    image: `${siteUrl}/faith.jpg`,
+    // The hero image, pre-sized for link previews and result thumbnails
+    // (the full-resolution original is several MB).
+    image: `${siteUrl}/og-horse.jpg`,
     founder: {
       "@type": "Person",
       name: "Faith Lauren",
